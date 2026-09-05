@@ -11,7 +11,9 @@ sanitized documents straight in. For now this is the read side.
 from __future__ import annotations
 
 import json
+import math
 import os
+import random
 import re
 from datetime import date
 from pathlib import Path
@@ -42,6 +44,48 @@ CATEGORIES = [
 CAT_BY_SLUG = {c["slug"]: c for c in CATEGORIES}
 for i, c in enumerate(CATEGORIES, 1):
     c["n"] = f"0{i}"
+
+def _build_globe_dots() -> str:
+    """Pre-render the hero globe's point cloud as SVG <circle> markup (computed once).
+
+    A tilted Fibonacci sphere projected orthographically: dots are depth-shaded so the
+    near hemisphere reads bright and the far one recedes, with a few 'hot' nodes haloed.
+    """
+    rnd = random.Random(7)
+    n, cx, cy, r = 156, 160, 150, 104
+    tilt = math.radians(17)
+    ca, sa = math.cos(tilt), math.sin(tilt)
+    pts = []
+    for i in range(n):
+        y = 1 - (i + 0.5) * 2.0 / n
+        rr = math.sqrt(max(0.0, 1 - y * y))
+        theta = math.pi * (1 + 5 ** 0.5) * i
+        x = math.cos(theta) * rr
+        z = math.sin(theta) * rr
+        y2 = y * ca - z * sa
+        z2 = y * sa + z * ca
+        pts.append((z2, cx + x * r, cy - y2 * r, x))
+    pts.sort(key=lambda p: p[0])
+    hot = set(rnd.sample(range(len(pts)), 7))
+    out = []
+    for idx, (z2, sx, sy, x) in enumerate(pts):
+        front = z2 > 0
+        d = (z2 + 1) / 2
+        if idx in hot and front:
+            out.append(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="2.6" fill="#d6f2ff"/>')
+            out.append(f'<circle class="tw" cx="{sx:.1f}" cy="{sy:.1f}" r="5.0" fill="none" '
+                       f'stroke="#8fe0ff" stroke-width="0.8" opacity="0.5"/>')
+        elif front:
+            col = "#5fd0ff" if x > 0 else "#5f9bff"
+            out.append(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{1.4 + d * 1.1:.2f}" '
+                       f'fill="{col}" opacity="{0.5 + d * 0.5:.2f}"/>')
+        else:
+            out.append(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{0.7 + d * 0.5:.2f}" '
+                       f'fill="#3f6ecc" opacity="{0.10 + d * 0.22:.2f}"/>')
+    return "\n".join(out)
+
+
+GLOBE_DOTS = _build_globe_dots()
 
 app = FastAPI(title="spencerlab.tech", docs_url=None, redoc_url=None)
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
@@ -96,6 +140,7 @@ def home(request: Request):
     return templates.TemplateResponse(request, "home.html", {
         "categories": cats, "current_cat": None,
         "featured": featured, "recent": recent, "total_entries": len(_ENTRIES),
+        "globe_dots": GLOBE_DOTS,
     })
 
 

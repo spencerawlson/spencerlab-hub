@@ -120,10 +120,14 @@ img{max-width:100%}
 
 /* holographic globe + HUD stack (hero right) */
 .deck{display:flex; flex-direction:column; gap:16px}
-.globe{position:relative; height:236px; display:grid; place-items:center; margin-bottom:2px}
-.globe svg{width:min(344px,88%); height:auto; overflow:visible}
-.globe::after{content:""; position:absolute; bottom:4px; width:62%; height:40px;
-  background:radial-gradient(closest-side, var(--glow), transparent 70%); filter:blur(7px)}
+.globe{position:relative; display:grid; place-items:center; margin:-8px 0 2px}
+.globe svg{width:min(330px,92%); height:auto; overflow:visible}
+.globe .g-ring{animation:ringflow 2.6s linear infinite}
+.globe .g-glow{transform-box:fill-box; transform-origin:center; animation:glowpulse 5.5s ease-in-out infinite}
+.globe .tw{transform-box:fill-box; transform-origin:center; animation:twinkle 3.4s ease-in-out infinite}
+@keyframes ringflow{to{stroke-dashoffset:-24}}
+@keyframes glowpulse{0%,100%{opacity:.82; transform:scale(1)} 50%{opacity:1; transform:scale(1.045)}}
+@keyframes twinkle{0%,100%{opacity:.18} 50%{opacity:.72}}
 .hud-row{display:grid; grid-template-columns:1.15fr .85fr; gap:14px}
 @media(max-width:520px){.hud-row{grid-template-columns:1fr}}
 .hud{padding:15px 16px}
