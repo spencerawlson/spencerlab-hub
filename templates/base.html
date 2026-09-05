@@ -10,7 +10,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/static/hub.css?v=3">
+<style>
+  /* Critical fallback — icons must stay small + outline even if the external stylesheet
+     is cached, slow, or blocked. Placed before hub.css so the full stylesheet still wins. */
+  .xcard .ico svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6}
+  .stat .si svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6}
+  .contact .clist svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6}
+  .contact .clist svg[fill="currentColor"]{fill:currentColor;stroke:none}
+  .globe svg{width:min(330px,92%);height:auto}
+</style>
+<link rel="stylesheet" href="/static/hub.css?v=4">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛰️</text></svg>">
 </head>
 <body>
