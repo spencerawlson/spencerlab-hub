@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ entry.title }} · spencerlab.tech{% endblock %}
+{% block description %}{{ entry.summary }}{% endblock %}
+{% block content %}
+<article class="entry">
+  <div class="readwrap" style="padding-top:22px">
+    <a class="backlink" href="/{{ entry.category }}">← {{ entry.category_name }}</a>
+  </div>
+  {{ entry.body | safe }}
+</article>
+{% endblock %}

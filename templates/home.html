@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker"><span class="dot"></span> Live · self-hosted homelab</p>
+    <h1>The record of what I <span class="tld">build, break &amp; run</span>.</h1>
+    <p class="sub">A working technical journal — infrastructure built, faults repaired, systems pentested and assessed, networks administered. Written up honestly: the commands, the wrong turns, and why each fix mattered.</p>
+    <div class="meta">
+      <span><b>{{ total_entries }}</b> {{ 'entry' if total_entries == 1 else 'entries' }}</span>
+      <span><b>5</b> disciplines</span>
+      <span><b>self-hosted</b> on a homelab VM</span>
+      <span><b>0</b> inbound ports</span>
+    </div>
+  </div>
+</header>
+
+<section class="cats">
+  <div class="wrap rail">
+    {% for c in categories %}
+    <a class="cat" href="/{{ c.slug }}">
+      <div class="n">0{{ loop.index }}</div>
+      <div class="name">{{ c.name }}</div>
+      <div class="blurb">{{ c.blurb }}</div>
+      <div class="count">{{ c.count }} {{ 'entry' if c.count == 1 else 'entries' }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+{% if featured %}
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head"><h2>Latest</h2></div>
+    <a class="ecard feature" href="/{{ featured.category }}/{{ featured.slug }}">
+      <div class="body">
+        <div class="top"><span class="chip">{{ featured.category_name }}</span><span class="date">{{ featured.date }}</span></div>
+        <h3>{{ featured.title }}</h3>
+        <p>{{ featured.summary }}</p>
+        <div class="tags">{% for t in featured.tags %}<span>{{ t }}</span>{% endfor %}</div>
+      </div>
+      <div class="rail">
+        <svg viewBox="0 0 220 120" width="180" role="img" aria-label="An outbound tunnel from a server to the Cloudflare edge.">
+          <defs><marker id="fa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8098ff"/></marker></defs>
+          <rect x="12" y="46" width="72" height="30" rx="7" fill="none" stroke="#8098ff" stroke-width="1.4"/>
+          <text x="48" y="65" text-anchor="middle" fill="#c9d1e6" font-size="10" font-family="IBM Plex Mono,monospace">edge</text>
+          <rect x="136" y="46" width="72" height="30" rx="7" fill="none" stroke="#8098ff" stroke-width="1.4"/>
+          <text x="172" y="65" text-anchor="middle" fill="#c9d1e6" font-size="10" font-family="IBM Plex Mono,monospace">server</text>
+          <line x1="134" y1="61" x2="86" y2="61" stroke="#8098ff" stroke-width="1.5" marker-end="url(#fa)"/>
+          <text x="110" y="52" text-anchor="middle" fill="#8098ff" font-size="8.5" font-family="IBM Plex Mono,monospace">tunnel</text>
+          <text x="110" y="90" text-anchor="middle" fill="#6f7891" font-size="8" font-family="IBM Plex Mono,monospace">dialed out</text>
+        </svg>
+      </div>
+    </a>
+  </div>
+</section>
+{% endif %}
+
+{% if recent %}
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head"><h2>More entries</h2></div>
+    <div class="entries">
+      {% for e in recent %}
+      <a class="ecard" href="/{{ e.category }}/{{ e.slug }}">
+        <div class="top"><span class="chip">{{ e.category_name }}</span><span class="date">{{ e.date }}</span></div>
+        <h3>{{ e.title }}</h3>
+        <p>{{ e.summary }}</p>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,10 @@
+{
+  "slug": "going-live-cloudflare-tunnel",
+  "title": "Going live via Cloudflare Tunnel",
+  "category": "built",
+  "date": "2026-09-05",
+  "summary": "Every command, manual step, and lesson from taking spencerlab.tech live over HTTPS — including the discovery that the ISP made port-forwarding physically impossible, and the tunnel that solved it.",
+  "tags": ["cloudflare", "nginx", "dns", "tls", "ds-lite", "networking"],
+  "source": "hand",
+  "reading_time": "12 min"
+}

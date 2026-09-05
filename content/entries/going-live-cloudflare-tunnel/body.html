@@ -1,0 +1,165 @@
+<header class="masthead">
+  <div class="readwrap">
+    <p class="eyebrow"><span class="dot"></span> Built · field notes</p>
+    <h1 class="title">Going live via Cloudflare Tunnel</h1>
+    <p class="lede">How a domain, a VM, and a stubborn ISP became a live HTTPS site — every command, every manual step, every wrong turn, and the reason each one mattered.</p>
+    <div class="byline">
+      <span><b>Built</b> 2026-09-04 → 09-05</span>
+      <span><b>Result</b> live via Cloudflare Tunnel</span>
+      <span><b>Server</b> UbuntuServ · Nginx</span>
+    </div>
+  </div>
+</header>
+
+<div class="readwrap">
+
+<section>
+  <p class="part-tag">Orientation</p>
+  <h2>The finished picture</h2>
+  <p>The goal was ordinary: point <code>spencerlab.tech</code> at a web server running in a VM at home, over HTTPS, without exposing anything that shouldn't be exposed. The path there was not ordinary — it ran head-first into the way the ISP hands out internet access, and the fix rewired the whole approach. Here is what ended up carrying the traffic:</p>
+
+  <figure>
+    <svg viewBox="0 0 720 300" role="img" aria-label="Two network paths compared: an inbound port-forward blocked by carrier-grade DS-Lite NAT, and a working outbound Cloudflare Tunnel dialed from the server.">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+        <marker id="arA" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3450c4"/></marker>
+        <marker id="arF" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#bf3a30"/></marker>
+      </defs>
+      <text x="16" y="60" font-family="IBM Plex Mono, monospace" font-size="11" fill="#bf3a30" font-weight="600">WHAT FAILED</text>
+      <text x="16" y="210" font-family="IBM Plex Mono, monospace" font-size="11" fill="#3450c4" font-weight="600">WHAT WORKS</text>
+      <g font-family="IBM Plex Sans, sans-serif" font-size="12.5">
+        <rect x="16" y="72" width="120" height="46" rx="8" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="76" y="94" text-anchor="middle" fill="currentColor">Internet</text>
+        <text x="76" y="109" text-anchor="middle" fill="currentColor" font-size="10.5" opacity=".6">a visitor</text>
+        <line x1="136" y1="95" x2="196" y2="95" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"/>
+        <rect x="198" y="72" width="150" height="46" rx="8" fill="none" stroke="#bf3a30" stroke-width="1.4"/>
+        <text x="273" y="90" text-anchor="middle" fill="currentColor">Nokia router</text>
+        <text x="273" y="106" text-anchor="middle" fill="#bf3a30" font-size="10.5" font-family="IBM Plex Mono, monospace">WAN 192.0.0.2</text>
+        <line x1="348" y1="95" x2="470" y2="95" stroke="#bf3a30" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arF)"/>
+        <g stroke="#bf3a30" stroke-width="2"><line x1="403" y1="84" x2="415" y2="106"/><line x1="415" y1="84" x2="403" y2="106"/></g>
+        <text x="409" y="128" text-anchor="middle" fill="#bf3a30" font-size="10.5" font-family="IBM Plex Mono, monospace">DS-Lite: no inbound IPv4</text>
+        <rect x="472" y="72" width="150" height="46" rx="8" fill="none" stroke="currentColor" stroke-width="1.3" opacity=".55"/>
+        <text x="547" y="90" text-anchor="middle" fill="currentColor" opacity=".7">UbuntuServ</text>
+        <text x="547" y="106" text-anchor="middle" fill="currentColor" font-size="10.5" opacity=".5" font-family="IBM Plex Mono, monospace">10.10.10.3 · never reached</text>
+      </g>
+      <g font-family="IBM Plex Sans, sans-serif" font-size="12.5">
+        <rect x="16" y="222" width="120" height="46" rx="8" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="76" y="244" text-anchor="middle" fill="currentColor">Internet</text>
+        <text x="76" y="259" text-anchor="middle" fill="currentColor" font-size="10.5" opacity=".6">a visitor</text>
+        <line x1="136" y1="245" x2="196" y2="245" stroke="#3450c4" stroke-width="1.6" marker-end="url(#arA)"/>
+        <text x="166" y="237" text-anchor="middle" fill="#3450c4" font-size="10" font-family="IBM Plex Mono, monospace">https</text>
+        <rect x="198" y="222" width="150" height="46" rx="8" fill="none" stroke="#3450c4" stroke-width="1.5"/>
+        <text x="273" y="240" text-anchor="middle" fill="currentColor">Cloudflare edge</text>
+        <text x="273" y="256" text-anchor="middle" fill="currentColor" font-size="10.5" opacity=".6">TLS · hides the IP</text>
+        <line x1="470" y1="245" x2="350" y2="245" stroke="#3450c4" stroke-width="1.6" marker-end="url(#arA)"/>
+        <text x="410" y="237" text-anchor="middle" fill="#3450c4" font-size="10" font-family="IBM Plex Mono, monospace">outbound tunnel</text>
+        <text x="410" y="262" text-anchor="middle" fill="currentColor" font-size="10" opacity=".55">dialed OUT — no inbound port</text>
+        <rect x="472" y="222" width="150" height="46" rx="8" fill="none" stroke="#3450c4" stroke-width="1.5"/>
+        <text x="547" y="240" text-anchor="middle" fill="currentColor">cloudflared</text>
+        <text x="547" y="256" text-anchor="middle" fill="currentColor" font-size="10.5" opacity=".6">→ Nginx :80</text>
+      </g>
+    </svg>
+    <figcaption>The whole story in one frame: inbound port-forwarding (top) can never reach the server because the ISP runs DS-Lite carrier NAT — there is no public IPv4 to forward to. The tunnel (bottom) has the server dial <em>out</em> to Cloudflare, so nothing needs to come in.</figcaption>
+  </figure>
+
+  <div class="pillrow">
+    <span class="pill ok">200 OK</span><span class="pill">HTTPS everywhere</span>
+    <span class="pill">0 inbound ports</span><span class="pill">home IP hidden</span>
+    <span class="pill">auto-renewing cert</span>
+  </div>
+</section>
+
+<section>
+  <p class="part-tag">Reference</p>
+  <h2>The real values</h2>
+  <p>Every command below uses these. Most homelab confusion comes down to losing track of which address is which.</p>
+  <dl class="facts">
+    <div><dt>Domain</dt><dd>spencerlab.tech</dd></div>
+    <div><dt>Registrar + DNS</dt><dd>Cloudflare</dd></div>
+    <div><dt>Public IPv4 (shared)</dt><dd>72.136.x.x</dd></div>
+    <div><dt>ISP WAN (DS-Lite)</dt><dd>192.0.0.2</dd></div>
+    <div><dt>Windows host</dt><dd>192.168.1.228</dd></div>
+    <div><dt>UbuntuServ (LabNet)</dt><dd>10.10.10.3</dd></div>
+    <div><dt>ZeroTier</dt><dd>private mgmt plane</dd></div>
+    <div><dt>Cert expiry</dt><dd>2026-12-03 (auto)</dd></div>
+  </dl>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">Part 01</span> · naming</p>
+  <h2>Domain &amp; DNS delegation</h2>
+  <p>The A records were entered, but nothing resolved. The domain was delegated to one Cloudflare zone (nameservers <code>zara</code>/<code>kolton</code>) while the records had been entered in a <em>different</em> zone (<code>archer</code>/<code>naomi</code>). Two zones, one domain — records in the wrong one. Querying a zone's own nameserver directly also caught a fat-fingered <code>www</code> record before it could waste an hour.</p>
+  <div class="callout fail"><p class="ctag">✕ The error</p><p><em>"Content for NS record is invalid. NS records at the apex must not overwrite assigned nameservers."</em></p></div>
+  <div class="callout lesson"><p class="ctag">◆ The concept</p><p><strong>Delegation lives at the registrar; records live in the zone.</strong> Which nameservers are authoritative for a domain is set at the registrar and stored at the registry — it is not a record edited inside the DNS zone. Apex <code>NS</code> records are never hand-edited; Cloudflare assigns them.</p></div>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">Part 02</span> · the server</p>
+  <h2>The web server</h2>
+  <div class="term"><div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span class="who">UbuntuServ · bash</span></div><pre><span class="cmd">sudo apt update &amp;&amp; sudo apt install -y nginx</span>
+<span class="cmd">sudo systemctl enable --now nginx</span>   <span class="c"># start now + on every boot</span>
+<span class="cmd">curl -I http://localhost</span>              <span class="c"># prove it works LOCALLY first</span>
+<span class="good">HTTP/1.1 200 OK</span></pre></div>
+  <div class="callout lesson"><p class="ctag">◆ Lesson</p><p><strong>Each layer is proven locally before the next is added.</strong> Confirming Nginx answers on <code>localhost</code> means that when something breaks later, the cause is DNS / NAT / firewall — not the web server.</p></div>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">Part 03</span> · trust</p>
+  <h2>The TLS certificate</h2>
+  <p>A real Let's Encrypt certificate, issued with the <strong>DNS-01</strong> challenge — because port 80 on the host was taken by IIS. DNS-01 proves control by writing a <code>TXT</code> record via the Cloudflare API: no open port, and it keeps working behind any NAT.</p>
+  <div class="term"><div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span class="who">UbuntuServ · bash</span></div><pre><span class="cmd">sudo apt install -y certbot python3-certbot-dns-cloudflare</span>
+<span class="cmd">echo "dns_cloudflare_api_token = &lt;TOKEN&gt;" | sudo tee /root/.cloudflare.ini</span>
+<span class="cmd">sudo chmod 600 /root/.cloudflare.ini</span>
+<span class="cmd">sudo certbot certonly --dns-cloudflare \
+  --dns-cloudflare-credentials /root/.cloudflare.ini \
+  <span class="k">--dns-cloudflare-propagation-seconds 60</span> \
+  -d spencerlab.tech -d www.spencerlab.tech --agree-tos -m admin@email --no-eff-email</span>
+<span class="good">Successfully received certificate.</span></pre></div>
+  <div class="callout gotcha"><p class="ctag">▲ The fix</p><p>The first run failed on <code>www</code> with <em>NXDOMAIN</em> — Cloudflare hadn't published the challenge within the default 10 seconds. Raising <code>--dns-cloudflare-propagation-seconds</code> to 60 fixed it outright. Also: <code>http2 on;</code> is Nginx 1.25.1+; older Nginx wants <code>listen 443 ssl http2;</code>.</p></div>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">Part 04</span> · the dead end</p>
+  <h2>The port-forward that couldn't work</h2>
+  <p>The plan was textbook: forward the router's port 443 to the server. Firewall confirmed, host listening, origin answering — yet from outside, Cloudflare returned <strong>522</strong>. The internal chain was perfect. The answer was one number: the router's <strong>WAN IP</strong>.</p>
+  <div class="callout fail"><p class="ctag">✕ WAN IP = 192.0.0.2</p><p><code>192.0.0.0/29</code> is reserved by RFC 7335 for <strong>DS-Lite</strong>. The ISP provides IPv6 and tunnels IPv4 through a shared carrier NAT. That "public" address is shared across many customers — <strong>there is no public IPv4 to forward to, so inbound port-forwarding is physically impossible.</strong></p></div>
+  <div class="callout lesson"><p class="ctag">◆ Lesson</p><p><strong>The router's WAN IP is checked before attempting any port-forward.</strong> A reserved WAN IP (<code>192.0.0.2</code>, <code>100.64–100.127.x</code>, <code>10.x</code>) means carrier NAT and no inbound. An early "not CGNAT" check missed it — the tell was the WAN IP all along.</p></div>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">Part 05</span> · the answer</p>
+  <h2>The pivot: Cloudflare Tunnel</h2>
+  <p>A tunnel inverts the direction. Instead of the internet reaching <em>in</em> (impossible on DS-Lite), the server dials <em>out</em> to Cloudflare and holds the connection open. No inbound port, no public IP, no NAT to fight.</p>
+  <div class="term"><div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span class="who">UbuntuServ · bash</span></div><pre><span class="c"># on Linux it's 'cloudflared', never cloudflared.exe</span>
+<span class="cmd">curl -L -o cloudflared.deb \
+  https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb</span>
+<span class="cmd">sudo dpkg -i cloudflared.deb</span>
+<span class="cmd">sudo cloudflared service install &lt;LONG_TOKEN&gt;</span>   <span class="good"># dashboard shows HEALTHY</span></pre></div>
+  <p>Then, in the tunnel's Public Hostname config, route <code>spencerlab.tech</code> and <code>www</code> to <code>HTTP → localhost:80</code>.</p>
+  <div class="callout lesson"><p class="ctag">◆ The 502 lesson</p><p>Point the tunnel at <code>HTTP localhost:80</code>, not <code>HTTPS localhost:443</code>. It connects over loopback inside the VM — traffic never leaves the machine — so plaintext is safe and Cloudflare supplies the public HTTPS. Leaving the type on HTTPS makes cloudflared attempt TLS against a plaintext port → an instant <strong>502</strong>.</p></div>
+</section>
+
+<section>
+  <p class="part-tag">The climb</p>
+  <h2>522 → 502 → 200</h2>
+  <p>The last stretch was read entirely through HTTP status codes, fetched from <em>outside</em> the network. The error moving <em>up</em> the stack meant the path was getting closer, not further.</p>
+  <div class="ladder">
+    <div class="rung r522"><div class="code">522</div><div class="desc"><b>Can't reach the origin at all.</b> Cloudflare's connection to the home IP timed out — the DS-Lite wall.</div></div>
+    <div class="rung r502"><div class="code">502</div><div class="desc"><b>Now routing through the tunnel</b> — but cloudflared couldn't get a clean response, from the HTTPS-vs-HTTP origin mismatch.</div></div>
+    <div class="rung r200"><div class="code">200</div><div class="desc"><b>Live.</b> The page returns from the public internet, valid cert, through the tunnel.</div></div>
+  </div>
+  <div class="callout lesson"><p class="ctag">◆ Lesson</p><p><strong>Verification comes from truly outside the network.</strong> Testing from the same LAN can mislead. Every green light was confirmed by fetching the public URL from an external vantage — the only test that proves what a visitor actually gets.</p></div>
+</section>
+
+<section>
+  <p class="part-tag">Posture</p>
+  <h2>Why this is more secure than the plan</h2>
+  <ul class="tight">
+    <li><strong>Zero inbound ports open</strong> anywhere. The tunnel dials out; nothing dials in.</li>
+    <li><strong>The home IP is invisible.</strong> The public only ever talks to Cloudflare's edge.</li>
+    <li><strong>SSH, MySQL, Proxmox are unreachable from the internet by construction</strong> — no inbound path exists at all. The tunnel serves only <code>localhost:80</code>, nothing else.</li>
+  </ul>
+  <div class="callout win"><p class="ctag">✓ Net result</p><p>A public HTTPS site with a smaller attack surface than the "correct" textbook port-forward — and it survives the ISP setup that made the textbook version impossible.</p></div>
+</section>
+
+</div>

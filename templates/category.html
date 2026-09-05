@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ category.name }} · spencerlab.tech{% endblock %}
+{% block content %}
+<header class="hero" style="padding-bottom:24px">
+  <div class="wrap">
+    <p class="kicker"><span class="dot"></span> {{ category.n }} of 5</p>
+    <h1 style="max-width:20ch">{{ category.name }}</h1>
+    <p class="sub">{{ category.blurb }}</p>
+  </div>
+</header>
+
+<section class="sec" style="padding-top:16px">
+  <div class="wrap">
+    {% if entries %}
+    <div class="entries">
+      {% for e in entries %}
+      <a class="ecard" href="/{{ e.category }}/{{ e.slug }}">
+        <div class="top"><span class="chip">{{ e.category_name }}</span><span class="date">{{ e.date }}</span></div>
+        <h3>{{ e.title }}</h3>
+        <p>{{ e.summary }}</p>
+        {% if e.tags %}<div class="tags">{% for t in e.tags %}<span>{{ t }}</span>{% endfor %}</div>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="emptyc">No entries here yet. This is where <b>{{ category.name|lower }}</b> work will land — published straight from AuditForge and Fieldnote once the pipeline is wired.</div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
