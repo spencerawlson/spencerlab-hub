@@ -72,16 +72,16 @@ def _build_globe_dots() -> str:
         front = z2 > 0
         d = (z2 + 1) / 2
         if idx in hot and front:
-            out.append(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="2.6" fill="#d6f2ff"/>')
+            out.append(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="2.6" fill="#dafff0"/>')
             out.append(f'<circle class="tw" cx="{sx:.1f}" cy="{sy:.1f}" r="5.0" fill="none" '
-                       f'stroke="#8fe0ff" stroke-width="0.8" opacity="0.5"/>')
+                       f'stroke="#8ff5d0" stroke-width="0.8" opacity="0.5"/>')
         elif front:
-            col = "#5fd0ff" if x > 0 else "#5f9bff"
+            col = "#3fe0b0" if x > 0 else "#2ec89a"
             out.append(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{1.4 + d * 1.1:.2f}" '
                        f'fill="{col}" opacity="{0.5 + d * 0.5:.2f}"/>')
         else:
             out.append(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{0.7 + d * 0.5:.2f}" '
-                       f'fill="#3f6ecc" opacity="{0.10 + d * 0.22:.2f}"/>')
+                       f'fill="#1f7a5e" opacity="{0.10 + d * 0.22:.2f}"/>')
     return "\n".join(out)
 
 
