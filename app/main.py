@@ -11,12 +11,17 @@ sanitized documents straight in. For now this is the read side.
 from __future__ import annotations
 
 import json
+import os
+import re
+from datetime import date
 from pathlib import Path
 
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import Body, FastAPI, Header, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
+from app.security import scan_secrets
 
 ROOT = Path(__file__).resolve().parent.parent
 CONTENT = ROOT / "content" / "entries"
@@ -122,10 +127,75 @@ def entry(request: Request, cat: str, slug: str):
     })
 
 
-# --- Phase 2 seam (not wired yet) ------------------------------------------------
-# POST /api/publish will accept a finalized, sanitized document from AuditForge /
-# Fieldnote: {title, category, slug, date, tags, summary, html, attachments[]},
-# token-authenticated, and only after the source tool's own sensitivity gate has
-# cleared it (AuditForge classification=public/lab; Fieldnote no open secret_findings).
-# Intentionally absent until that gate is built — a publish endpoint without it would
-# be the exact hole this hub is meant not to have.
+# --- Phase 2: the publish pipeline ----------------------------------------------
+_SLUG_OK = re.compile(r"[^a-z0-9]+")
+_SOURCES = {"auditforge", "fieldnote", "hand"}
+
+
+def _safe_slug(text: str) -> str:
+    s = _SLUG_OK.sub("-", (text or "").lower()).strip("-")[:80]
+    if not s or s in {".", ".."}:
+        raise HTTPException(422, "could not derive a safe slug from the title")
+    return s
+
+
+def _write_entry(meta: dict, body_html: str) -> None:
+    d = CONTENT / meta["slug"]
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
+    (d / "body.html").write_text(body_html, encoding="utf-8")
+
+
+@app.post("/api/publish")
+def publish(payload: dict = Body(...), authorization: str = Header(default="")):
+    """Receive a finalized, sanitized entry from AuditForge / Fieldnote (or by hand).
+
+    Guarded three ways: a bearer token, an explicit clearance flag the source tool sets
+    only after ITS own sensitivity gate passes, and an automated secret scan as a backstop.
+    Disabled entirely unless HUB_PUBLISH_TOKEN is set — no token, no endpoint.
+    """
+    global _ENTRIES
+    token = os.environ.get("HUB_PUBLISH_TOKEN")
+    if not token:
+        raise HTTPException(503, "publish is disabled (HUB_PUBLISH_TOKEN is not set)")
+    if authorization != f"Bearer {token}":
+        raise HTTPException(401, "missing or invalid bearer token")
+
+    for field in ("title", "category", "summary", "body_html", "source"):
+        if not payload.get(field):
+            raise HTTPException(422, f"missing required field: {field}")
+    if payload["category"] not in CAT_BY_SLUG:
+        raise HTTPException(422, f"unknown category {payload['category']!r}")
+    if payload["source"] not in _SOURCES:
+        raise HTTPException(422, f"source must be one of {sorted(_SOURCES)}")
+
+    # The gate: the source tool must assert its own sensitivity review passed.
+    if payload.get("cleared_for_publication") is not True:
+        raise HTTPException(
+            422,
+            "cleared_for_publication must be true — the source tool's sensitivity gate "
+            "(AuditForge classification=public/lab; Fieldnote no open secret_findings) must "
+            "clear the document before it can be published.",
+        )
+
+    # Automated backstop. Reports the KIND of match, never the value.
+    hits = scan_secrets(payload["title"], payload["summary"], payload["body_html"])
+    if hits:
+        raise HTTPException(422, {"refused": "possible secret or sensitive content", "matched": hits})
+
+    slug = _safe_slug(payload.get("slug") or payload["title"])
+    meta = {
+        "slug": slug,
+        "title": payload["title"],
+        "category": payload["category"],
+        "date": payload.get("date") or date.today().isoformat(),
+        "summary": payload["summary"],
+        "tags": [str(t) for t in payload.get("tags", [])][:12],
+        "source": payload["source"],
+    }
+    _write_entry(meta, payload["body_html"])
+    _ENTRIES = load_entries()
+    return JSONResponse(
+        {"status": "published", "url": f"/{meta['category']}/{slug}", "slug": slug},
+        status_code=201,
+    )

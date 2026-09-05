@@ -86,9 +86,42 @@ sudo systemctl enable --now spencerlab-hub
 Getting the code onto the VM: `git clone` once the repo exists, or `scp` the folder over
 the ZeroTier/host-only address. `python3-venv` and `pip` are all it needs — no build step.
 
-## Next (Phase 2)
+## The publish API (Phase 2 — built)
 
-`POST /api/publish` — token-authenticated, accepts a finalized document + metadata from
-AuditForge / Fieldnote, and only after each tool's own sensitivity gate has cleared it
-(AuditForge `classification=public/lab`; Fieldnote no open `secret_findings`). The seam is
-marked in `app/main.py`; it is deliberately not built until that gate is.
+`POST /api/publish` lets AuditForge and Fieldnote push a finalized entry straight in. It is
+**disabled unless `HUB_PUBLISH_TOKEN` is set** — no token, no endpoint (503). Set it in the
+systemd unit's environment on the VM, never in the repo.
+
+Guarded three ways:
+
+1. **Bearer token** — `Authorization: Bearer $HUB_PUBLISH_TOKEN` or 401.
+2. **Clearance flag** — the caller must send `"cleared_for_publication": true`, which the
+   source tool sets *only after its own sensitivity gate passes* (AuditForge
+   `classification=public/lab`; Fieldnote no open `secret_findings`). 422 otherwise.
+3. **Secret backstop** — `app/security.py` scans the payload for keys, tokens, private-key
+   blocks, JWTs, ZeroTier IDs, etc. Any hit refuses the publish (422) and reports the *kind*
+   of match, never the value.
+
+Request body:
+
+```json
+{
+  "title": "Nmap recon on the lab subnet",
+  "category": "pentested",           // built | repaired | pentested | assessed | administered
+  "summary": "One or two sentences.",
+  "body_html": "<div class=\"readwrap\"><section>…</section></div>",
+  "source": "fieldnote",             // auditforge | fieldnote | hand
+  "cleared_for_publication": true,
+  "tags": ["nmap", "lab"],
+  "slug": "optional-explicit-slug",  // else derived from the title
+  "date": "2026-09-05"               // else today
+}
+```
+
+On success: `201 {"status":"published","url":"/pentested/…","slug":"…"}`. The entry is
+written to `content/entries/<slug>/` and picked up immediately.
+
+Body HTML should use the shared component classes (`.term`, `.callout`, `.facts`, …) so
+published entries match the house style. The next sub-phase adds the actual **Publish**
+buttons in AuditForge (Tauri/Rust) and Fieldnote (Node) that render a finalized doc to that
+HTML and POST it here.
