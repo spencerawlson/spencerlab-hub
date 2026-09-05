@@ -13,12 +13,12 @@
   --accent-ink:#7fb4ff;
   --grad:linear-gradient(135deg,#2f7bff 0%,#4f9bff 100%);
   --grad-text:linear-gradient(115deg,#4f9bff 0%,#7fd0ff 55%,#8f9cff 100%);
-  --glow:rgba(47,123,255,.34); --glow-cyan:rgba(53,198,244,.22); --glow-iris:rgba(123,108,255,.20);
+  --glow:rgba(47,123,255,.44); --glow-cyan:rgba(53,198,244,.30); --glow-iris:rgba(123,108,255,.26);
   --ok:#37e08a; --warn:#f2b84f; --fail:#ff6f6b;
   --ok-soft:rgba(55,224,138,.12); --warn-soft:rgba(242,184,79,.12); --fail-soft:rgba(255,111,107,.13);
-  --glass:linear-gradient(180deg,rgba(120,150,220,.06),rgba(120,150,220,.012));
-  --glass-hi:inset 0 1px 0 rgba(160,190,255,.10);
-  --drop:0 26px 54px -30px rgba(0,0,0,.9);
+  --glass:linear-gradient(158deg,rgba(170,198,255,.14) 0%,rgba(170,198,255,.038) 30%,rgba(170,198,255,.006) 62%);
+  --glass-hi:inset 0 1px 0 rgba(198,220,255,.22), inset 0 -1px 0 rgba(0,0,0,.28);
+  --drop:0 20px 44px -24px rgba(0,0,0,.92), 0 6px 16px -10px rgba(0,0,0,.6);
   --term-bg:#060a15; --term-ink:#d7e3fb; --term-dim:#6b7b9a; --term-line:rgba(96,126,190,.16);
   --maxw:1180px; --readw:780px; --pad:26px;
   --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -84,25 +84,20 @@ img{max-width:100%}
 .nav::after{content:""; position:absolute; left:0; right:0; bottom:-1px; height:1px;
   background:linear-gradient(90deg, transparent, var(--accent), transparent); opacity:.55}
 .nav .bar{max-width:var(--maxw); margin:0 auto; padding:0 var(--pad); height:70px; display:flex; align-items:center; gap:20px}
-.brand{display:inline-flex; align-items:center; gap:12px; white-space:nowrap}
-.brand .mono-badge{width:38px; height:38px; border-radius:9px; display:grid; place-items:center;
-  font-family:var(--disp); font-weight:700; font-size:16px; letter-spacing:.03em; color:#eaf3ff;
-  background:var(--grad); box-shadow:0 8px 20px -8px var(--glow), var(--glass-hi)}
-.brand .who{display:flex; flex-direction:column; line-height:1.05}
-.brand .who .nm{font-family:var(--disp); font-weight:700; font-size:17px; letter-spacing:.04em; text-transform:uppercase; color:var(--ink)}
-.brand .who .nm b{color:var(--accent-ink); font-weight:700}
-.brand .who .rl{font-family:var(--mono); font-size:9.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent-ink)}
+.brand{display:inline-flex; align-items:center; white-space:nowrap}
+.brand .wordmark{font-family:var(--disp); font-weight:700; font-size:23px; letter-spacing:.005em; color:#f2f6ff; line-height:1; text-shadow:0 0 24px rgba(47,123,255,.25)}
+.brand .wordmark .tld{color:var(--accent-ink)}
 .navlinks{margin-left:auto; display:flex; gap:2px; align-items:center; flex-wrap:wrap}
 .navlinks a{font-family:var(--mono); font-size:11.5px; color:var(--ink-soft); padding:8px 12px;
   border-radius:8px; letter-spacing:.06em; text-transform:uppercase; transition:.16s}
 .navlinks a:hover{background:rgba(120,150,220,.06); color:var(--ink)}
 .navlinks a[aria-current="page"]{color:#cfe2ff; box-shadow:inset 0 -2px 0 var(--accent)}
 .nav .btn{margin-left:8px; padding:9px 15px}
-@media(max-width:840px){.brand .who .rl{display:none} .nav .btn{display:none} .nav .bar{height:60px}}
+@media(max-width:840px){.brand .wordmark{font-size:20px} .nav .btn{display:none} .nav .bar{height:60px}}
 
 /* ---------------- hero ---------------- */
 .hero{padding:74px 0 46px}
-.hero .grid{display:grid; grid-template-columns:1.05fr .95fr; gap:44px; align-items:center}
+.hero .grid{display:grid; grid-template-columns:1.05fr .95fr; gap:44px; align-items:start}
 @media(max-width:960px){.hero .grid{grid-template-columns:1fr; gap:34px} .hero{padding:52px 0 34px}}
 .hero .kicker{display:inline-flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11.5px;
   letter-spacing:.2em; text-transform:uppercase; color:var(--accent-ink); margin:0 0 22px;
@@ -149,8 +144,13 @@ img{max-width:100%}
 .term pre .p{color:var(--accent-ink)} .term pre .c{color:#6b7b9a} .term pre .v{color:#eaf2ff} .term pre .g{color:var(--ok)}
 
 /* ---------------- section frame ---------------- */
-.panel{margin:26px 0; padding:34px 30px; border-radius:22px; border:1px solid var(--line);
-  background:linear-gradient(180deg,rgba(13,18,34,.55),rgba(9,12,24,.5)); box-shadow:var(--glass-hi)}
+.panel{position:relative; margin:26px 0; padding:34px 30px; border-radius:22px; border:1px solid var(--line);
+  border-top-color:rgba(198,220,255,.20); overflow:hidden;
+  background:linear-gradient(158deg,rgba(170,198,255,.07) 0%,rgba(13,18,34,.5) 32%,rgba(9,12,24,.55) 100%);
+  box-shadow:var(--glass-hi), var(--drop)}
+.panel::before{content:""; position:absolute; left:0; right:0; top:0; height:120px; pointer-events:none;
+  background:linear-gradient(180deg, rgba(180,208,255,.09), transparent)}
+.panel>*{position:relative}
 @media(max-width:640px){.panel{padding:24px 18px; border-radius:18px}}
 .sec-head{margin:0 0 22px}
 .sec-head .lbl{font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--accent-ink); display:block; margin-bottom:8px}
@@ -239,7 +239,8 @@ img{max-width:100%}
 /* ---------------- footer ---------------- */
 .foot{border-top:1px solid var(--line); margin-top:30px; padding:34px 0 60px; color:var(--ink-faint); font-size:13px}
 .foot .row{display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center}
-.foot .mono-badge{width:30px; height:30px; border-radius:8px; display:grid; place-items:center; font-family:var(--disp); font-weight:700; font-size:13px; color:#eaf3ff; background:var(--grad)}
+.foot .wordmark{font-family:var(--disp); font-weight:700; font-size:16px; color:#eaf2ff; line-height:1}
+.foot .wordmark .tld{color:var(--accent-ink)}
 .foot .tagline{font-family:var(--mono); font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft)}
 .foot a{color:var(--ink-soft)} .foot .spacer{margin-left:auto}
 
@@ -322,3 +323,22 @@ img{max-width:100%}
 .ecard h3{font-family:var(--disp); font-weight:600; font-size:20px; letter-spacing:.015em; text-transform:uppercase; line-height:1.15; margin:0; color:var(--ink); text-wrap:balance}
 .ecard p{margin:0; font-size:14px; color:var(--ink-soft); line-height:1.5}
 .ecard .tags{display:flex; flex-wrap:wrap; gap:6px} .ecard .tags span{font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); border:1px solid var(--line); border-radius:7px; padding:2px 8px}
+
+/* ============================================================
+   GLOSS PASS — resting lift, top reflection line, surface sheen
+   ============================================================ */
+.xcard,.pcard,.ecard,.hud,.stat,.term,.tablewrap,.facts{box-shadow:var(--glass-hi), var(--drop)}
+.xcard,.ecard,.hud{border-top-color:rgba(198,220,255,.18)}
+/* project thumbnails get a glossy top highlight over the artwork */
+.pcard{border-top:1px solid rgba(198,220,255,.16)}
+.pcard .shot{background:
+  linear-gradient(180deg, rgba(198,220,255,.12), transparent 32%),
+  radial-gradient(120% 120% at 80% 15%, rgba(47,123,255,.22), transparent 60%),
+  var(--term-bg)}
+/* glossy primary buttons: bright top edge + deeper glow */
+.btn.primary{box-shadow:0 12px 30px -10px var(--glow), inset 0 1px 0 rgba(255,255,255,.34)}
+.btn.primary:hover{box-shadow:0 18px 40px -12px var(--glow), inset 0 1px 0 rgba(255,255,255,.4)}
+/* HUD chips + brand badge in nav get a subtle sheen */
+.hud .hud-tag .d,.brand .wordmark .tld{filter:drop-shadow(0 0 8px var(--glow))}
+/* stat tiles: reflective top */
+.stat{border-top:1px solid rgba(198,220,255,.14)}

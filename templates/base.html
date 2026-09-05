@@ -3,25 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}spencerlab.tech{% endblock %}</title>
+<title>{% block title %}SpencerLab.Tech{% endblock %}</title>
 <meta name="description" content="{% block description %}A self-hosted technical record — infrastructure built, faults repaired, systems pentested and assessed, networks administered. The commands, the wrong turns, and why each fix mattered.{% endblock %}">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#080b16">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/static/hub.css">
+<link rel="stylesheet" href="/static/hub.css?v=3">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛰️</text></svg>">
 </head>
 <body>
 <nav class="nav">
   <div class="bar">
     <a class="brand" href="/">
-      <span class="mono-badge">SL</span>
-      <span class="who">
-        <span class="nm">spencerlab<b>.tech</b></span>
-        <span class="rl">Self-hosted tech hub</span>
-      </span>
+      <span class="wordmark">SpencerLab<span class="tld">.Tech</span></span>
     </a>
     <div class="navlinks">
       {% for c in categories %}
@@ -36,8 +32,8 @@
 
 <footer class="foot">
   <div class="wrap row">
-    <span class="mono-badge">SL</span>
-    <span>© {{ 2026 }} spencerlab.tech — a working record, not a résumé.</span>
+    <span class="wordmark">SpencerLab<span class="tld">.Tech</span></span>
+    <span>© {{ 2026 }} — a working record, not a résumé.</span>
     <span class="tagline spacer">Build · Break · Repair · Secure · Run</span>
   </div>
   <div class="wrap row" style="margin-top:14px; color:var(--ink-faint); font-size:12px; font-family:var(--mono)">
