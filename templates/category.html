@@ -1,16 +1,14 @@
 {% extends "base.html" %}
 {% block title %}{{ category.name }} · spencerlab.tech{% endblock %}
 {% block content %}
-<header class="hero" style="padding-bottom:24px">
-  <div class="wrap">
-    <p class="kicker"><span class="dot"></span> {{ category.n }} of 5</p>
-    <h1 style="max-width:20ch">{{ category.name }}</h1>
-    <p class="sub">{{ category.blurb }}</p>
-  </div>
+<header class="wrap pagehead">
+  <span class="lbl">{{ category.n }} / 05 · Discipline</span>
+  <h1>{{ category.name }}</h1>
+  <p>{{ category.blurb }}</p>
 </header>
 
-<section class="sec" style="padding-top:16px">
-  <div class="wrap">
+<section class="wrap">
+  <div class="panel">
     {% if entries %}
     <div class="entries">
       {% for e in entries %}

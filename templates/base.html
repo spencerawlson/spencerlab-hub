@@ -4,26 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}spencerlab.tech{% endblock %}</title>
-<meta name="description" content="{% block description %}The working record of Spencer Spady — what gets built, broken, repaired, pentested, assessed, and administered.{% endblock %}">
+<meta name="description" content="{% block description %}A self-hosted technical record — infrastructure built, faults repaired, systems pentested and assessed, networks administered. The commands, the wrong turns, and why each fix mattered.{% endblock %}">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#080b16">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="/static/hub.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛰️</text></svg>">
-<script>
-  (function(){try{var t=localStorage.getItem('sl-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
-</script>
 </head>
 <body>
 <nav class="nav">
   <div class="bar">
-    <a class="brand" href="/">spencerlab<span class="tld">.tech</span></a>
+    <a class="brand" href="/">
+      <span class="mono-badge">SL</span>
+      <span class="who">
+        <span class="nm">spencerlab<b>.tech</b></span>
+        <span class="rl">Self-hosted tech hub</span>
+      </span>
+    </a>
     <div class="navlinks">
       {% for c in categories %}
       <a href="/{{ c.slug }}" {% if current_cat == c.slug %}aria-current="page"{% endif %}>{{ c.short }}</a>
       {% endfor %}
-      <button class="theme-btn" type="button" aria-label="Toggle light/dark theme" onclick="(function(){try{var r=document.documentElement;var d=r.getAttribute('data-theme');var n=d==='dark'?'light':(d==='light'?'dark':(matchMedia('(prefers-color-scheme: dark)').matches?'light':'dark'));r.setAttribute('data-theme',n);localStorage.setItem('sl-theme',n);}catch(e){}})()">◑</button>
     </div>
+    <a class="btn primary" href="https://github.com/spencerawlson" rel="noopener">GitHub <span class="arw">→</span></a>
   </div>
 </nav>
 
@@ -31,8 +36,12 @@
 
 <footer class="foot">
   <div class="wrap row">
-    <span>spencerlab.tech — a working record, not a résumé.</span>
-    <span style="margin-left:auto">Built &amp; run by Spencer Spady · self-hosted via Cloudflare Tunnel</span>
+    <span class="mono-badge">SL</span>
+    <span>© {{ 2026 }} spencerlab.tech — a working record, not a résumé.</span>
+    <span class="tagline spacer">Build · Break · Repair · Secure · Run</span>
+  </div>
+  <div class="wrap row" style="margin-top:14px; color:var(--ink-faint); font-size:12px; font-family:var(--mono)">
+    <span>Self-hosted on a homelab VM · served over HTTPS through a Cloudflare Tunnel · 0 inbound ports.</span>
   </div>
 </footer>
 </body>

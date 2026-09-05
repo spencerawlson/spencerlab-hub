@@ -1,74 +1,234 @@
 {% extends "base.html" %}
 {% block content %}
+
+<!-- ============ HERO ============ -->
 <header class="hero">
-  <div class="wrap">
-    <p class="kicker"><span class="dot"></span> Live · self-hosted homelab</p>
-    <h1>The record of what I <span class="tld">build, break &amp; run</span>.</h1>
-    <p class="sub">A working technical journal — infrastructure built, faults repaired, systems pentested and assessed, networks administered. Written up honestly: the commands, the wrong turns, and why each fix mattered.</p>
-    <div class="meta">
-      <span><b>{{ total_entries }}</b> {{ 'entry' if total_entries == 1 else 'entries' }}</span>
-      <span><b>5</b> disciplines</span>
-      <span><b>self-hosted</b> on a homelab VM</span>
-      <span><b>0</b> inbound ports</span>
+  <div class="wrap grid">
+    <div class="hero-lead">
+      <p class="kicker">Build · Break · Repair · Secure · Run</p>
+      <h1>The working record of<br><span class="accent">what gets built &amp; run.</span></h1>
+      <p class="sub">A self-hosted technical journal — infrastructure stood up, faults diagnosed, systems pentested and assessed, networks administered. Written honestly: the commands, the wrong turns, and why each fix mattered.</p>
+      <div class="actions">
+        <a class="btn primary" href="#work">View the work <span class="arw">→</span></a>
+        <a class="btn ghost" href="#colophon">How it runs <span class="arw">→</span></a>
+      </div>
+      <div class="trustedby">
+        <p class="tb-label">Built &amp; documented with</p>
+        <div class="tb-row">
+          <span>FastAPI</span><span>Nginx</span><span>Cloudflare Tunnel</span><span>systemd</span><span>Let's Encrypt</span><span>Ubuntu</span><span>ZeroTier</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="deck">
+      <div class="globe" aria-hidden="true">
+        <svg viewBox="0 0 300 300" role="img" aria-label="A holographic wireframe globe.">
+          <defs>
+            <radialGradient id="gcore" cx="50%" cy="46%" r="55%">
+              <stop offset="0%" stop-color="#4f9bff" stop-opacity=".38"/>
+              <stop offset="55%" stop-color="#2f7bff" stop-opacity=".08"/>
+              <stop offset="100%" stop-color="#2f7bff" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="gbeam" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#35c6f4" stop-opacity=".55"/>
+              <stop offset="100%" stop-color="#35c6f4" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <circle cx="150" cy="136" r="110" fill="url(#gcore)"/>
+          <!-- projector beam + base ring -->
+          <path d="M150 136 L120 262 L180 262 Z" fill="url(#gbeam)" opacity=".5"/>
+          <ellipse cx="150" cy="262" rx="78" ry="13" fill="none" stroke="#35c6f4" stroke-width="1.2" opacity=".55"/>
+          <ellipse cx="150" cy="262" rx="46" ry="7" fill="none" stroke="#4f9bff" stroke-width="1" opacity=".4"/>
+          <circle cx="150" cy="262" r="3" fill="#8fd4ff"/>
+          <!-- sphere -->
+          <g stroke="#4f9bff" fill="none">
+            <circle cx="150" cy="136" r="96" stroke-opacity=".55" stroke-width="1.2"/>
+            <ellipse cx="150" cy="136" rx="30" ry="96" stroke-opacity=".28"/>
+            <ellipse cx="150" cy="136" rx="62" ry="96" stroke-opacity=".22"/>
+            <ellipse cx="150" cy="136" rx="88" ry="96" stroke-opacity=".16"/>
+          </g>
+          <g stroke="#35c6f4" fill="none" stroke-opacity=".26" stroke-width="1">
+            <line x1="66" y1="106" x2="234" y2="106"/>
+            <line x1="54" y1="136" x2="246" y2="136"/>
+            <line x1="66" y1="166" x2="234" y2="166"/>
+            <line x1="92" y1="196" x2="208" y2="196"/>
+          </g>
+          <g fill="#8fd4ff">
+            <circle cx="120" cy="106" r="2.4"/><circle cx="196" cy="120" r="2"/><circle cx="150" cy="166" r="2.2"/>
+            <circle cx="104" cy="150" r="1.8" fill="#4f9bff"/><circle cx="182" cy="170" r="2" fill="#4f9bff"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="hud-row">
+        <div class="term">
+          <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span class="who">spencerlab@edge</span></div>
+<pre><span class="c">$</span> <span class="p">curl</span> -s spencerlab.tech/healthz
+<span class="v">{"status":"ok","entries":{{ total_entries }}}</span>
+<span class="c">$</span> <span class="p">systemctl</span> is-active spencerlab-hub
+<span class="g">active</span>
+<span class="c">$</span> <span class="p">cloudflared</span> tunnel info
+<span class="g">HEALTHY</span> · 0 inbound ports</pre>
+        </div>
+        <div class="glass hud">
+          <div class="hud-tag"><span class="d"></span> System status</div>
+          <dl>
+            <div class="kv"><dt>Service</dt><dd class="ok">ONLINE</dd></div>
+            <div class="kv"><dt>TLS</dt><dd class="ok">VALID</dd></div>
+            <div class="kv"><dt>Inbound</dt><dd>0 PORTS</dd></div>
+            <div class="kv"><dt>Entries</dt><dd>{{ total_entries }}</dd></div>
+            <div class="kv"><dt>Local time</dt><dd id="clock">—</dd></div>
+          </dl>
+        </div>
+      </div>
     </div>
   </div>
 </header>
 
-<section class="cats">
-  <div class="wrap rail">
-    {% for c in categories %}
-    <a class="cat" href="/{{ c.slug }}">
-      <div class="n">0{{ loop.index }}</div>
-      <div class="name">{{ c.name }}</div>
-      <div class="blurb">{{ c.blurb }}</div>
-      <div class="count">{{ c.count }} {{ 'entry' if c.count == 1 else 'entries' }}</div>
-    </a>
-    {% endfor %}
-  </div>
-</section>
-
-{% if featured %}
-<section class="sec">
-  <div class="wrap">
-    <div class="sec-head"><h2>Latest</h2></div>
-    <a class="ecard feature" href="/{{ featured.category }}/{{ featured.slug }}">
-      <div class="body">
-        <div class="top"><span class="chip">{{ featured.category_name }}</span><span class="date">{{ featured.date }}</span></div>
-        <h3>{{ featured.title }}</h3>
-        <p>{{ featured.summary }}</p>
-        <div class="tags">{% for t in featured.tags %}<span>{{ t }}</span>{% endfor %}</div>
-      </div>
-      <div class="rail">
-        <svg viewBox="0 0 220 120" width="180" role="img" aria-label="An outbound tunnel from a server to the Cloudflare edge.">
-          <defs><marker id="fa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8098ff"/></marker></defs>
-          <rect x="12" y="46" width="72" height="30" rx="7" fill="none" stroke="#8098ff" stroke-width="1.4"/>
-          <text x="48" y="65" text-anchor="middle" fill="#c9d1e6" font-size="10" font-family="IBM Plex Mono,monospace">edge</text>
-          <rect x="136" y="46" width="72" height="30" rx="7" fill="none" stroke="#8098ff" stroke-width="1.4"/>
-          <text x="172" y="65" text-anchor="middle" fill="#c9d1e6" font-size="10" font-family="IBM Plex Mono,monospace">server</text>
-          <line x1="134" y1="61" x2="86" y2="61" stroke="#8098ff" stroke-width="1.5" marker-end="url(#fa)"/>
-          <text x="110" y="52" text-anchor="middle" fill="#8098ff" font-size="8.5" font-family="IBM Plex Mono,monospace">tunnel</text>
-          <text x="110" y="90" text-anchor="middle" fill="#6f7891" font-size="8" font-family="IBM Plex Mono,monospace">dialed out</text>
-        </svg>
-      </div>
-    </a>
-  </div>
-</section>
-{% endif %}
-
-{% if recent %}
-<section class="sec">
-  <div class="wrap">
-    <div class="sec-head"><h2>More entries</h2></div>
-    <div class="entries">
-      {% for e in recent %}
-      <a class="ecard" href="/{{ e.category }}/{{ e.slug }}">
-        <div class="top"><span class="chip">{{ e.category_name }}</span><span class="date">{{ e.date }}</span></div>
-        <h3>{{ e.title }}</h3>
-        <p>{{ e.summary }}</p>
+<!-- ============ DISCIPLINES ============ -->
+<section class="wrap" id="disciplines">
+  <div class="panel">
+    <div class="sec-head">
+      <span class="lbl">What this hub records</span>
+      <h2>Five disciplines</h2>
+      <p class="intro">End-to-end work across the stack — each entry filed under the verb that describes it.</p>
+    </div>
+    <div class="xgrid">
+      {% for c in categories %}
+      <a class="xcard" href="/{{ c.slug }}">
+        <span class="n">0{{ loop.index }}</span>
+        <span class="ico">
+          {% if c.slug == 'built' %}<svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/><path d="M3 17l9 4 9-4"/></svg>
+          {% elif c.slug == 'repaired' %}<svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L4 16.8V20h3.2l5.3-5.3a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.1-.5-.5-2.1z"/></svg>
+          {% elif c.slug == 'pentested' %}<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6l7-3z"/><circle cx="12" cy="11" r="2.4"/><path d="M12 13.4V16"/></svg>
+          {% elif c.slug == 'assessed' %}<svg viewBox="0 0 24 24"><path d="M9 4h6a1 1 0 0 1 1 1v1h1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1V5a1 1 0 0 1 1-1z"/><path d="M9 13l2 2 4-4"/></svg>
+          {% else %}<svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="2.2"/><path d="M9.2 8H20"/><path d="M4 8h1.5"/><circle cx="16" cy="16" r="2.2"/><path d="M14 16H4"/><path d="M18.5 16H20"/></svg>{% endif %}
+        </span>
+        <h3>{{ c.name }}</h3>
+        <p>{{ c.blurb }}</p>
+        <span class="foot">
+          <span class="count">{{ c.count }} {{ 'entry' if c.count == 1 else 'entries' }}</span>
+          <span class="arw">→</span>
+        </span>
       </a>
       {% endfor %}
     </div>
   </div>
 </section>
-{% endif %}
+
+<!-- ============ STAT STRIP ============ -->
+<section class="wrap">
+  <div class="stats">
+    <div class="stat"><span class="si"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span><span class="sv">{{ total_entries }}</span><span class="sl">Entries published</span></span></div>
+    <div class="stat"><span class="si"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/></svg></span><span><span class="sv">5</span><span class="sl">Disciplines</span></span></div>
+    <div class="stat"><span class="si"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6l7-3z"/></svg></span><span><span class="sv">0</span><span class="sl">Inbound ports</span></span></div>
+    <div class="stat"><span class="si"><svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M8 9V7a4 4 0 0 1 8 0v2"/></svg></span><span><span class="sv">100%</span><span class="sl">Self-hosted</span></span></div>
+    <div class="stat"><span class="si"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4h-4"/></svg></span><span><span class="sv">Auto</span><span class="sl">TLS renewal</span></span></div>
+  </div>
+</section>
+
+<!-- ============ FEATURED / RECENT ============ -->
+<section class="wrap" id="work">
+  <div class="panel">
+    <div class="sec-head row">
+      <div><span class="lbl">From the journal</span><h2>Latest entries</h2></div>
+      {% if categories %}<a class="more" href="/built">Browse all →</a>{% endif %}
+    </div>
+
+    {% if featured or recent %}
+    <div class="projects">
+      {% if featured %}
+      <a class="pcard big" href="/{{ featured.category }}/{{ featured.slug }}">
+        <div class="shot">
+          <span class="tag">{{ featured.category_name }}</span>
+          <svg viewBox="0 0 300 150" role="img" aria-label="An outbound tunnel from the homelab server to the Cloudflare edge.">
+            <defs><marker id="fa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#4f9bff"/></marker></defs>
+            <rect x="26" y="58" width="86" height="34" rx="8" fill="none" stroke="#4f9bff" stroke-width="1.3"/>
+            <text x="69" y="79" text-anchor="middle" fill="#cfe2ff" font-size="11" font-family="IBM Plex Mono,monospace">server</text>
+            <rect x="188" y="58" width="86" height="34" rx="8" fill="none" stroke="#35c6f4" stroke-width="1.3"/>
+            <text x="231" y="79" text-anchor="middle" fill="#cfe2ff" font-size="11" font-family="IBM Plex Mono,monospace">edge</text>
+            <line x1="112" y1="75" x2="186" y2="75" stroke="#4f9bff" stroke-width="1.4" marker-end="url(#fa)"/>
+            <text x="150" y="66" text-anchor="middle" fill="#7fb4ff" font-size="9.5" font-family="IBM Plex Mono,monospace">tunnel</text>
+            <text x="150" y="106" text-anchor="middle" fill="#5c6a88" font-size="9" font-family="IBM Plex Mono,monospace">dialed out · 0 inbound ports</text>
+          </svg>
+        </div>
+        <div class="pbody">
+          <span class="date">{{ featured.date }}</span>
+          <h3>{{ featured.title }}</h3>
+          <p>{{ featured.summary }}</p>
+          {% if featured.tags %}<div class="tags">{% for t in featured.tags %}<span>{{ t }}</span>{% endfor %}</div>{% endif %}
+          <span class="view">Read the write-up <span class="arw">→</span></span>
+        </div>
+      </a>
+      {% endif %}
+
+      {% for e in recent %}
+      <a class="pcard" href="/{{ e.category }}/{{ e.slug }}">
+        <div class="shot">
+          <span class="tag">{{ e.category_name }}</span>
+          <svg viewBox="0 0 300 150" aria-hidden="true">
+            <g stroke="#4f9bff" fill="none" stroke-opacity=".5"><rect x="40" y="46" width="220" height="58" rx="7"/><line x1="40" y1="66" x2="260" y2="66"/></g>
+            <g fill="#35c6f4" opacity=".7"><circle cx="54" cy="56" r="2.4"/><circle cx="64" cy="56" r="2.4"/><circle cx="74" cy="56" r="2.4"/></g>
+            <g stroke="#7fb4ff" stroke-width="1.2" fill="none" stroke-opacity=".55"><path d="M56 90 l24-14 22 10 26-18 24 8 30-16 22 10"/></g>
+          </svg>
+        </div>
+        <div class="pbody">
+          <span class="date">{{ e.date }}</span>
+          <h3>{{ e.title }}</h3>
+          <p>{{ e.summary }}</p>
+          <span class="view">Read the write-up <span class="arw">→</span></span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="emptyc">No entries published yet. The first write-ups land here — pushed straight from AuditForge and Fieldnote, or written by hand.</p>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ============ BUILT WITH ============ -->
+<section class="wrap">
+  <div class="panel">
+    <div class="sec-head"><span class="lbl">The lab bench</span><h2>Tools in play</h2></div>
+    <div class="techrow">
+      <span class="tech">FastAPI</span><span class="tech">Jinja2</span><span class="tech">Nginx</span>
+      <span class="tech">Cloudflare Tunnel</span><span class="tech">systemd</span><span class="tech">Let's Encrypt</span>
+      <span class="tech">Ubuntu Server</span><span class="tech">VirtualBox</span><span class="tech">ZeroTier</span>
+      <span class="tech">Kali Linux</span><span class="tech">Ventoy</span><span class="tech">Python</span>
+      <span class="tech">Git</span><span class="tech">AuditForge</span><span class="tech">Fieldnote</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COLOPHON / HOW IT RUNS ============ -->
+<section class="wrap" id="colophon">
+  <div class="contact">
+    <div class="cgrid">
+      <div>
+        <h2>Published straight<br>from the bench.</h2>
+        <p class="sub">Self-hosted FastAPI on a homelab VM, public over HTTPS through a Cloudflare Tunnel — no port-forwarding, no exposed IP. Finalized documents push here one-click from AuditForge and Fieldnote, through a token-gated, secret-scanned publish API.</p>
+      </div>
+      <div>
+        <div class="clist">
+          <a href="https://github.com/spencerawlson" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.69c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg>github.com/spencerawlson</a>
+          <span><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>Publishes from AuditForge · Fieldnote</span>
+          <span><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6l7-3z"/></svg>Token-gated · secret-scanned</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function(){
+    var el = document.getElementById('clock');
+    if (!el) return;
+    function tick(){
+      try { el.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }
+      catch(e) { el.textContent = new Date().toTimeString().slice(0,8); }
+    }
+    tick(); setInterval(tick, 1000);
+  })();
+</script>
 {% endblock %}
