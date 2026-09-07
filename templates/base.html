@@ -7,6 +7,11 @@
 <meta name="description" content="{% block description %}A self-hosted technical record — infrastructure built, faults repaired, systems pentested and assessed, networks administered. The commands, the wrong turns, and why each fix mattered.{% endblock %}">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#08140f">
+<script>
+  /* Apply the saved visual skin before first paint (site default: skeuomorphic). */
+  (function(){var s;try{s=localStorage.getItem('slt-skin');}catch(e){}
+   document.documentElement.setAttribute('data-skin', s||'skeuo');})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -19,7 +24,7 @@
   .contact .clist svg[fill="currentColor"]{fill:currentColor;stroke:none}
   .globe svg{width:min(480px,102%);height:auto}
 </style>
-<link rel="stylesheet" href="/static/hub.css?v=12">
+<link rel="stylesheet" href="/static/hub.css?v=13">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛰️</text></svg>">
 </head>
 <body>
@@ -33,6 +38,11 @@
       <a href="/{{ c.slug }}" {% if current_cat == c.slug %}aria-current="page"{% endif %}>{{ c.short }}</a>
       {% endfor %}
     </div>
+    <button class="skin-toggle" id="skinToggle" type="button" aria-label="Switch visual style"
+            title="Switch between the textured and flat look">
+      <span class="st-track"><span class="st-knob"></span></span>
+      <span class="st-label">Texture</span>
+    </button>
     <a class="btn primary" href="https://github.com/spencerawlson" rel="noopener">GitHub <span class="arw">→</span></a>
   </div>
 </nav>
@@ -49,5 +59,24 @@
     <span>Self-hosted on a homelab VM · served over HTTPS through a Cloudflare Tunnel · 0 inbound ports.</span>
   </div>
 </footer>
+<script>
+  /* Skin switch: flip textured (skeuo) ⇄ flat, and remember it. */
+  (function(){
+    var btn = document.getElementById('skinToggle');
+    if (!btn) return;
+    function sync(){
+      var s = document.documentElement.getAttribute('data-skin') || 'skeuo';
+      btn.setAttribute('aria-pressed', s === 'skeuo' ? 'true' : 'false');
+    }
+    sync();
+    btn.addEventListener('click', function(){
+      var cur = document.documentElement.getAttribute('data-skin') || 'skeuo';
+      var next = cur === 'skeuo' ? 'flat' : 'skeuo';
+      document.documentElement.setAttribute('data-skin', next);
+      try { localStorage.setItem('slt-skin', next); } catch (e) {}
+      sync();
+    });
+  })();
+</script>
 </body>
 </html>
