@@ -497,7 +497,7 @@ html[data-skin="skeuo"] body::after{
 }
 
 /* recurring raised surfaces → solid matte material (no glass blur) */
-html[data-skin="skeuo"] :is(.glass,.xcard,.pcard,.ecard,.stat,.hud,.logotile,.techcell,.cert,.callout,.rung){
+html[data-skin="skeuo"] :is(.glass,.xcard,.pcard,.ecard,.stat,.hud,.logotile,.techcell,.cert,.callout,.rung,.sublab-item){
   background-color:var(--raise); background-image:var(--glass);
   backdrop-filter:none; -webkit-backdrop-filter:none; border-color:var(--line);
 }
@@ -554,3 +554,33 @@ html[data-skin="skeuo"] .hero h1 .accent{background:none; -webkit-background-cli
 .skin-toggle[aria-pressed="true"] .st-knob{left:22px; background:linear-gradient(180deg,#ffffff,#dff5ec)}
 .skin-toggle .st-label{white-space:nowrap}
 @media(max-width:720px){.skin-toggle .st-label{display:none} .skin-toggle{margin-left:auto}}
+
+/* ============================================================
+   FEATURED PROJECTS — 3-card layout + SpencerLab umbrella card
+   Two project cards up top, then a full-width SpencerLab card whose
+   two subsections (Pentest Lab · Cyberdeck) sit side by side.
+   ============================================================ */
+.projects{grid-template-columns:repeat(2,1fr)}
+@media(max-width:640px){.projects{grid-template-columns:1fr}}
+
+.pcard.spencerlab{cursor:default}
+.pcard.spencerlab:hover{transform:none; box-shadow:var(--glass-hi), var(--drop)}
+.pcard.spencerlab .pbody{padding:22px 22px 24px; gap:9px}
+.pcard.spencerlab .pbody>p{flex:0 0 auto; max-width:74ch}
+.lab-head{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.lab-head h3{margin:0}
+
+.sublab{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:6px}
+@media(max-width:640px){.sublab{grid-template-columns:1fr}}
+.sublab-item{display:flex; flex-direction:column; border-radius:14px; overflow:hidden;
+  border:1px solid var(--line); background:var(--glass); background-color:rgba(10,26,20,.5);
+  box-shadow:var(--glass-hi); transition:.18s}
+a.sublab-item{color:inherit}
+a.sublab-item:hover{transform:translateY(-3px); border-color:var(--line-2); text-decoration:none;
+  box-shadow:var(--glass-hi), 0 22px 38px -22px rgba(0,0,0,.9), 0 0 26px -14px var(--glow)}
+.pcard.big .sublab-item .shot{height:112px}
+.sublab-item .sb{padding:15px 16px 17px; display:flex; flex-direction:column; gap:8px; flex:1}
+.sublab-item h4{font-family:var(--disp); font-weight:600; font-size:17px; letter-spacing:.02em;
+  text-transform:uppercase; margin:0; color:var(--ink); line-height:1.12; text-wrap:balance}
+.sublab-item p{margin:0; font-size:13px; color:var(--ink-soft); line-height:1.5; flex:1}
+.sublab-item .view{margin-top:2px}

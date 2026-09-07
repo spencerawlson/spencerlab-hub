@@ -185,98 +185,66 @@
         </div>
       </a>
 
-      <a class="pcard" href="/pentested">
-        <div class="shot">
-          <span class="tag">Cybersecurity</span>
-          <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <rect width="300" height="150" fill="#071711"/>
-            <rect x="0" y="0" width="300" height="20" fill="#0a1f18"/><rect x="12" y="7" width="8" height="6" rx="1.5" fill="#ff6f6b"/><rect x="26" y="7" width="60" height="6" rx="3" fill="#6de9c2" opacity=".6"/>
-            <g transform="translate(66,86)">
-              <g fill="none" stroke="#35d6a8" stroke-opacity=".4"><circle r="44"/><circle r="30"/><circle r="15"/></g>
-              <line x1="-44" y1="0" x2="44" y2="0" stroke="#2ee6c0" stroke-opacity=".25"/><line x1="0" y1="-44" x2="0" y2="44" stroke="#2ee6c0" stroke-opacity=".25"/>
-              <path d="M0 0 L38 -22 A44 44 0 0 1 43 6 Z" fill="#2ee6c0" opacity=".14"/>
-              <g fill="#4dfd7e"><circle cx="22" cy="-13" r="2.6"/><circle cx="-17" cy="17" r="2.6"/><circle cx="11" cy="26" r="2.2"/><circle cx="-26" cy="-8" r="2"/></g></g>
-            <g transform="translate(130,30)" font-family="IBM Plex Mono,monospace" font-size="6.5" fill="#93b3a5">
-              <rect x="0" y="0" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="4.5" width="4" height="6" fill="#ff6f6b"/><text x="18" y="10.5">CVE-2023-… critical</text>
-              <rect x="0" y="20" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="24.5" width="4" height="6" fill="#f2b84f"/><text x="18" y="30.5">weak-cipher · high</text>
-              <rect x="0" y="40" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="44.5" width="4" height="6" fill="#f2b84f"/><text x="18" y="50.5">smb-signing · high</text>
-              <rect x="0" y="60" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="64.5" width="4" height="6" fill="#4dfd7e"/><text x="18" y="70.5">info-leak · medium</text>
-              <rect x="0" y="80" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="84.5" width="4" height="6" fill="#4dfd7e"/><text x="18" y="90.5">remediated · closed</text></g>
-          </svg>
-        </div>
+      <div class="pcard big spencerlab">
         <div class="pbody">
-          <h3>Penetration Test Lab</h3>
-          <p>A self-built offensive-security range — a Kali workstation against Windows and Linux targets, enumerated, exploited and reported with remediation.</p>
-          <div class="tags"><span>Kali</span><span>Nmap</span><span>Metasploit</span><span>Burp</span><span>GVM</span></div>
-          <span class="view">Read the pentest reports <span class="arw">→</span></span>
-        </div>
-      </a>
+          <div class="lab-head">
+            <span class="chip">The Lab</span>
+            <h3>SpencerLab</h3>
+          </div>
+          <p>The self-hosted lab behind this site — an offensive-security range and the hand-built hardware it runs on, wired over a private mesh and served through a zero-inbound Cloudflare Tunnel.</p>
+          <div class="sublab">
 
-      <div class="pcard">
-        <div class="shot">
-          <span class="tag">Cloud · Infrastructure</span>
-          <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <rect width="300" height="150" fill="#071711"/>
-            <rect x="120" y="22" width="60" height="28" rx="6" fill="#0d241b" stroke="#4dfd7e" stroke-opacity=".6"/><text x="150" y="40" text-anchor="middle" fill="#8ff5d0" font-size="9" font-family="IBM Plex Mono,monospace">org core</text>
-            <g stroke="#2ee6c0" stroke-opacity=".4" fill="none"><path d="M150 50 V70 M60 70 H240 M60 70 V94 M150 70 V94 M240 70 V94"/></g>
-            <g stroke="#35d6a8" stroke-opacity=".5" fill="#0d241b">
-              <rect x="30" y="94" width="60" height="36" rx="6"/><rect x="120" y="94" width="60" height="36" rx="6"/><rect x="210" y="94" width="60" height="36" rx="6"/></g>
-            <g font-size="8" font-family="IBM Plex Mono,monospace" fill="#93b3a5" text-anchor="middle"><text x="60" y="108">prod</text><text x="150" y="108">stage</text><text x="240" y="108">sec</text></g>
-            <g fill="#2ee6c0" opacity=".7"><rect x="44" y="116" width="32" height="4" rx="2"/><rect x="134" y="116" width="32" height="4" rx="2"/><rect x="224" y="116" width="32" height="4" rx="2"/></g>
-          </svg>
-        </div>
-        <div class="pbody">
-          <h3>Multi-Cloud Landing Zone</h3>
-          <p>A secure multi-account cloud baseline — IAM, guardrails, monitoring and cost controls, defined entirely as code and reproducible on demand.</p>
-          <div class="tags"><span>Terraform</span><span>IAM</span><span>CloudWatch</span></div>
+            <a class="sublab-item" href="/pentested">
+              <div class="shot">
+                <span class="tag">Cybersecurity</span>
+                <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <rect width="300" height="150" fill="#071711"/>
+                  <rect x="0" y="0" width="300" height="20" fill="#0a1f18"/><rect x="12" y="7" width="8" height="6" rx="1.5" fill="#ff6f6b"/><rect x="26" y="7" width="60" height="6" rx="3" fill="#6de9c2" opacity=".6"/>
+                  <g transform="translate(66,86)">
+                    <g fill="none" stroke="#35d6a8" stroke-opacity=".4"><circle r="44"/><circle r="30"/><circle r="15"/></g>
+                    <line x1="-44" y1="0" x2="44" y2="0" stroke="#2ee6c0" stroke-opacity=".25"/><line x1="0" y1="-44" x2="0" y2="44" stroke="#2ee6c0" stroke-opacity=".25"/>
+                    <path d="M0 0 L38 -22 A44 44 0 0 1 43 6 Z" fill="#2ee6c0" opacity=".14"/>
+                    <g fill="#4dfd7e"><circle cx="22" cy="-13" r="2.6"/><circle cx="-17" cy="17" r="2.6"/><circle cx="11" cy="26" r="2.2"/><circle cx="-26" cy="-8" r="2"/></g></g>
+                  <g transform="translate(130,30)" font-family="IBM Plex Mono,monospace" font-size="6.5" fill="#93b3a5">
+                    <rect x="0" y="0" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="4.5" width="4" height="6" fill="#ff6f6b"/><text x="18" y="10.5">CVE-2023-… critical</text>
+                    <rect x="0" y="20" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="24.5" width="4" height="6" fill="#f2b84f"/><text x="18" y="30.5">weak-cipher · high</text>
+                    <rect x="0" y="40" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="44.5" width="4" height="6" fill="#f2b84f"/><text x="18" y="50.5">smb-signing · high</text>
+                    <rect x="0" y="60" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="64.5" width="4" height="6" fill="#4dfd7e"/><text x="18" y="70.5">info-leak · medium</text>
+                    <rect x="0" y="80" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="84.5" width="4" height="6" fill="#4dfd7e"/><text x="18" y="90.5">remediated · closed</text></g>
+                </svg>
+              </div>
+              <div class="sb">
+                <h4>Penetration Test Lab</h4>
+                <p>A self-built offensive-security range — a Kali workstation against Windows and Linux targets, enumerated, exploited and reported with remediation.</p>
+                <div class="tags"><span>Kali</span><span>Nmap</span><span>Metasploit</span><span>Burp</span><span>GVM</span></div>
+                <span class="view">Read the pentest reports <span class="arw">→</span></span>
+              </div>
+            </a>
+
+            <div class="sublab-item">
+              <div class="shot">
+                <span class="tag">Hardware</span>
+                <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <rect width="300" height="150" fill="#071711"/>
+                  <line x1="236" y1="30" x2="248" y2="12" stroke="#2ee6c0" stroke-opacity=".55" stroke-width="1.3"/><circle cx="248" cy="12" r="2.6" fill="#8ff5d0"/>
+                  <rect x="52" y="28" width="196" height="98" rx="14" fill="#0a1f18" stroke="#35d6a8" stroke-opacity=".55" stroke-width="1.5"/>
+                  <rect x="66" y="38" width="168" height="50" rx="4" fill="#03100a" stroke="#2ee6c0" stroke-opacity=".5"/>
+                  <g font-family="IBM Plex Mono,monospace" font-size="6.5"><text x="72" y="50" fill="#4dfd7e">$ nmap -sV 10.0.0.0/24</text><text x="72" y="62" fill="#8ff5d0">host up · 3 ports open</text><text x="72" y="74" fill="#4dfd7e">$ <tspan fill="#6de9c2">_</tspan></text></g>
+                  <g fill="#0d241b" stroke="#2ee6c0" stroke-opacity=".3">
+                    <rect x="66" y="96" width="14" height="10" rx="2"/><rect x="84" y="96" width="14" height="10" rx="2"/><rect x="102" y="96" width="14" height="10" rx="2"/><rect x="120" y="96" width="14" height="10" rx="2"/><rect x="138" y="96" width="14" height="10" rx="2"/><rect x="156" y="96" width="14" height="10" rx="2"/><rect x="174" y="96" width="14" height="10" rx="2"/><rect x="192" y="96" width="14" height="10" rx="2"/>
+                    <rect x="66" y="110" width="14" height="10" rx="2"/><rect x="84" y="110" width="14" height="10" rx="2"/><rect x="102" y="110" width="14" height="10" rx="2"/><rect x="120" y="110" width="86" height="10" rx="2"/></g>
+                </svg>
+              </div>
+              <div class="sb">
+                <h4>Custom Computers — Cyberdeck</h4>
+                <p>A hand-built portable cyberdeck — custom compute, mechanical input and a field-ready enclosure for on-the-go labbing, scanning and administration.</p>
+                <div class="tags"><span>Linux</span><span>SBC / x86</span><span>3D-print</span><span>Custom build</span></div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
-
-      <div class="pcard">
-        <div class="shot">
-          <span class="tag">Hardware</span>
-          <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <rect width="300" height="150" fill="#071711"/>
-            <line x1="236" y1="30" x2="248" y2="12" stroke="#2ee6c0" stroke-opacity=".55" stroke-width="1.3"/><circle cx="248" cy="12" r="2.6" fill="#8ff5d0"/>
-            <rect x="52" y="28" width="196" height="98" rx="14" fill="#0a1f18" stroke="#35d6a8" stroke-opacity=".55" stroke-width="1.5"/>
-            <rect x="66" y="38" width="168" height="50" rx="4" fill="#03100a" stroke="#2ee6c0" stroke-opacity=".5"/>
-            <g font-family="IBM Plex Mono,monospace" font-size="6.5"><text x="72" y="50" fill="#4dfd7e">$ nmap -sV 10.0.0.0/24</text><text x="72" y="62" fill="#8ff5d0">host up · 3 ports open</text><text x="72" y="74" fill="#4dfd7e">$ <tspan fill="#6de9c2">_</tspan></text></g>
-            <g fill="#0d241b" stroke="#2ee6c0" stroke-opacity=".3">
-              <rect x="66" y="96" width="14" height="10" rx="2"/><rect x="84" y="96" width="14" height="10" rx="2"/><rect x="102" y="96" width="14" height="10" rx="2"/><rect x="120" y="96" width="14" height="10" rx="2"/><rect x="138" y="96" width="14" height="10" rx="2"/><rect x="156" y="96" width="14" height="10" rx="2"/><rect x="174" y="96" width="14" height="10" rx="2"/><rect x="192" y="96" width="14" height="10" rx="2"/>
-              <rect x="66" y="110" width="14" height="10" rx="2"/><rect x="84" y="110" width="14" height="10" rx="2"/><rect x="102" y="110" width="14" height="10" rx="2"/><rect x="120" y="110" width="86" height="10" rx="2"/></g>
-          </svg>
-        </div>
-        <div class="pbody">
-          <h3>Custom Computers — Cyberdeck</h3>
-          <p>A hand-built portable cyberdeck — custom compute, mechanical input and a field-ready enclosure for on-the-go labbing, scanning and administration.</p>
-          <div class="tags"><span>Linux</span><span>SBC / x86</span><span>3D-print</span><span>Custom build</span></div>
-        </div>
-      </div>
-
-      <a class="pcard" href="/built">
-        <div class="shot">
-          <span class="tag">Infrastructure</span>
-          <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <rect width="300" height="150" fill="#071711"/>
-            <g stroke="#35d6a8" fill="#0a1f18" stroke-width="1.3" stroke-opacity=".55"><rect x="34" y="46" width="86" height="46" rx="7"/></g>
-            <g fill="#2ee6c0" opacity=".7"><rect x="44" y="55" width="10" height="5" rx="1"/><rect x="44" y="64" width="66" height="4" rx="2" opacity=".5"/><rect x="44" y="72" width="66" height="4" rx="2" opacity=".5"/><rect x="44" y="80" width="40" height="4" rx="2" opacity=".5"/></g>
-            <text x="77" y="106" text-anchor="middle" fill="#93b3a5" font-size="8" font-family="IBM Plex Mono,monospace">homelab VM</text>
-            <rect x="180" y="46" width="86" height="46" rx="7" fill="#0a1f18" stroke="#2ee6c0" stroke-width="1.3" stroke-opacity=".5"/>
-            <path d="M223 60 a4 4 0 0 1-.5-8 A5 5 0 0 1 232 55.5 a3.5 3.5 0 0 1 .5 7z" fill="none" stroke="#8ff5d0" stroke-width="1.3"/>
-            <text x="223" y="106" text-anchor="middle" fill="#93b3a5" font-size="8" font-family="IBM Plex Mono,monospace">CF edge</text>
-            <defs><marker id="pa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#4dfd7e"/></marker></defs>
-            <line x1="120" y1="69" x2="178" y2="69" stroke="#4dfd7e" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#pa)"/>
-            <text x="150" y="60" text-anchor="middle" fill="#6de9c2" font-size="8" font-family="IBM Plex Mono,monospace">tunnel</text>
-            <text x="150" y="128" text-anchor="middle" fill="#5f7d70" font-size="8" font-family="IBM Plex Mono,monospace">0 inbound ports · TLS valid</text>
-          </svg>
-        </div>
-        <div class="pbody">
-          <h3>SpencerLab Homelab</h3>
-          <p>The self-hosted homelab behind this site — VirtualBox VMs, a ZeroTier mesh, a Cloudflare Tunnel, and one-click publishing from AuditForge and Fieldnote.</p>
-          <div class="tags"><span>Ubuntu</span><span>VirtualBox</span><span>Cloudflare</span><span>systemd</span></div>
-          <span class="view">See how it runs <span class="arw">→</span></span>
-        </div>
-      </a>
 
     </div>
   </div>
