@@ -452,3 +452,8 @@ img{max-width:100%}
 .cta .clist a:hover{color:#fff}
 .cta .clist svg{width:17px; height:17px; stroke:var(--accent-2); fill:none; stroke-width:1.6; flex:none}
 .cta .clist a svg{fill:#8ff5d0; stroke:none}
+
+/* project card thumbnail showing a product logo (centered, not a UI mock) */
+.pcard .shot.brand{display:grid; place-items:center; padding:14px;
+  background:radial-gradient(120% 120% at 50% 42%, rgba(31,184,148,.17), transparent 62%), var(--term-bg)}
+.pcard .shot.brand img{width:auto; height:88px; max-width:76%; object-fit:contain; filter:drop-shadow(0 8px 20px rgba(0,0,0,.55))}
