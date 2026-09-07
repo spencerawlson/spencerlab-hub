@@ -408,3 +408,47 @@ img{max-width:100%}
   background:radial-gradient(150% 100% at 50% 158%, rgba(46,230,192,.22), rgba(31,184,148,.07) 44%, transparent 66%)!important;
   -webkit-mask-image:none!important; mask-image:none!important}
 .contact .cgrid{position:relative; z-index:2}
+
+/* ============================================================
+   PORTFOLIO SECTIONS — tech stack · certifications · contact CTA
+   ============================================================ */
+.xcard:not(a), .pcard:not(a){cursor:default}
+
+/* tech stack — self-hosted brand logos */
+.stackgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px}
+.logotile{display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:13px;
+  border:1px solid var(--line); background:var(--glass); background-color:rgba(10,26,20,.5);
+  box-shadow:var(--glass-hi); transition:.16s}
+.logotile:hover{transform:translateY(-3px); border-color:var(--line-2);
+  box-shadow:var(--glass-hi), 0 18px 34px -22px rgba(0,0,0,.85), 0 0 26px -12px var(--glow)}
+.logotile img{width:30px; height:30px; flex:none; object-fit:contain}
+.logotile span{font-family:var(--sans); font-size:14px; font-weight:500; color:var(--ink); letter-spacing:-.01em}
+
+/* certifications */
+.certgrid{display:grid; grid-template-columns:1.5fr 1fr; gap:16px; align-items:stretch}
+@media(max-width:760px){.certgrid{grid-template-columns:1fr}}
+.certcards{display:grid; grid-template-columns:repeat(auto-fill,minmax(158px,1fr)); gap:12px; align-content:start}
+.cert{display:flex; flex-direction:column; gap:6px; padding:16px 17px; border-radius:13px; border:1px solid var(--line); background:rgba(10,26,20,.45)}
+.cert .cc{font-family:var(--disp); font-weight:700; font-size:16px; letter-spacing:.03em; text-transform:uppercase; color:#eaf2ff}
+.cert .cd{font-family:var(--mono); font-size:10.5px; line-height:1.5; color:var(--ink-soft)}
+.cert.pending{border-style:dashed} .cert.pending .cc{color:var(--accent-ink)}
+.learnpanel{display:flex; flex-direction:column; justify-content:center; gap:12px; padding:26px; border-radius:15px;
+  border:1px solid var(--line-2); background:radial-gradient(130% 120% at 100% 0%, rgba(31,184,148,.16), transparent 60%), rgba(10,26,20,.55)}
+.learnpanel h3{font-family:var(--disp); font-weight:700; font-size:24px; letter-spacing:.01em; text-transform:uppercase; margin:0; color:#f4f8ff; line-height:1.05}
+.learnpanel p{margin:0; font-size:13.5px; color:var(--ink-soft); line-height:1.55}
+
+/* contact CTA over the cityscape image */
+.cta{position:relative; margin:26px 0 10px; border-radius:22px; overflow:hidden; border:1px solid var(--line-2); isolation:isolate}
+.cta-bg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; opacity:.92}
+.cta::after{content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:linear-gradient(90deg, rgba(4,16,11,.93) 0%, rgba(4,16,11,.74) 44%, rgba(4,16,11,.34) 100%),
+             linear-gradient(0deg, rgba(4,16,11,.6), transparent 58%)}
+.cta-inner{position:relative; z-index:2; display:grid; grid-template-columns:1.35fr 1fr; gap:30px; align-items:center; padding:58px 42px; min-height:236px}
+@media(max-width:760px){.cta-inner{grid-template-columns:1fr; gap:22px; padding:38px 22px}}
+.cta-lead h2{font-family:var(--disp); font-weight:700; font-size:clamp(28px,4.6vw,46px); letter-spacing:.01em; text-transform:uppercase; margin:0 0 12px; line-height:1.02; color:#f7fbff; text-shadow:0 2px 22px rgba(0,0,0,.65)}
+.cta-lead p{margin:0; font-size:16px; color:#d3ece2; max-width:44ch; text-shadow:0 1px 12px rgba(0,0,0,.6)}
+.cta .clist{display:flex; flex-direction:column; gap:12px}
+.cta .clist a,.cta .clist span{display:flex; align-items:center; gap:11px; font-family:var(--mono); font-size:13.5px; color:#eafaf3}
+.cta .clist a:hover{color:#fff}
+.cta .clist svg{width:17px; height:17px; stroke:var(--accent-2); fill:none; stroke-width:1.6; flex:none}
+.cta .clist a svg{fill:#8ff5d0; stroke:none}

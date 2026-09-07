@@ -9,8 +9,8 @@
       <h1>The working record of<br><span class="accent">what gets built &amp; run.</span></h1>
       <p class="sub">A self-hosted technical journal — infrastructure stood up, faults diagnosed, systems pentested and assessed, networks administered. Written honestly: the commands, the wrong turns, and why each fix mattered.</p>
       <div class="actions">
-        <a class="btn primary" href="#work">View the work <span class="arw">→</span></a>
-        <a class="btn ghost" href="#colophon">How it runs <span class="arw">→</span></a>
+        <a class="btn primary" href="#projects">View my work <span class="arw">→</span></a>
+        <a class="btn ghost" href="#contact">Get in touch <span class="arw">→</span></a>
       </div>
       <div class="trustedby">
         <p class="tb-label">Built &amp; documented with</p>
@@ -111,135 +111,216 @@
   </div>
 </header>
 
-<!-- ============ DISCIPLINES ============ -->
-<section class="wrap" id="disciplines">
+<!-- ============ WHAT I DO — CORE EXPERTISE ============ -->
+<section class="wrap" id="expertise">
   <div class="panel">
     <div class="sec-head">
-      <span class="lbl">What this hub records</span>
-      <h2>Five disciplines</h2>
-      <p class="intro">End-to-end work across the stack — each entry filed under the verb that describes it.</p>
+      <span class="lbl">What I do</span>
+      <h2>Core expertise</h2>
+      <p class="intro">End-to-end capability across the technology stack — from securing and running infrastructure to shipping software that acts on real data.</p>
     </div>
     <div class="xgrid">
-      {% for c in categories %}
-      <a class="xcard" href="/{{ c.slug }}">
-        <span class="n">0{{ loop.index }}</span>
-        <span class="ico">
-          {% if c.slug == 'built' %}<svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/><path d="M3 17l9 4 9-4"/></svg>
-          {% elif c.slug == 'repaired' %}<svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L4 16.8V20h3.2l5.3-5.3a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.1-.5-.5-2.1z"/></svg>
-          {% elif c.slug == 'pentested' %}<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6l7-3z"/><circle cx="12" cy="11" r="2.4"/><path d="M12 13.4V16"/></svg>
-          {% elif c.slug == 'assessed' %}<svg viewBox="0 0 24 24"><path d="M9 4h6a1 1 0 0 1 1 1v1h1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1V5a1 1 0 0 1 1-1z"/><path d="M9 13l2 2 4-4"/></svg>
-          {% else %}<svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="2.2"/><path d="M9.2 8H20"/><path d="M4 8h1.5"/><circle cx="16" cy="16" r="2.2"/><path d="M14 16H4"/><path d="M18.5 16H20"/></svg>{% endif %}
-        </span>
-        <h3>{{ c.name }}</h3>
-        <p>{{ c.blurb }}</p>
-        <span class="foot">
-          <span class="count">{{ c.count }} {{ 'entry' if c.count == 1 else 'entries' }}</span>
-          <span class="arw">→</span>
-        </span>
-      </a>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-
-<!-- ============ STAT STRIP ============ -->
-<section class="wrap">
-  <div class="stats">
-    <div class="stat"><span class="si"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span><span class="sv">{{ total_entries }}</span><span class="sl">Entries published</span></span></div>
-    <div class="stat"><span class="si"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/></svg></span><span><span class="sv">5</span><span class="sl">Disciplines</span></span></div>
-    <div class="stat"><span class="si"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6l7-3z"/></svg></span><span><span class="sv">0</span><span class="sl">Inbound ports</span></span></div>
-    <div class="stat"><span class="si"><svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M8 9V7a4 4 0 0 1 8 0v2"/></svg></span><span><span class="sv">100%</span><span class="sl">Self-hosted</span></span></div>
-    <div class="stat"><span class="si"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4h-4"/></svg></span><span><span class="sv">Auto</span><span class="sl">TLS renewal</span></span></div>
-  </div>
-</section>
-
-<!-- ============ FEATURED / RECENT ============ -->
-<section class="wrap" id="work">
-  <div class="panel">
-    <div class="sec-head row">
-      <div><span class="lbl">From the journal</span><h2>Latest entries</h2></div>
-      {% if categories %}<a class="more" href="/built">Browse all →</a>{% endif %}
-    </div>
-
-    {% if featured or recent %}
-    <div class="projects">
-      {% if featured %}
-      <a class="pcard big" href="/{{ featured.category }}/{{ featured.slug }}">
-        <div class="shot">
-          <span class="tag">{{ featured.category_name }}</span>
-          <svg viewBox="0 0 300 150" role="img" aria-label="An outbound tunnel from the homelab server to the Cloudflare edge.">
-            <defs><marker id="fa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#35d6a8"/></marker></defs>
-            <rect x="26" y="58" width="86" height="34" rx="8" fill="none" stroke="#35d6a8" stroke-width="1.3"/>
-            <text x="69" y="79" text-anchor="middle" fill="#c8ffe6" font-size="11" font-family="IBM Plex Mono,monospace">server</text>
-            <rect x="188" y="58" width="86" height="34" rx="8" fill="none" stroke="#2ee6c0" stroke-width="1.3"/>
-            <text x="231" y="79" text-anchor="middle" fill="#c8ffe6" font-size="11" font-family="IBM Plex Mono,monospace">edge</text>
-            <line x1="112" y1="75" x2="186" y2="75" stroke="#35d6a8" stroke-width="1.4" marker-end="url(#fa)"/>
-            <text x="150" y="66" text-anchor="middle" fill="#6de9c2" font-size="9.5" font-family="IBM Plex Mono,monospace">tunnel</text>
-            <text x="150" y="106" text-anchor="middle" fill="#5f7d70" font-size="9" font-family="IBM Plex Mono,monospace">dialed out · 0 inbound ports</text>
-          </svg>
-        </div>
-        <div class="pbody">
-          <span class="date">{{ featured.date }}</span>
-          <h3>{{ featured.title }}</h3>
-          <p>{{ featured.summary }}</p>
-          {% if featured.tags %}<div class="tags">{% for t in featured.tags %}<span>{{ t }}</span>{% endfor %}</div>{% endif %}
-          <span class="view">Read the write-up <span class="arw">→</span></span>
-        </div>
-      </a>
-      {% endif %}
-
-      {% for e in recent %}
-      <a class="pcard" href="/{{ e.category }}/{{ e.slug }}">
-        <div class="shot">
-          <span class="tag">{{ e.category_name }}</span>
-          <svg viewBox="0 0 300 150" aria-hidden="true">
-            <g stroke="#35d6a8" fill="none" stroke-opacity=".5"><rect x="40" y="46" width="220" height="58" rx="7"/><line x1="40" y1="66" x2="260" y2="66"/></g>
-            <g fill="#2ee6c0" opacity=".7"><circle cx="54" cy="56" r="2.4"/><circle cx="64" cy="56" r="2.4"/><circle cx="74" cy="56" r="2.4"/></g>
-            <g stroke="#6de9c2" stroke-width="1.2" fill="none" stroke-opacity=".55"><path d="M56 90 l24-14 22 10 26-18 24 8 30-16 22 10"/></g>
-          </svg>
-        </div>
-        <div class="pbody">
-          <span class="date">{{ e.date }}</span>
-          <h3>{{ e.title }}</h3>
-          <p>{{ e.summary }}</p>
-          <span class="view">Read the write-up <span class="arw">→</span></span>
-        </div>
-      </a>
-      {% endfor %}
-    </div>
-    {% else %}
-    <p class="emptyc">No entries published yet. The first write-ups land here — pushed straight from AuditForge and Fieldnote, or written by hand.</p>
-    {% endif %}
-  </div>
-</section>
-
-<!-- ============ BUILT WITH ============ -->
-<section class="wrap">
-  <div class="panel">
-    <div class="sec-head"><span class="lbl">The lab bench</span><h2>Tools in play</h2></div>
-    {% set techs = ["FastAPI","Jinja2","Nginx","Cloudflare Tunnel","systemd","Let's Encrypt","Ubuntu Server","VirtualBox","ZeroTier","Kali Linux","Ventoy","Python","Git","AuditForge","Fieldnote"] %}
-    <div class="techgrid">
-      {% for t in techs %}
-      <span class="techcell"><svg class="tg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8.5 5v10L12 22 3.5 17V7z"/></svg>{{ t }}</span>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-
-<!-- ============ COLOPHON / HOW IT RUNS ============ -->
-<section class="wrap" id="colophon">
-  <div class="contact">
-    <div class="cgrid">
-      <div>
-        <h2>Published straight<br>from the bench.</h2>
-        <p class="sub">Self-hosted FastAPI on a homelab VM, public over HTTPS through a Cloudflare Tunnel — no port-forwarding, no exposed IP. Finalized documents push here one-click from AuditForge and Fieldnote, through a token-gated, secret-scanned publish API.</p>
+      <div class="xcard">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <h3>Cybersecurity</h3>
+        <p>Penetration testing, vulnerability assessment and security analysis on authorized lab scope — with evidence, findings and remediation, documented end to end.</p>
       </div>
-      <div>
-        <div class="clist">
-          <a href="https://github.com/spencerawlson" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.69c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg>github.com/spencerawlson</a>
-          <span><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>Publishes from AuditForge · Fieldnote</span>
-          <span><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6l7-3z"/></svg>Token-gated · secret-scanned</span>
+      <div class="xcard">
+        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M7.6 7.6L11 15M16.4 7.6L13 15M8 6h8"/></svg></span>
+        <h3>Networking</h3>
+        <p>Network design, routing &amp; switching, VLANs, VPN and firewalls — plus software-defined networking with GNS3, Open vSwitch and segmentation.</p>
+      </div>
+      <div class="xcard">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-7.97A5 5 0 0 1 16 9.5a3.5 3.5 0 0 1 .5 6.97"/><path d="M6.5 18H17"/></svg></span>
+        <h3>Cloud computing</h3>
+        <p>AWS, Azure and GCP — infrastructure-as-code, containers, serverless and resilient multi-account architecture that scales and stays observable.</p>
+      </div>
+      <div class="xcard">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M9 8l-4 4 4 4M15 8l4 4-4 4"/></svg></span>
+        <h3>SaaS development</h3>
+        <p>Full-stack SaaS platforms — FastAPI and React, REST APIs, microservices and AI-driven features, from data model to shipped product.</p>
+      </div>
+      <div class="xcard">
+        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></span>
+        <h3>AI &amp; automation</h3>
+        <p>Infrastructure as code, CI/CD, scripting and monitoring — and autonomous agents that reason over real signals and act through consented pipelines.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURED PROJECTS ============ -->
+<section class="wrap" id="projects">
+  <div class="panel">
+    <div class="sec-head">
+      <span class="lbl">Selected work</span>
+      <h2>Featured projects</h2>
+      <p class="intro">Systems designed, built and operated — with the problem they solved and how they were tested.</p>
+    </div>
+    <div class="projects">
+
+      <div class="pcard">
+        <div class="shot">
+          <span class="tag">Cloud · SaaS</span>
+          <svg viewBox="0 0 300 150" aria-hidden="true">
+            <g stroke="#35d6a8" fill="none" stroke-opacity=".5"><rect x="30" y="30" width="150" height="90" rx="6"/><rect x="192" y="30" width="78" height="42" rx="6"/><rect x="192" y="80" width="78" height="40" rx="6"/></g>
+            <g stroke="#6de9c2" stroke-width="1.4" fill="none" stroke-opacity=".7"><path d="M40 96 l22-18 20 12 24-22 22 10 28-24"/></g>
+            <g fill="#2ee6c0" opacity=".8"><rect x="40" y="44" width="40" height="5" rx="2"/><rect x="40" y="55" width="70" height="5" rx="2"/></g>
+            <circle cx="231" cy="51" r="13" fill="none" stroke="#4dfd7e" stroke-width="3" stroke-dasharray="60 40"/>
+          </svg>
         </div>
+        <div class="pbody">
+          <h3>Aegis CloudOps</h3>
+          <p>AI-assisted cloud monitoring and remediation — live health, cost anomalies and security findings, with consented auto-fixes across AWS, Azure and GCP.</p>
+          <div class="tags"><span>AWS</span><span>Docker</span><span>Python</span><span>React</span><span>PostgreSQL</span></div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="shot">
+          <span class="tag">SaaS · Data</span>
+          <svg viewBox="0 0 300 150" aria-hidden="true">
+            <g stroke="#35d6a8" fill="none" stroke-opacity=".45"><rect x="30" y="26" width="240" height="98" rx="6"/><line x1="30" y1="46" x2="270" y2="46"/></g>
+            <g stroke="#2ee6c0"><rect x="70" y="70" width="8" height="34" fill="#1fb894" opacity=".6"/><rect x="110" y="58" width="8" height="46" fill="#2ee6c0" opacity=".8"/><rect x="150" y="80" width="8" height="24" fill="#1fb894" opacity=".6"/><rect x="190" y="52" width="8" height="52" fill="#4dfd7e" opacity=".7"/></g>
+            <path d="M44 96 l30-16 26 10 30-20 28 8 34-18 30 10" stroke="#8ff5d0" stroke-width="1.4" fill="none" stroke-opacity=".7"/>
+          </svg>
+        </div>
+        <div class="pbody">
+          <h3>Fishing Rod Terminal</h3>
+          <p>A real-time market-intelligence terminal — live signals, per-asset bias, macro-cycle scoring and scenario analytics, rendered from a computed engine.</p>
+          <div class="tags"><span>Python</span><span>FastAPI</span><span>WebSockets</span><span>Postgres</span></div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="shot">
+          <span class="tag">Cybersecurity</span>
+          <svg viewBox="0 0 300 150" aria-hidden="true">
+            <g fill="none" stroke="#35d6a8" stroke-opacity=".5"><circle cx="150" cy="75" r="52"/><circle cx="150" cy="75" r="34"/><circle cx="150" cy="75" r="16"/></g>
+            <line x1="150" y1="10" x2="150" y2="140" stroke="#2ee6c0" stroke-opacity=".3"/><line x1="80" y1="75" x2="220" y2="75" stroke="#2ee6c0" stroke-opacity=".3"/>
+            <g fill="#4dfd7e"><circle cx="150" cy="75" r="4"/><circle cx="184" cy="55" r="3"/><circle cx="120" cy="100" r="3"/><circle cx="176" cy="103" r="2.5"/></g>
+          </svg>
+        </div>
+        <div class="pbody">
+          <h3>Penetration Test Lab</h3>
+          <p>A self-built offensive-security range — a Kali workstation against Windows and Linux targets, enumerated, exploited and reported with remediation.</p>
+          <div class="tags"><span>Kali</span><span>Nmap</span><span>Metasploit</span><span>Burp</span><span>GVM</span></div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="shot">
+          <span class="tag">Cloud · Infrastructure</span>
+          <svg viewBox="0 0 300 150" aria-hidden="true">
+            <path d="M120 44a4 4 0 0 1-.5-7.97A5 5 0 0 1 129 35.5a3.5 3.5 0 0 1 .5 6.97H120z" fill="none" stroke="#6de9c2" stroke-width="1.4" stroke-opacity=".7"/>
+            <g stroke="#35d6a8" fill="none" stroke-opacity=".45"><rect x="46" y="92" width="46" height="30" rx="5"/><rect x="128" y="92" width="46" height="30" rx="5"/><rect x="210" y="92" width="46" height="30" rx="5"/></g>
+            <g stroke="#2ee6c0" stroke-opacity=".5"><path d="M124 44v26M124 70H69v22M124 70h27v22M124 70h109v22"/></g>
+          </svg>
+        </div>
+        <div class="pbody">
+          <h3>Multi-Cloud Landing Zone</h3>
+          <p>A secure multi-account cloud baseline — IAM, guardrails, monitoring and cost controls, defined entirely as code and reproducible on demand.</p>
+          <div class="tags"><span>Terraform</span><span>IAM</span><span>CloudWatch</span></div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="shot">
+          <span class="tag">Hardware</span>
+          <svg viewBox="0 0 300 150" aria-hidden="true">
+            <rect x="66" y="30" width="168" height="70" rx="8" fill="none" stroke="#35d6a8" stroke-width="1.4" stroke-opacity=".6"/>
+            <rect x="78" y="40" width="144" height="50" rx="3" fill="#06120c" stroke="#2ee6c0" stroke-opacity=".5"/>
+            <g fill="#4dfd7e" opacity=".8"><rect x="86" y="48" width="60" height="4" rx="2"/><rect x="86" y="58" width="90" height="4" rx="2"/><rect x="86" y="68" width="44" height="4" rx="2"/></g>
+            <g stroke="#2ee6c0" fill="none" stroke-opacity=".55"><rect x="66" y="104" width="168" height="20" rx="4"/></g>
+            <g fill="#1fb894" opacity=".7"><rect x="76" y="110" width="10" height="8" rx="1"/><rect x="90" y="110" width="10" height="8" rx="1"/><rect x="104" y="110" width="10" height="8" rx="1"/><rect x="118" y="110" width="10" height="8" rx="1"/><rect x="200" y="110" width="24" height="8" rx="1"/></g>
+          </svg>
+        </div>
+        <div class="pbody">
+          <h3>Custom Computers — Cyberdeck</h3>
+          <p>A hand-built portable cyberdeck — custom compute, mechanical input and a field-ready enclosure for on-the-go labbing, scanning and administration.</p>
+          <div class="tags"><span>Linux</span><span>SBC / x86</span><span>3D-print</span><span>Custom build</span></div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="shot">
+          <span class="tag">Infrastructure</span>
+          <svg viewBox="0 0 300 150" aria-hidden="true">
+            <g stroke="#35d6a8" fill="none" stroke-width="1.3" stroke-opacity=".6"><rect x="40" y="52" width="80" height="34" rx="7"/><rect x="180" y="52" width="80" height="34" rx="7"/></g>
+            <text x="80" y="73" text-anchor="middle" fill="#c8ffe6" font-size="11" font-family="IBM Plex Mono,monospace">homelab</text>
+            <text x="220" y="73" text-anchor="middle" fill="#c8ffe6" font-size="11" font-family="IBM Plex Mono,monospace">edge</text>
+            <defs><marker id="pa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#4dfd7e"/></marker></defs>
+            <line x1="120" y1="69" x2="178" y2="69" stroke="#4dfd7e" stroke-width="1.4" marker-end="url(#pa)"/>
+            <text x="150" y="60" text-anchor="middle" fill="#6de9c2" font-size="9" font-family="IBM Plex Mono,monospace">tunnel</text>
+            <text x="150" y="104" text-anchor="middle" fill="#5f7d70" font-size="9" font-family="IBM Plex Mono,monospace">0 inbound ports</text>
+          </svg>
+        </div>
+        <div class="pbody">
+          <h3>SpencerLab Homelab</h3>
+          <p>The self-hosted homelab behind this site — VirtualBox VMs, a ZeroTier mesh, a Cloudflare Tunnel, and one-click publishing from AuditForge and Fieldnote.</p>
+          <div class="tags"><span>Ubuntu</span><span>VirtualBox</span><span>Cloudflare</span><span>systemd</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ TECH STACK ============ -->
+<section class="wrap" id="stack">
+  <div class="panel">
+    <div class="sec-head">
+      <span class="lbl">Technologies &amp; tools</span>
+      <h2>Tech stack</h2>
+      <p class="intro">The tools I design, build, secure and operate with.</p>
+    </div>
+    {% set stack = [
+      ["amazonwebservices","AWS"], ["azure","Azure"], ["googlecloud","GCP"], ["terraform","Terraform"],
+      ["kubernetes","Kubernetes"], ["docker","Docker"], ["linux","Linux"], ["python","Python"],
+      ["go","Go"], ["typescript","TypeScript"], ["react","React"], ["nodejs","Node.js"],
+      ["postgresql","PostgreSQL"], ["mongodb","MongoDB"], ["fastapi","FastAPI"], ["nginx","Nginx"],
+      ["cloudflare","Cloudflare"]
+    ] %}
+    <div class="stackgrid">
+      {% for s in stack %}
+      <div class="logotile"><img src="/static/logos/{{ s[0] }}.svg" alt="{{ s[1] }}" loading="lazy" width="30" height="30"><span>{{ s[1] }}</span></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============ CERTIFICATIONS ============ -->
+<section class="wrap" id="certs">
+  <div class="panel">
+    <div class="sec-head">
+      <span class="lbl">Credentials</span>
+      <h2>Certifications</h2>
+    </div>
+    <div class="certgrid">
+      <div class="certcards">
+        <div class="cert pending"><div class="cc">Coming soon</div><div class="cd">Certifications will be listed here as they are earned.</div></div>
+      </div>
+      <div class="learnpanel">
+        <h3>Always learning.<br>Always building.</h3>
+        <p>Credentials follow the work. The projects, labs and write-ups on this site are the demonstration; the certifications are the paper trail catching up.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT — LET'S BUILD SOMETHING EXTRAORDINARY ============ -->
+<section class="wrap" id="contact">
+  <div class="cta">
+    <img class="cta-bg" src="/static/cityscape.png" alt="" aria-hidden="true">
+    <div class="cta-inner">
+      <div class="cta-lead">
+        <h2>Let&rsquo;s build something extraordinary.</h2>
+        <p>Open to new opportunities, collaborations and challenging projects.</p>
+      </div>
+      <div class="clist">
+        <a href="https://github.com/spencerawlson" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.69c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg>github.com/spencerawlson</a>
+        <span><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>Publishes from AuditForge · Fieldnote</span>
+        <span><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6l7-3z"/></svg>Token-gated · secret-scanned</span>
       </div>
     </div>
   </div>
