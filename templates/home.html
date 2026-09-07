@@ -67,12 +67,42 @@
 <span class="g">HEALTHY</span> · 0 inbound ports</pre>
         </div>
         <div class="glass hud">
-          <div class="hud-tag"><span class="d"></span> System status</div>
+          <div class="hud-tag"><span class="d"></span> System status · edge signal</div>
+          <svg class="hud-spark" viewBox="0 0 200 44" preserveAspectRatio="none" aria-hidden="true">
+            <rect x="0.8" y="31" width="5.3" height="13" rx="1" fill="#2ee6c0" opacity="0.9"/>
+            <rect x="8.5" y="22" width="5.3" height="22" rx="1" fill="#1fb894" opacity="0.55"/>
+            <rect x="16.2" y="15" width="5.3" height="29" rx="1" fill="#35d6a8" opacity="0.55"/>
+            <rect x="23.9" y="7" width="5.3" height="37" rx="1" fill="#1fb894" opacity="0.55"/>
+            <rect x="31.6" y="27" width="5.3" height="17" rx="1" fill="#35d6a8" opacity="0.55"/>
+            <rect x="39.3" y="24" width="5.3" height="20" rx="1" fill="#2ee6c0" opacity="0.9"/>
+            <rect x="47.0" y="17" width="5.3" height="27" rx="1" fill="#35d6a8" opacity="0.55"/>
+            <rect x="54.6" y="4" width="5.3" height="40" rx="1" fill="#1fb894" opacity="0.55"/>
+            <rect x="62.3" y="25" width="5.3" height="19" rx="1" fill="#35d6a8" opacity="0.55"/>
+            <rect x="70.0" y="22" width="5.3" height="22" rx="1" fill="#1fb894" opacity="0.55"/>
+            <rect x="77.7" y="15" width="5.3" height="29" rx="1" fill="#2ee6c0" opacity="0.9"/>
+            <rect x="85.4" y="30" width="5.3" height="14" rx="1" fill="#1fb894" opacity="0.55"/>
+            <rect x="93.1" y="25" width="5.3" height="19" rx="1" fill="#35d6a8" opacity="0.55"/>
+            <rect x="100.8" y="19" width="5.3" height="25" rx="1" fill="#1fb894" opacity="0.55"/>
+            <rect x="108.5" y="12" width="5.3" height="32" rx="1" fill="#35d6a8" opacity="0.55"/>
+            <rect x="116.2" y="26" width="5.3" height="18" rx="1" fill="#2ee6c0" opacity="0.9"/>
+            <rect x="123.9" y="26" width="5.3" height="18" rx="1" fill="#35d6a8" opacity="0.55"/>
+            <rect x="131.6" y="12" width="5.3" height="32" rx="1" fill="#1fb894" opacity="0.55"/>
+            <rect x="139.3" y="4" width="5.3" height="40" rx="1" fill="#35d6a8" opacity="0.55"/>
+            <rect x="147.0" y="29" width="5.3" height="15" rx="1" fill="#1fb894" opacity="0.55"/>
+            <rect x="154.6" y="23" width="5.3" height="21" rx="1" fill="#2ee6c0" opacity="0.9"/>
+            <rect x="162.3" y="7" width="5.3" height="37" rx="1" fill="#1fb894" opacity="0.55"/>
+            <rect x="170.0" y="35" width="5.3" height="9" rx="1" fill="#35d6a8" opacity="0.55"/>
+            <rect x="177.7" y="28" width="5.3" height="16" rx="1" fill="#1fb894" opacity="0.55"/>
+            <rect x="185.4" y="20" width="5.3" height="24" rx="1" fill="#35d6a8" opacity="0.55"/>
+            <rect x="193.1" y="9" width="5.3" height="35" rx="1" fill="#2ee6c0" opacity="0.9"/>
+          </svg>
           <dl>
             <div class="kv"><dt>Service</dt><dd class="ok">ONLINE</dd></div>
+            <div class="kv"><dt>Transport</dt><dd>CF TUNNEL</dd></div>
             <div class="kv"><dt>TLS</dt><dd class="ok">VALID</dd></div>
             <div class="kv"><dt>Inbound</dt><dd>0 PORTS</dd></div>
             <div class="kv"><dt>Entries</dt><dd>{{ total_entries }}</dd></div>
+            <div class="kv"><dt>Host</dt><dd>HOMELAB</dd></div>
             <div class="kv"><dt>Local time</dt><dd id="clock">—</dd></div>
           </dl>
         </div>
@@ -187,12 +217,11 @@
 <section class="wrap">
   <div class="panel">
     <div class="sec-head"><span class="lbl">The lab bench</span><h2>Tools in play</h2></div>
-    <div class="techrow">
-      <span class="tech">FastAPI</span><span class="tech">Jinja2</span><span class="tech">Nginx</span>
-      <span class="tech">Cloudflare Tunnel</span><span class="tech">systemd</span><span class="tech">Let's Encrypt</span>
-      <span class="tech">Ubuntu Server</span><span class="tech">VirtualBox</span><span class="tech">ZeroTier</span>
-      <span class="tech">Kali Linux</span><span class="tech">Ventoy</span><span class="tech">Python</span>
-      <span class="tech">Git</span><span class="tech">AuditForge</span><span class="tech">Fieldnote</span>
+    {% set techs = ["FastAPI","Jinja2","Nginx","Cloudflare Tunnel","systemd","Let's Encrypt","Ubuntu Server","VirtualBox","ZeroTier","Kali Linux","Ventoy","Python","Git","AuditForge","Fieldnote"] %}
+    <div class="techgrid">
+      {% for t in techs %}
+      <span class="techcell"><svg class="tg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8.5 5v10L12 22 3.5 17V7z"/></svg>{{ t }}</span>
+      {% endfor %}
     </div>
   </div>
 </section>
@@ -200,6 +229,7 @@
 <!-- ============ COLOPHON / HOW IT RUNS ============ -->
 <section class="wrap" id="colophon">
   <div class="contact">
+    <div class="skyline-bg" aria-hidden="true"></div>
     <div class="cgrid">
       <div>
         <h2>Published straight<br>from the bench.</h2>
