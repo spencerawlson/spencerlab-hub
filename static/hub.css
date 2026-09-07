@@ -402,9 +402,9 @@ img{max-width:100%}
 .techcell .tg{width:17px; height:17px; flex:none; stroke:var(--accent-2); fill:none; stroke-width:1.4;
   filter:drop-shadow(0 0 5px var(--glow))}
 
-.contact::after{display:none!important}
-.contact .skyline-bg{position:absolute; left:0; right:0; bottom:0; height:min(260px,78%); z-index:1;
-  background:url(/static/skyline.svg?v=2) center bottom / 100% 100% no-repeat; opacity:.85; pointer-events:none;
-  -webkit-mask-image:linear-gradient(0deg,#000 42%,transparent 100%);
-  mask-image:linear-gradient(0deg,#000 42%,transparent 100%)}
+/* soft viridian horizon glow — the "city lights" feel without literal buildings */
+.contact::after{display:block!important; content:""!important; position:absolute!important; left:0; right:0; bottom:0;
+  height:56%!important; z-index:0!important; opacity:1!important; pointer-events:none;
+  background:radial-gradient(150% 100% at 50% 158%, rgba(46,230,192,.22), rgba(31,184,148,.07) 44%, transparent 66%)!important;
+  -webkit-mask-image:none!important; mask-image:none!important}
 .contact .cgrid{position:relative; z-index:2}
