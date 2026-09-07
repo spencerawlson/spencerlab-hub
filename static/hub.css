@@ -114,17 +114,22 @@ img{max-width:100%}
 .trustedby .tb-row span{font-family:var(--mono); font-size:12.5px; color:var(--ink-soft); letter-spacing:.02em; opacity:.85}
 
 /* holographic globe + HUD stack (hero right) */
-.deck{display:flex; flex-direction:column; gap:16px}
-.globe{position:relative; display:grid; place-items:center; margin:-8px 0 2px}
-.globe svg{width:min(330px,92%); height:auto; overflow:visible}
+.deck{position:relative; display:flex; flex-direction:column; gap:0}
+.globe{position:relative; display:grid; place-items:center; margin:-14px 0 0; z-index:1}
+.globe::before{content:""; position:absolute; inset:4% 10% 16%; z-index:-1; border-radius:50%;
+  background:radial-gradient(closest-side at 50% 44%, rgba(31,184,148,.34), rgba(46,230,192,.12) 46%, transparent 72%); filter:blur(6px)}
+.globe svg{width:min(480px,102%); height:auto; overflow:visible}
 .globe .g-ring{animation:ringflow 2.6s linear infinite}
 .globe .g-glow{transform-box:fill-box; transform-origin:center; animation:glowpulse 5.5s ease-in-out infinite}
 .globe .tw{transform-box:fill-box; transform-origin:center; animation:twinkle 3.4s ease-in-out infinite}
 @keyframes ringflow{to{stroke-dashoffset:-24}}
 @keyframes glowpulse{0%,100%{opacity:.82; transform:scale(1)} 50%{opacity:1; transform:scale(1.045)}}
 @keyframes twinkle{0%,100%{opacity:.18} 50%{opacity:.72}}
-.hud-row{display:grid; grid-template-columns:1.15fr .85fr; gap:14px}
+.hud-row{display:grid; grid-template-columns:1.12fr .88fr; gap:13px; margin-top:-108px; position:relative; z-index:3}
 @media(max-width:520px){.hud-row{grid-template-columns:1fr}}
+/* the floating panels read as glass hovering over the globe */
+.hud-row .term, .hud-row .hud{backdrop-filter:blur(16px) saturate(150%); -webkit-backdrop-filter:blur(16px) saturate(150%);
+  box-shadow:var(--glass-hi), 0 30px 60px -28px rgba(0,0,0,.95), 0 0 40px -22px var(--glow)}
 .hud{padding:15px 16px}
 .hud .hud-tag{font-family:var(--mono); font-size:9.5px; letter-spacing:.16em; text-transform:uppercase;
   color:var(--ink-faint); display:flex; align-items:center; gap:7px; margin-bottom:10px}
@@ -219,8 +224,8 @@ img{max-width:100%}
 .tech:hover{border-color:var(--accent); color:#d9ffe8; background:rgba(31,184,148,.07)}
 
 /* ---------------- colophon / how it runs ---------------- */
-.contact{position:relative; margin:26px 0 8px; padding:46px 34px; border-radius:22px; overflow:hidden; border:1px solid var(--line-2)}
-.contact::before{content:""; position:absolute; inset:0; z-index:-1;
+.contact{position:relative; margin:26px 0 8px; padding:46px 34px; border-radius:22px; overflow:hidden; border:1px solid var(--line-2); isolation:isolate}
+.contact::before{content:""; position:absolute; inset:0; z-index:0;
   background:
     linear-gradient(0deg, rgba(31,184,148,.16), transparent 55%),
     radial-gradient(120% 90% at 50% 120%, rgba(46,230,192,.16), transparent 60%),
@@ -375,8 +380,9 @@ img{max-width:100%}
 
 /* the hero deck (globe + HUD) sits comfortably below the copy on one column */
 @media(max-width:960px){
-  .deck{max-width:520px; margin-inline:auto; width:100%}
+  .deck{max-width:560px; margin-inline:auto; width:100%}
   .globe{margin-top:6px}
+  .hud-row{margin-top:-64px}
 }
 
 /* ============================================================
@@ -397,8 +403,8 @@ img{max-width:100%}
   filter:drop-shadow(0 0 5px var(--glow))}
 
 .contact::after{display:none!important}
-.contact .skyline-bg{position:absolute; left:0; right:0; bottom:0; height:min(210px,58%); z-index:-1;
-  background:url(/static/skyline.svg) bottom center / cover no-repeat; opacity:.5;
-  -webkit-mask-image:linear-gradient(0deg,#000 20%,transparent 94%);
-  mask-image:linear-gradient(0deg,#000 20%,transparent 94%)}
-.contact .cgrid{position:relative}
+.contact .skyline-bg{position:absolute; left:0; right:0; bottom:0; height:min(260px,78%); z-index:1;
+  background:url(/static/skyline.svg?v=2) center bottom / 100% 100% no-repeat; opacity:.85; pointer-events:none;
+  -webkit-mask-image:linear-gradient(0deg,#000 42%,transparent 100%);
+  mask-image:linear-gradient(0deg,#000 42%,transparent 100%)}
+.contact .cgrid{position:relative; z-index:2}
