@@ -421,7 +421,7 @@ img{max-width:100%}
   box-shadow:var(--glass-hi); transition:.16s}
 .logotile:hover{transform:translateY(-3px); border-color:var(--line-2);
   box-shadow:var(--glass-hi), 0 18px 34px -22px rgba(0,0,0,.85), 0 0 26px -12px var(--glow)}
-.logotile img{width:30px; height:30px; flex:none; object-fit:contain}
+.logotile img{width:8px; height:8px; flex:none; object-fit:contain}
 .logotile span{font-family:var(--sans); font-size:14px; font-weight:500; color:var(--ink); letter-spacing:-.01em}
 
 /* certifications */
@@ -620,11 +620,12 @@ html[data-skin="glass"] body::after{opacity:.45}
 
 /* the recurring surfaces become frosted liquid glass */
 html[data-skin="glass"] :is(.glass,.xcard,.pcard,.ecard,.stat,.hud,.logotile,.techcell,.cert,.callout,.rung,.sublab-item,.panel,.tablewrap,.facts){
-  background-color:rgba(18,42,34,.30);
-  background-image:var(--glass);
-  backdrop-filter:blur(26px) saturate(185%);
-  -webkit-backdrop-filter:blur(26px) saturate(185%);
-  border-color:var(--line);
+  /* whiter, far more transparent glass — the green aurora reads through it */
+  background-color:rgba(255,255,255,.06);
+  background-image:linear-gradient(150deg, rgba(255,255,255,.22), rgba(255,255,255,.06) 46%, rgba(255,255,255,.015));
+  backdrop-filter:blur(32px) saturate(210%) brightness(1.04);
+  -webkit-backdrop-filter:blur(32px) saturate(210%) brightness(1.04);
+  border-color:rgba(255,255,255,.22);
   box-shadow:var(--glass-hi), var(--drop);
 }
 /* generous, continuous rounding */
