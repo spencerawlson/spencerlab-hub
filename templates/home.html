@@ -12,12 +12,6 @@
         <a class="btn primary" href="#projects">View my work <span class="arw">→</span></a>
         <a class="btn ghost" href="#contact">Get in touch <span class="arw">→</span></a>
       </div>
-      <div class="trustedby">
-        <p class="tb-label">Built &amp; documented with</p>
-        <div class="tb-row">
-          <span>FastAPI</span><span>Nginx</span><span>Cloudflare Tunnel</span><span>systemd</span><span>Let's Encrypt</span><span>Ubuntu</span><span>ZeroTier</span>
-        </div>
-      </div>
     </div>
 
     <div class="deck">
@@ -260,10 +254,10 @@
     </div>
     {% set stack = [
       ["amazonwebservices","AWS"], ["azure","Azure"], ["googlecloud","GCP"], ["terraform","Terraform"],
-      ["kubernetes","Kubernetes"], ["docker","Docker"], ["linux","Linux"], ["python","Python"],
+      ["kubernetes","Kubernetes"], ["docker","Docker"], ["linux","Linux"], ["ubuntu","Ubuntu"], ["python","Python"],
       ["go","Go"], ["typescript","TypeScript"], ["react","React"], ["nodejs","Node.js"],
       ["postgresql","PostgreSQL"], ["mongodb","MongoDB"], ["fastapi","FastAPI"], ["nginx","Nginx"],
-      ["cloudflare","Cloudflare"]
+      ["cloudflare","Cloudflare"], ["systemd","systemd"], ["letsencrypt","Let's Encrypt"], ["zerotier","ZeroTier"]
     ] %}
     <div class="stackgrid">
       {% for s in stack %}
