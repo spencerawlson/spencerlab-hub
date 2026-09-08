@@ -8,9 +8,10 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#08140f">
 <script>
-  /* Apply the saved visual skin before first paint (site default: skeuomorphic). */
+  /* Apply the saved visual skin before first paint (site default: liquid glass).
+     Only 'glass' and 'flat' are honoured now, so a stale 'skeuo' choice falls to glass. */
   (function(){var s;try{s=localStorage.getItem('slt-skin');}catch(e){}
-   document.documentElement.setAttribute('data-skin', s||'skeuo');})();
+   document.documentElement.setAttribute('data-skin', (s==='glass'||s==='flat')?s:'glass');})();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,7 +25,7 @@
   .contact .clist svg[fill="currentColor"]{fill:currentColor;stroke:none}
   .globe svg{width:min(480px,102%);height:auto}
 </style>
-<link rel="stylesheet" href="/static/hub.css?v=14">
+<link rel="stylesheet" href="/static/hub.css?v=15">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛰️</text></svg>">
 </head>
 <body>
@@ -39,9 +40,9 @@
       {% endfor %}
     </div>
     <button class="skin-toggle" id="skinToggle" type="button" aria-label="Switch visual style"
-            title="Switch between the textured and flat look">
+            title="Switch between the liquid-glass and flat look">
       <span class="st-track"><span class="st-knob"></span></span>
-      <span class="st-label">Texture</span>
+      <span class="st-label">Glass</span>
     </button>
     <a class="btn primary" href="https://github.com/spencerawlson" rel="noopener">GitHub <span class="arw">→</span></a>
   </div>
@@ -60,18 +61,18 @@
   </div>
 </footer>
 <script>
-  /* Skin switch: flip textured (skeuo) ⇄ flat, and remember it. */
+  /* Skin switch: flip liquid glass ⇄ flat, and remember it. */
   (function(){
     var btn = document.getElementById('skinToggle');
     if (!btn) return;
     function sync(){
-      var s = document.documentElement.getAttribute('data-skin') || 'skeuo';
-      btn.setAttribute('aria-pressed', s === 'skeuo' ? 'true' : 'false');
+      var s = document.documentElement.getAttribute('data-skin') || 'glass';
+      btn.setAttribute('aria-pressed', s === 'glass' ? 'true' : 'false');
     }
     sync();
     btn.addEventListener('click', function(){
-      var cur = document.documentElement.getAttribute('data-skin') || 'skeuo';
-      var next = cur === 'skeuo' ? 'flat' : 'skeuo';
+      var cur = document.documentElement.getAttribute('data-skin') || 'glass';
+      var next = cur === 'glass' ? 'flat' : 'glass';
       document.documentElement.setAttribute('data-skin', next);
       try { localStorage.setItem('slt-skin', next); } catch (e) {}
       sync();

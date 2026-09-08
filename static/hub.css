@@ -584,3 +584,83 @@ a.sublab-item:hover{transform:translateY(-3px); border-color:var(--line-2); text
   text-transform:uppercase; margin:0; color:var(--ink); line-height:1.12; text-wrap:balance}
 .sublab-item p{margin:0; font-size:13px; color:var(--ink-soft); line-height:1.5; flex:1}
 .sublab-item .view{margin-top:2px}
+
+/* ============================================================
+   SKIN — LIQUID GLASS   (html[data-skin="glass"])
+   Frosted translucent panels floating over a vivid viridian aurora:
+   heavy backdrop blur + saturation so the glass refracts colour, bright
+   specular rims, soft float shadows, and generous rounding. Scoped to
+   [data-skin="glass"]; "flat" restores the original HUD. The nav switch
+   flips them. Change the SITE default in base.html's boot script.
+   ============================================================ */
+html[data-skin="glass"]{
+  --ink:#f2f7ff; --ink-soft:#bcd6ca; --ink-faint:#84a293;
+  --line:rgba(255,255,255,.14); --line-2:rgba(255,255,255,.30);
+  --accent:#25c9a4; --accent-2:#57ecc6; --accent-cyan:#4fe9df; --accent-ink:#aef4de;
+  --glow:rgba(47,214,172,.5); --glow-cyan:rgba(79,233,223,.4); --glow-iris:rgba(47,214,172,.3);
+  /* translucent glass face + bright specular rim + soft float shadow */
+  --glass:linear-gradient(150deg, rgba(255,255,255,.17), rgba(255,255,255,.05) 45%, rgba(255,255,255,.02));
+  --glass-hi:inset 0 1px 0 rgba(255,255,255,.55), inset 0 0 0 1px rgba(255,255,255,.05), inset 0 -22px 36px -24px rgba(0,0,0,.36);
+  --drop:0 22px 54px -24px rgba(0,0,0,.6), 0 8px 20px -12px rgba(0,0,0,.42);
+}
+
+/* vivid, slowly drifting aurora so the frosted panels have colour to refract */
+html[data-skin="glass"] body::before{
+  background:
+    radial-gradient(920px 640px at 82% -6%, rgba(47,214,172,.55), transparent 60%),
+    radial-gradient(780px 560px at 10% 2%, rgba(79,233,223,.42), transparent 62%),
+    radial-gradient(860px 660px at 62% 110%, rgba(53,214,168,.5), transparent 60%),
+    radial-gradient(620px 540px at 98% 58%, rgba(46,230,192,.32), transparent 64%),
+    linear-gradient(180deg, #071a14, #04100c);
+  animation:glassdrift 28s ease-in-out infinite alternate;
+}
+@media (prefers-reduced-motion:reduce){html[data-skin="glass"] body::before{animation:none}}
+@keyframes glassdrift{0%{transform:translate3d(0,0,0) scale(1.02)}100%{transform:translate3d(0,-2.5%,0) scale(1.09)}}
+html[data-skin="glass"] body::after{opacity:.45}
+
+/* the recurring surfaces become frosted liquid glass */
+html[data-skin="glass"] :is(.glass,.xcard,.pcard,.ecard,.stat,.hud,.logotile,.techcell,.cert,.callout,.rung,.sublab-item,.panel,.tablewrap,.facts){
+  background-color:rgba(18,42,34,.30);
+  background-image:var(--glass);
+  backdrop-filter:blur(26px) saturate(185%);
+  -webkit-backdrop-filter:blur(26px) saturate(185%);
+  border-color:var(--line);
+  box-shadow:var(--glass-hi), var(--drop);
+}
+/* generous, continuous rounding */
+html[data-skin="glass"] :is(.panel,.contact,.cta){border-radius:28px}
+html[data-skin="glass"] :is(.xcard,.pcard,.ecard,.sublab-item,.tablewrap){border-radius:20px}
+html[data-skin="glass"] :is(.stat,.logotile,.techcell,.cert,.callout,.hud,.facts){border-radius:18px}
+
+/* a specular light streak across the big panels (sits under the text) */
+html[data-skin="glass"] .panel::before{
+  background:linear-gradient(125deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.05) 16%, transparent 38%);
+  height:100%;
+}
+
+/* nav: a floating glass bar with a bright top rim */
+html[data-skin="glass"] .nav{
+  background:linear-gradient(180deg, rgba(10,26,20,.55), rgba(10,26,20,.26));
+  backdrop-filter:blur(26px) saturate(180%); -webkit-backdrop-filter:blur(26px) saturate(180%);
+  border-bottom:1px solid rgba(255,255,255,.10);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.30);
+}
+
+/* glass pill buttons — bright rim + specular top */
+html[data-skin="glass"] .btn{border-radius:100px}
+html[data-skin="glass"] .btn.primary{
+  background:linear-gradient(160deg, rgba(96,242,204,.92), rgba(31,184,148,.86));
+  color:#04160f; border:1px solid rgba(255,255,255,.32);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 12px 28px -10px var(--glow);
+  text-shadow:0 1px 0 rgba(255,255,255,.25)}
+html[data-skin="glass"] .btn.primary:hover{filter:brightness(1.05); transform:translateY(-1px)}
+html[data-skin="glass"] .btn.ghost{
+  background:rgba(255,255,255,.08); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border-color:rgba(255,255,255,.24); box-shadow:inset 0 1px 0 rgba(255,255,255,.28); color:var(--ink)}
+
+/* rounder, glassier small chips + the icon tiles catch light */
+html[data-skin="glass"] :is(.tech,.pill,.chip,.hero .kicker){backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px)}
+html[data-skin="glass"] :is(.xcard .ico,.stat .si){
+  background:rgba(255,255,255,.10); border-color:rgba(255,255,255,.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+html[data-skin="glass"] .hero h1 .accent{filter:drop-shadow(0 0 30px var(--glow))}
