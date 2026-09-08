@@ -621,8 +621,8 @@ html[data-skin="glass"] body::after{opacity:.45}
 
 /* the recurring surfaces become frosted liquid glass */
 html[data-skin="glass"] :is(.glass,.xcard,.pcard,.ecard,.stat,.hud,.logotile,.techcell,.cert,.callout,.rung,.sublab-item,.panel,.tablewrap,.facts){
-  /* near see-through glass — the barest white film, defined by its frost + bright rim */
-  background-color:rgba(255,255,255,.02);
+  /* cards at 5% fill — see-through glass defined by its frost + bright rim */
+  background-color:rgba(255,255,255,.05);
   background-image:linear-gradient(150deg, rgba(255,255,255,.12), rgba(255,255,255,.03) 46%, transparent);
   backdrop-filter:blur(30px) saturate(200%) brightness(1.03);
   -webkit-backdrop-filter:blur(30px) saturate(200%) brightness(1.03);
