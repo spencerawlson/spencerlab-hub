@@ -668,3 +668,198 @@ html[data-skin="glass"] :is(.xcard .ico,.stat .si){
   background:rgba(255,255,255,.10); border-color:rgba(255,255,255,.22);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
 html[data-skin="glass"] .hero h1 .accent{filter:drop-shadow(0 0 30px var(--glow))}
+
+/* ============================================================
+   SKIN — LIGHT LIQUID GLASS   (html[data-skin="light"])   ·  SITE DEFAULT
+   White, corporate-clean, benchmarked against it-labs.com: an off-white
+   ground, one viridian accent, grey body copy, generous air. The glass is
+   preserved but inverted — frosted WHITE panels floating over a pale mint
+   aurora, with bright white specular rims and soft, low shadows.
+
+   Three surfaces stay deliberately DARK, because on a white page a dark
+   well reads as a screen rather than a mistake: the terminal blocks, the
+   project-card thumbnails, and the closing CTA. That light-page /
+   dark-screenshot rhythm is what corporate tech sites actually do.
+
+   Display type drops Rajdhani (a HUD face) for IBM Plex Sans 600/700 —
+   already loaded for body copy, so no extra font request, and it reads
+   corporate rather than gamer. The dark skins keep Rajdhani.
+   ============================================================ */
+html[data-skin="light"]{
+  color-scheme:light;
+  --void:#eef3f1; --ground:#f7faf9; --raise:#ffffff; --raise-2:#f2f7f5;
+  --ink:#101d19; --ink-soft:#4a5c56; --ink-faint:#6b7d76;
+  --line:rgba(16,64,48,.11); --line-2:rgba(16,64,48,.20);
+  --accent:#0fa47d; --accent-2:#12b98d; --accent-cyan:#0f9c9c; --accent-iris:#0d8e6d;
+  --accent-ink:#0a7a5e;
+  --grad:linear-gradient(135deg,#12b98d 0%,#0d8e6d 100%);
+  --grad-text:linear-gradient(115deg,#0d8e6d 0%,#12b98d 55%,#119c9c 100%);
+  --glow:rgba(16,164,125,.20); --glow-cyan:rgba(15,156,156,.14); --glow-iris:rgba(13,142,109,.12);
+  --ok:#0f9d63; --warn:#b5791a; --fail:#c8483f;
+  --ok-soft:rgba(15,157,99,.09); --warn-soft:rgba(181,121,26,.09); --fail-soft:rgba(200,72,63,.08);
+  /* frosted WHITE glass: white film, bright rim, soft low shadow */
+  --glass:linear-gradient(150deg, rgba(255,255,255,.86), rgba(255,255,255,.56) 45%, rgba(255,255,255,.40));
+  --glass-hi:inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.45);
+  --drop:0 18px 44px -30px rgba(12,46,36,.50), 0 4px 14px -10px rgba(12,46,36,.16);
+  --term-bg:#0b1a14;
+  --disp:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+html[data-skin="light"] body{color:var(--ink); background:var(--ground)}
+
+/* pale mint aurora — the glass needs colour underneath or it reads as flat white */
+html[data-skin="light"] body::before{
+  background:
+    radial-gradient(920px 640px at 84% -8%, rgba(18,185,141,.16), transparent 62%),
+    radial-gradient(760px 560px at 6% 0%, rgba(15,156,156,.11), transparent 64%),
+    radial-gradient(880px 660px at 68% 108%, rgba(18,185,141,.13), transparent 62%),
+    linear-gradient(180deg,#ffffff 0%, var(--ground) 42%, #eef4f2 100%);
+  animation:none;
+}
+/* blueprint grid, barely there */
+html[data-skin="light"] body::after{
+  opacity:1;
+  background-image:
+    linear-gradient(rgba(16,64,48,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,64,48,.045) 1px, transparent 1px);
+}
+
+/* ---- the recurring frosted-white surfaces ---- */
+html[data-skin="light"] :is(.glass,.xcard,.pcard,.ecard,.stat,.hud,.logotile,.techcell,.cert,.callout,.rung,.sublab-item,.panel,.tablewrap,.facts){
+  background-color:rgba(255,255,255,.62);
+  background-image:var(--glass);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-color:rgba(16,64,48,.10);
+  box-shadow:var(--glass-hi), var(--drop);
+}
+html[data-skin="light"] :is(.xcard,.pcard,.ecard,.sublab-item,.logotile,.techcell):hover{
+  background-color:rgba(255,255,255,.80);
+  border-color:rgba(16,164,125,.34);
+  box-shadow:var(--glass-hi), 0 26px 50px -30px rgba(12,46,36,.44), 0 0 0 1px rgba(16,164,125,.10);
+}
+html[data-skin="light"] :is(.panel,.contact,.cta){border-radius:26px}
+html[data-skin="light"] :is(.xcard,.pcard,.ecard,.sublab-item,.tablewrap){border-radius:18px}
+html[data-skin="light"] :is(.stat,.logotile,.techcell,.cert,.callout,.hud,.facts){border-radius:16px}
+
+/* section frame: a clean white card, no dark gradient */
+html[data-skin="light"] .panel{
+  background-image:var(--glass); background-color:rgba(255,255,255,.58);
+  border-top-color:rgba(255,255,255,.9);
+}
+html[data-skin="light"] .panel::before{
+  background:linear-gradient(125deg, rgba(255,255,255,.55) 0%, transparent 34%); height:100%;
+}
+
+/* ---- headings + wordmarks: every near-white hex becomes ink ---- */
+html[data-skin="light"] :is(.hero h1,.sec-head h2,.pagehead h1,.entry h1.title,.entry h2,.entry h3,
+  .stat .sv,.cert .cc,.learnpanel h3,.contact h2,.brand .wordmark,.foot .wordmark,.xcard h3,
+  .pcard h3,.ecard h3,.sublab-item h4){color:var(--ink); text-shadow:none}
+html[data-skin="light"] :is(.brand .wordmark .tld,.foot .wordmark .tld){color:var(--accent-ink); filter:none}
+html[data-skin="light"] .hero h1 .accent{filter:none}
+html[data-skin="light"] :is(.entry p,.rung .desc b){color:var(--ink)}
+
+/* display type: tighter, corporate tracking instead of HUD spacing */
+html[data-skin="light"] :is(.hero h1,.sec-head h2,.pagehead h1,.entry h1.title,.contact h2,.cta-lead h2){
+  letter-spacing:-.015em; font-weight:700}
+html[data-skin="light"] :is(.xcard h3,.pcard h3,.ecard h3,.sublab-item h4,.entry h3,.cert .cc,.learnpanel h3){
+  letter-spacing:-.005em; font-weight:600}
+
+/* ---- nav: a floating white glass bar ---- */
+html[data-skin="light"] .nav{
+  background:linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.66));
+  backdrop-filter:blur(26px) saturate(180%); -webkit-backdrop-filter:blur(26px) saturate(180%);
+  border-bottom:1px solid rgba(16,64,48,.10);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 1px 18px -10px rgba(12,46,36,.30);
+}
+html[data-skin="light"] .nav::after{opacity:.30}
+html[data-skin="light"] .navlinks a{color:var(--ink-soft)}
+html[data-skin="light"] .navlinks a:hover{background:rgba(16,164,125,.07); color:var(--ink)}
+html[data-skin="light"] .navlinks a[aria-current="page"]{color:var(--accent-ink); box-shadow:inset 0 -2px 0 var(--accent)}
+
+/* ---- buttons ---- */
+html[data-skin="light"] .btn{border-radius:100px}
+html[data-skin="light"] .btn.primary{
+  background:var(--grad); color:#ffffff; border:1px solid rgba(255,255,255,.30);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.42), 0 12px 26px -14px rgba(13,142,109,.80); text-shadow:none}
+html[data-skin="light"] .btn.primary:hover{filter:brightness(1.06); transform:translateY(-1px)}
+html[data-skin="light"] .btn.ghost{
+  background:rgba(255,255,255,.72); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border-color:rgba(16,64,48,.18); color:var(--ink);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 6px 16px -12px rgba(12,46,36,.4)}
+html[data-skin="light"] .btn.ghost:hover{border-color:var(--accent); color:var(--accent-ink); background:rgba(16,164,125,.07)}
+
+/* ---- links, focus, selection ---- */
+html[data-skin="light"] a{color:var(--accent-ink)}
+html[data-skin="light"] a:hover{color:#065c46}
+html[data-skin="light"] ::selection{background:rgba(16,164,125,.22); color:var(--ink)}
+
+/* ---- small chips + pills ---- */
+html[data-skin="light"] :is(.tech,.pill){background:rgba(255,255,255,.70); color:var(--ink-soft); border-color:rgba(16,64,48,.12)}
+html[data-skin="light"] .tech:hover{border-color:var(--accent); color:var(--accent-ink); background:rgba(16,164,125,.07)}
+html[data-skin="light"] .pill.ok{color:var(--ok); border-color:rgba(15,157,99,.32); background:rgba(15,157,99,.08)}
+html[data-skin="light"] :is(.chip,.hero .kicker,.entry .eyebrow){
+  background:rgba(16,164,125,.08); border-color:rgba(16,164,125,.24); color:var(--accent-ink)}
+html[data-skin="light"] .emptyc{background:rgba(255,255,255,.55); color:var(--ink-faint); border-color:var(--line-2)}
+html[data-skin="light"] :is(.xcard .ico,.stat .si){
+  background:rgba(16,164,125,.10); border-color:rgba(16,164,125,.24); color:var(--accent-iris);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
+html[data-skin="light"] .hud .hud-tag .d{filter:none}
+
+/* ---- article furniture ---- */
+html[data-skin="light"] .entry table{background:transparent}
+html[data-skin="light"] .entry thead th{background:rgba(16,164,125,.07); color:var(--accent-ink)}
+html[data-skin="light"] .entry tbody tr:hover td{background:rgba(16,164,125,.045)}
+html[data-skin="light"] .facts{background:var(--line)}
+html[data-skin="light"] .facts div{background:rgba(255,255,255,.78)}
+html[data-skin="light"] .facts dd{color:var(--accent-ink)}
+html[data-skin="light"] :is(.entry p code,.entry li code,.entry td code,.callout code){
+  background:rgba(16,164,125,.09); border-color:rgba(16,164,125,.20); color:#07684f}
+html[data-skin="light"] .entry figure svg{background:rgba(255,255,255,.80); color:var(--ink-soft)}
+html[data-skin="light"] .entry .masthead::before{
+  background:radial-gradient(720px 400px at 84% -30%, rgba(18,185,141,.16), transparent 62%)}
+html[data-skin="light"] :is(.rung.r522 .code,.rung.r502 .code,.rung.r200 .code){text-shadow:none}
+html[data-skin="light"] .cert{background-color:rgba(255,255,255,.62)}
+html[data-skin="light"] .learnpanel{
+  background:radial-gradient(130% 120% at 100% 0%, rgba(18,185,141,.14), transparent 60%), rgba(255,255,255,.70);
+  border-color:rgba(16,164,125,.24)}
+
+/* ---- colophon panel: white, not a dark slab ---- */
+html[data-skin="light"] .contact{border-color:rgba(16,64,48,.12); background:transparent}
+html[data-skin="light"] .contact::before{
+  background:
+    linear-gradient(0deg, rgba(18,185,141,.10), transparent 58%),
+    radial-gradient(120% 90% at 50% 120%, rgba(15,156,156,.10), transparent 62%),
+    linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.70));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95)}
+html[data-skin="light"] .contact::after{
+  background:radial-gradient(150% 100% at 50% 158%, rgba(18,185,141,.14), rgba(15,156,156,.05) 46%, transparent 68%)!important}
+html[data-skin="light"] .contact .clist a,html[data-skin="light"] .contact .clist span{color:var(--ink)}
+
+/* ---- footer ---- */
+html[data-skin="light"] .foot{border-top-color:var(--line); color:var(--ink-faint)}
+html[data-skin="light"] .foot a{color:var(--ink-soft)}
+html[data-skin="light"] .foot a:hover{color:var(--accent-ink)}
+
+/* ---- the three deliberate DARK islands ----
+   terminal, project thumbnails and the CTA keep their dark wells; on a white
+   page they read as screens. They only need their float shadow softened so
+   they sit on the page instead of glowing off it. */
+html[data-skin="light"] .term{
+  background:#0b1a14; border-color:rgba(16,64,48,.22);
+  box-shadow:0 20px 44px -30px rgba(12,46,36,.55), 0 3px 10px -6px rgba(12,46,36,.22)}
+html[data-skin="light"] .hud-row .term,html[data-skin="light"] .hud-row .hud{
+  box-shadow:var(--glass-hi), 0 26px 54px -32px rgba(12,46,36,.50)}
+html[data-skin="light"] .pcard .shot{border-bottom-color:rgba(16,64,48,.10)}
+html[data-skin="light"] .cta{border-color:rgba(16,64,48,.14)}
+html[data-skin="light"] .tablewrap{box-shadow:var(--glass-hi), var(--drop)}
+
+/* ---- skin toggle reads on white ---- */
+html[data-skin="light"] .skin-toggle{color:var(--ink-faint)}
+html[data-skin="light"] .skin-toggle .st-track{
+  background:linear-gradient(180deg, rgba(16,64,48,.10), rgba(16,64,48,.04));
+  border-color:rgba(16,64,48,.18); box-shadow:inset 0 1px 3px rgba(12,46,36,.18)}
+html[data-skin="light"] .skin-toggle .st-knob{
+  background:linear-gradient(180deg,#ffffff,#e6efeb);
+  box-shadow:0 1px 3px rgba(12,46,36,.34), inset 0 1px 0 rgba(255,255,255,.95)}
+html[data-skin="light"] .skin-toggle[aria-pressed="true"] .st-track{
+  background:linear-gradient(180deg, var(--accent-2), var(--accent-iris)); border-color:transparent}
