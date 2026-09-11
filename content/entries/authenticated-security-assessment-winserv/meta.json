@@ -1,0 +1,14 @@
+{
+  "slug": "authenticated-security-assessment-winserv",
+  "title": "Authenticated Security Assessment - WinServ",
+  "category": "assessed",
+  "date": "2026-09-08",
+  "summary": "An authorized, authenticated (assumed-breach) security assessment of WinServ (10.x.x.5), a standalone Windows Server 2025 file server on the isolated LabNet segment, to evaluate its configuration, access controls and b",
+  "tags": [
+    "pentest",
+    "access control / remote management",
+    "configuration / information disclosure",
+    "configuration"
+  ],
+  "source": "auditforge"
+}

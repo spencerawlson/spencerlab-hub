@@ -1,0 +1,94 @@
+<header class="masthead"><div class="readwrap">
+<p class="eyebrow"><span class="dot"></span> Pentested · AuditForge</p>
+<h1 class="title">Authenticated Security Assessment - WinServ</h1>
+<p class="lede">An authorized, authenticated (assumed-breach) security assessment of WinServ (10.x.x.5), a standalone Windows Server 2025 file server on the isolated LabNet segment, to evaluate its configuration, access controls and b</p>
+<div class="byline"><span><b>Classification</b> Public</span><span><b>Ref</b> RPT-2026-0002</span><span><b>Version</b> v4.0 Final</span></div>
+</div></header>
+<div class="readwrap">
+<section>
+<h2>Executive Summary</h2>
+<p>An authorized, authenticated (assumed-breach) security assessment of WinServ (10.x.x.5), a standalone Windows Server 2025 file server on the isolated LabNet segment, to evaluate its configuration, access controls and blast radius using valid credentials the tester already held.</p>
+<p>WinServ exposed IIS, RPC, SMB, LDAP (AD LDS) and WinRM. The department file-share RBAC (HR$/IT$/FIN$) was tested and enforces correctly. However, WinRM was exposed and a valid administrator credential granted full remote control of the server, bypassing all RBAC - a Critical finding. Secondary issues: C:\Users is over-shared to authenticated users, and SMB signing is not required. Findings: 1 Critical, 2 Medium, plus 1 confirmed strength.</p>
+<p>F-01 (Critical): exposed WinRM plus a valid admin credential yields full remote control, overriding NTFS and every RBAC boundary. F-02 (Medium): the Users share exposes the C:\Users profile layout to any authenticated user. F-03 (Medium): SMB signing is not required, enabling NTLM/SMB relay.</p>
+<p>Remediate F-01 first - restrict WinRM to a management subnet and protect the admin credential - then address F-02 and F-03. Segment the network so a workstation foothold cannot reach the server.</p>
+</section>
+<section>
+<h2>Scope</h2>
+<p>WinServ - 10.x.x.5 (Windows Server 2025, Build 26100, standalone WORKGROUP), across its exposed services. Attacker position: Kali 10.x.x.4.</p>
+<p>Any system outside LabNet 10.x.x.0/24, and all external or internet-facing systems.</p>
+<p>Authenticated / assumed-breach assessment: performed with valid credentials the tester already held, to evaluate configuration and blast radius. Authentication was not defeated and no credential was cracked or bypassed.</p>
+</section>
+<section>
+<h2>Objectives</h2>
+<p>Evaluate WinServ's configuration, access controls and blast radius from an assumed-breach position, and determine whether the department file-share RBAC holds under both normal-user and administrator access.</p>
+<p>The RBAC is sound only if each department can write only its own share and cross-department and admin-share access is denied; the assessment records both the control that holds and the exposure that defeats it.</p>
+</section>
+<section>
+<h2>Methodology</h2>
+<p>Followed the repeatable process: scope &amp; recon, scan &amp; enumerate, authenticated access &amp; RBAC validation, impact demonstration, then remediation guidance. Each step was tagged as an authenticated assessment action or an unauthenticated attack; the engagement was almost entirely assessment - no credential was cracked or bypassed.</p>
+<p>Least-privilege / RBAC validation, using the mirror-image test (HR01 vs FIN01) to prove cross-department denial. MITRE ATT&amp;CK framing for the initial-access context.</p>
+<p>nmap, netexec, smbclient, enum4linux, evil-winrm.</p>
+</section>
+<section>
+<h2>Environment</h2>
+<p>Standalone Windows Server 2025 (Build 26100) in a WORKGROUP, acting as a departmental file server on the isolated LabNet 10.x.x.0/24 (VirtualBox NAT network). RDP (3389) is not exposed; the host firewall filters all but the listed services.</p>
+<p>Exposed services: IIS, RPC, SMB (445), LDAP (AD LDS) and WinRM (5985). Department shares HR$, IT$, FIN$ with per-department RBAC, plus additional Users (maps to C:\Users) and Shares.</p>
+</section>
+<section>
+<h2>Risk Analysis</h2>
+<p>The file-server RBAC design is sound and was verified - each department writes only its own share, and cross-department and admin-share access is denied (a confirmed strength). That control protects against a normal-user compromise, but it is entirely defeated by the Critical WinRM/admin exposure: an administrator overrides NTFS and reads every share regardless of the RBAC.</p>
+<p>A single reused or harvested administrator credential, used over the exposed WinRM service, results in total compromise of the file server and all department data - the RBAC does not contain an admin-level breach.</p>
+<p>Assumes the attacker is already on the internal segment (the assumed-breach premise) and can obtain or reuse a valid administrator credential; reaching the LAN in the first place is a separate initial-access phase.</p>
+</section>
+<section>
+<h2>Remediation</h2>
+<p>1) F-01: restrict WinRM to a management subnet (or disable if unused) and protect the local admin credential (long, unique, rotated; consider LAPS); administer from a dedicated admin host. 2) F-02: remove or restrict the Users and Shares shares to administrators. 3) F-03: require SMB signing via Group Policy and restrict NTLM where possible.</p>
+<p>F-01 is a firewall rule plus credential hygiene; F-02 is a share change; F-03 is a Group Policy / registry setting. All are low-effort configuration changes.</p>
+<p>F-01: WinRM unreachable from a normal segment and admin logons alerted. F-02: a normal user can no longer connect to \\WINSERV\Users. F-03: netexec reports signing:True.</p>
+</section>
+<section>
+<h2>Recommendations</h2>
+<p>Segment the network so a workstation foothold cannot reach the server; enforce MFA on all remote access; monitor administrative logons; vault and rotate local admin credentials. (MITRE ATT&amp;CK: Initial Access -&gt; Discovery -&gt; Lateral Movement.)</p>
+<p>Restrict or disable WinRM; remove the over-shared Users/Shares shares; require SMB signing.</p>
+</section>
+<section>
+<h2>Conclusion</h2>
+<p>The file-server RBAC is well designed and verified, but it is defeated by the Critical WinRM/admin exposure (F-01) and weakened by over-sharing (F-02) and missing SMB signing (F-03). Priority: remediate F-01 first (restrict WinRM and protect admin credentials), then F-02 and F-03. Broader: segment the network so a foothold cannot reach the server, enforce MFA on remote access, and monitor administrative logons.</p>
+</section>
+<section>
+<h2>Appendix</h2>
+<p>Second in the LabNet engagement series (companion to the UbuntuServ engagement report). Initial-access context: the engagement began with the attacker already on LabNet; gaining that position is a separate, harder phase. A normal-user compromise is contained by the RBAC, but a compromised administrator credential over exposed WinRM is total. Primary defense: network segmentation.</p>
+</section>
+<section>
+<h2>Findings</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>ID</th><th>Finding</th><th>Severity</th><th>Affected asset</th></tr></thead>
+<tbody>
+<tr><td class="mono">FND-2026-0003</td><td>Exposed WinRM + Admin Credential = Full Remote Compromise</td><td>Critical</td><td class="mono">WinServ 10.x.x.5 - WinRM (TCP 5985)</td></tr>
+<tr><td class="mono">FND-2026-0004</td><td>C:\Users Over-Shared to Authenticated Users</td><td>Medium</td><td class="mono">WinServ 10.x.x.5 - SMB share &quot;Users&quot; (TCP 445)</td></tr>
+<tr><td class="mono">FND-2026-0005</td><td>SMB Signing Not Required</td><td>Medium</td><td class="mono">WinServ 10.x.x.5 - SMB (TCP 445), signing:False</td></tr>
+</tbody>
+</table></div>
+<h3>FND-2026-0003 — Exposed WinRM + Admin Credential = Full Remote Compromise</h3>
+<p class="small"><b>Severity:</b> Critical &middot; <b>Asset:</b> WinServ 10.x.x.5 - WinRM (TCP 5985)</p>
+<p>WinRM is reachable and a valid local Administrator credential authenticates with admin rights, granting an interactive remote shell (Evil-WinRM).</p>
+<p><b>Impact.</b></p>
+<p>Complete control of the server. Admin overrides NTFS and reads/writes every department share regardless of the RBAC, and can create accounts, dump credentials, and persist.</p>
+<p><b>Remediation.</b></p>
+<p>Restrict WinRM with a firewall rule to a management subnet (or disable it if unused); protect the admin credential (long, unique, rotated - consider LAPS for local admin); administer from a dedicated admin host; enable logging and monitoring.</p>
+<h3>FND-2026-0004 — C:\Users Over-Shared to Authenticated Users</h3>
+<p class="small"><b>Severity:</b> Medium &middot; <b>Asset:</b> WinServ 10.x.x.5 - SMB share &quot;Users&quot; (TCP 445)</p>
+<p>A share named &quot;Users&quot; maps to C:\Users and is readable by any authenticated user (confirmed as HR01).</p>
+<p><b>Impact.</b></p>
+<p>Information disclosure of the user/profile layout and unnecessary attack surface. NTFS still protects the contents of individual profiles.</p>
+<p><b>Remediation.</b></p>
+<p>Remove the Users share (and the empty Shares share) or restrict them to administrators.</p>
+<h3>FND-2026-0005 — SMB Signing Not Required</h3>
+<p class="small"><b>Severity:</b> Medium &middot; <b>Asset:</b> WinServ 10.x.x.5 - SMB (TCP 445), signing:False</p>
+<p>The server does not require SMB signing.</p>
+<p><b>Impact.</b></p>
+<p>Enables NTLM/SMB relay attacks - a coerced authentication can be relayed to this host.</p>
+<p><b>Remediation.</b></p>
+<p>Enforce &quot;Microsoft network server: Digitally sign communications (always)&quot; via Group Policy / registry, and restrict NTLM where possible.</p>
+</section>
+</div>

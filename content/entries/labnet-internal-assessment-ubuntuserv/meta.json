@@ -1,0 +1,13 @@
+{
+  "slug": "labnet-internal-assessment-ubuntuserv",
+  "title": "LabNet Internal Assessment - UbuntuServ",
+  "category": "pentested",
+  "date": "2026-09-08",
+  "summary": "An authorized internal assessment of UbuntuServ (10.x.x.3) on the isolated LabNet segment, to determine whether the host could be compromised from an attacker already positioned on the internal network.",
+  "tags": [
+    "pentest",
+    "credentials",
+    "configuration"
+  ],
+  "source": "auditforge"
+}

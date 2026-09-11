@@ -1,0 +1,85 @@
+<header class="masthead"><div class="readwrap">
+<p class="eyebrow"><span class="dot"></span> Pentested · AuditForge</p>
+<h1 class="title">LabNet Internal Assessment - UbuntuServ</h1>
+<p class="lede">An authorized internal assessment of UbuntuServ (10.x.x.3) on the isolated LabNet segment, to determine whether the host could be compromised from an attacker already positioned on the internal network.</p>
+<div class="byline"><span><b>Classification</b> Public</span><span><b>Ref</b> RPT-2026-0001</span><span><b>Version</b> v3.0 Final</span></div>
+</div></header>
+<div class="readwrap">
+<section>
+<h2>Executive Summary</h2>
+<p>An authorized internal assessment of UbuntuServ (10.x.x.3) on the isolated LabNet segment, to determine whether the host could be compromised from an attacker already positioned on the internal network.</p>
+<p>UbuntuServ exposed four services (SSH, HTTP, and SMB on 139/445). The service software was fully patched, so the exploitable risk lived in configuration (anonymous SMB enumeration) and credentials (a weak SSH password). Both were demonstrated, remediated, and verified. Findings: 1 High, 1 Medium.</p>
+<p>F-01 (High): a weak SSH password was brute-forced to a full shell in about a minute. F-02 (Medium): anonymous SMB null sessions disclosed share names and host/OS information.</p>
+<p>Both findings are remediated and verified. Extend the same controls - key-based SSH, brute-force protection, and no anonymous SMB - across all hosts, and segment the network so a single foothold cannot reach every system.</p>
+</section>
+<section>
+<h2>Scope</h2>
+<p>UbuntuServ - 10.x.x.3 (Ubuntu 24.04.4 LTS), across all listening services. Attacker position: Kali 10.x.x.4 on the same segment.</p>
+<p>Any system outside LabNet 10.x.x.0/24, and all external or internet-facing systems.</p>
+<p>Testing was confined to the isolated LabNet 10.x.x.0/24. The credential finding used a deliberately weak throwaway account (testuser), created for the test and removed on completion.</p>
+</section>
+<section>
+<h2>Objectives</h2>
+<p>Determine whether UbuntuServ can be compromised from an attacker already on the internal network, following a repeatable methodology: scope &amp; recon, scan &amp; enumerate, exploit / validate, remediate, verify, then clean up and report.</p>
+<p>A weakness counts as demonstrated only when it is safely proven to have impact and captured as evidence, and counts as closed only when the exact attack is re-run and confirmed to fail.</p>
+</section>
+<section>
+<h2>Activities</h2>
+<p>Step 1 - Identify the target: confirmed reachability of 10.x.x.3 and mapped live hosts with nmap -sn 10.x.x.0/24 (target 10.x.x.3, attacker 10.x.x.4).</p>
+<p>Step 2 - Scan services: nmap -sV 10.x.x.3 found 22/tcp OpenSSH 9.6p1, 80/tcp nginx 1.24.0, and 139/445 Samba 4.</p>
+<p>Step 3 - Check known exploits: searchsploit returned no results for OpenSSH 9.6 or nginx 1.24 - the software was patched, so the work pivoted to configuration and credentials.</p>
+<p>Step 4 - Enumerate SMB: smbclient -L -N and enum4linux showed the server accepted null sessions and exposed share names (public, share, IPC$).</p>
+<p>Step 5 - Attempt anonymous read: smbclient //10.x.x.3/public -N logged in anonymously but the tree connect was denied - only enumeration was exposed, not the data.</p>
+<p>Step 6 - Brute-force SSH: hydra against the weak testuser account recovered the password in about a minute, yielding a full shell.</p>
+<p>Step 7 - Remediate: hardened Samba (map to guest = never, restrict anonymous = 2, SMB2 minimum) and SSH (fail2ban, key-based auth, PasswordAuthentication no).</p>
+<p>Step 8 - Verify: SMB enumeration was denied, fail2ban banned the attacker IP, and the SSH brute force found nothing.</p>
+<p>Step 9 - Clean up: removed the throwaway testuser account and restored the environment.</p>
+<p>Spencer - lead tester, operating the Kali attacker box (10.x.x.4). Target host: UbuntuServ (10.x.x.3).</p>
+</section>
+<section>
+<h2>Outcomes</h2>
+<p>Two findings identified, demonstrated, remediated and verified within the engagement. The deliberately weak test account was removed and the environment restored.</p>
+<p>None outstanding for UbuntuServ. The broader recommendations - network segmentation and fleet-wide credential and SMB hardening - remain for the wider environment.</p>
+</section>
+<section>
+<h2>Recommendations</h2>
+<p>Segment the network into VLANs with firewall / ACL rules between them, so a single foothold cannot reach every host. Layer with phishing training, MFA on all remote access, not exposing services to the internet, patching, least privilege, and monitoring / EDR. (MITRE ATT&amp;CK: Initial Access -&gt; Discovery -&gt; Lateral Movement.)</p>
+<p>Disable anonymous access on all services; enforce key-based SSH with PasswordAuthentication no; deploy fail2ban.</p>
+</section>
+<section>
+<h2>Timeline</h2>
+<p>2026-08-17 - single-session engagement: identify the target, scan services, check known exploits, enumerate SMB, attempt anonymous read, brute-force SSH, remediate, verify, and clean up.</p>
+</section>
+<section>
+<h2>Conclusion</h2>
+<p>Patched software resisted known exploits; the exploitable risk lived in configuration and credentials, both remediated and verified within the engagement, with the test account removed afterward. Recommendations: disable anonymous access on all services, enforce strong-password / key-based authentication, apply defense in depth (fail2ban + keys), keep systems patched, and segment the network so a single foothold cannot reach every host.</p>
+</section>
+<section>
+<h2>Appendix</h2>
+<p>Initial-access context: this engagement began with the attacker already on LabNet. Gaining that position - phishing, an exposed internet-facing service, stolen, weak or reused credentials, a malicious download or supply-chain compromise, or Wi-Fi / physical access - is a separate, harder phase; everything in this report is what happens after a foothold exists. The primary defense is network segmentation. Companion to the VM Lab Playbook.</p>
+</section>
+<section>
+<h2>Findings</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>ID</th><th>Finding</th><th>Severity</th><th>Affected asset</th></tr></thead>
+<tbody>
+<tr><td class="mono">FND-2026-0001</td><td>SSH Weak Password (Brute-Forceable)</td><td>High</td><td class="mono">UbuntuServ 10.x.x.3 - SSH / OpenSSH 9.6p1 (TCP 22)</td></tr>
+<tr><td class="mono">FND-2026-0002</td><td>Anonymous SMB Enumeration</td><td>Medium</td><td class="mono">UbuntuServ 10.x.x.3 - SMB / Samba 4 (TCP 139, 445)</td></tr>
+</tbody>
+</table></div>
+<h3>FND-2026-0001 — SSH Weak Password (Brute-Forceable)</h3>
+<p class="small"><b>Severity:</b> High &middot; <b>Asset:</b> UbuntuServ 10.x.x.3 - SSH / OpenSSH 9.6p1 (TCP 22)</p>
+<p>A user account (testuser) used a weak dictionary password, allowing a credential brute-force attack over SSH and full interactive shell access as that user.</p>
+<p><b>Impact.</b></p>
+<p>A foothold suitable for privilege escalation and lateral movement, with a full interactive shell as the user.</p>
+<p><b>Remediation.</b></p>
+<p>Installed fail2ban to ban brute-force sources; moved to key-based authentication (ssh-copy-id) and set PasswordAuthentication no in sshd_config; restarted ssh.</p>
+<h3>FND-2026-0002 — Anonymous SMB Enumeration</h3>
+<p class="small"><b>Severity:</b> Medium &middot; <b>Asset:</b> UbuntuServ 10.x.x.3 - SMB / Samba 4 (TCP 139, 445)</p>
+<p>Null sessions let an unauthenticated attacker enumerate share names and host/OS information. The share contents themselves still required authentication.</p>
+<p><b>Impact.</b></p>
+<p>Information disclosure that lowers attacker effort during reconnaissance. Share data itself was not exposed.</p>
+<p><b>Remediation.</b></p>
+<p>Set map to guest = never, restrict anonymous = 2 and server min protocol = SMB2 in smb.conf [global]; restarted smbd.</p>
+</section>
+</div>
