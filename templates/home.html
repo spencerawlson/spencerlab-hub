@@ -252,16 +252,35 @@
       <h2>Tech stack</h2>
       <p class="intro">The tools I design, build, secure and operate with.</p>
     </div>
+    {# slug · name · official site. The tile IS the link, so the name (hidden on the
+       tile) has to carry it: alt gives the link its accessible name, title gives a
+       sighted visitor the tooltip the hidden label would otherwise have provided. #}
     {% set stack = [
-      ["amazonwebservices","AWS"], ["azure","Azure"], ["googlecloud","GCP"], ["terraform","Terraform"],
-      ["kubernetes","Kubernetes"], ["docker","Docker"], ["linux","Linux"], ["ubuntu","Ubuntu"], ["python","Python"],
-      ["go","Go"], ["typescript","TypeScript"], ["react","React"], ["nodejs","Node.js"],
-      ["postgresql","PostgreSQL"], ["mongodb","MongoDB"], ["fastapi","FastAPI"], ["nginx","Nginx"],
-      ["cloudflare","Cloudflare"], ["systemd","systemd"], ["letsencrypt","Let's Encrypt"], ["zerotier","ZeroTier"]
+      ["amazonwebservices","AWS","https://aws.amazon.com"],
+      ["azure","Azure","https://azure.microsoft.com"],
+      ["googlecloud","GCP","https://cloud.google.com"],
+      ["terraform","Terraform","https://www.terraform.io"],
+      ["kubernetes","Kubernetes","https://kubernetes.io"],
+      ["docker","Docker","https://www.docker.com"],
+      ["linux","Linux","https://www.kernel.org"],
+      ["ubuntu","Ubuntu","https://ubuntu.com"],
+      ["python","Python","https://www.python.org"],
+      ["go","Go","https://go.dev"],
+      ["typescript","TypeScript","https://www.typescriptlang.org"],
+      ["react","React","https://react.dev"],
+      ["nodejs","Node.js","https://nodejs.org"],
+      ["postgresql","PostgreSQL","https://www.postgresql.org"],
+      ["mongodb","MongoDB","https://www.mongodb.com"],
+      ["fastapi","FastAPI","https://fastapi.tiangolo.com"],
+      ["nginx","Nginx","https://nginx.org"],
+      ["cloudflare","Cloudflare","https://www.cloudflare.com"],
+      ["systemd","systemd","https://systemd.io"],
+      ["letsencrypt","Let's Encrypt","https://letsencrypt.org"],
+      ["zerotier","ZeroTier","https://www.zerotier.com"]
     ] %}
     <div class="stackgrid">
       {% for s in stack %}
-      <div class="logotile"><img src="/static/logos/{{ s[0] }}.svg" alt="{{ s[1] }}" loading="lazy" width="30" height="30"><span>{{ s[1] }}</span></div>
+      <a class="logotile" href="{{ s[2] }}" target="_blank" rel="noopener noreferrer" title="{{ s[1] }}"><img src="/static/logos/{{ s[0] }}.svg" alt="{{ s[1] }}" loading="lazy" width="30" height="30"><span>{{ s[1] }}</span></a>
       {% endfor %}
     </div>
   </div>
