@@ -874,9 +874,9 @@ html[data-skin="light"] .skin-toggle[aria-pressed="true"] .st-track{
    HERO HUD — live terminal cursor + animated edge-signal bars
    Both are disabled by the global prefers-reduced-motion rule above.
    ============================================================ */
-/* blinking prompt cursor after spencerlab@edge in the terminal title bar */
-.term-bar .who .cursor{display:inline-block; width:7px; height:12px; margin-left:6px;
-  vertical-align:-1px; background:var(--term-ink); border-radius:1px;
+/* blinking prompt cursor on the last terminal line (a live $ prompt) */
+.term pre .cursor{display:inline-block; width:8px; height:13px; margin-left:1px;
+  vertical-align:-2px; background:var(--term-ink); border-radius:1px;
   box-shadow:0 0 7px rgba(77,253,126,.6); animation:blink 1.05s step-end infinite}
 @keyframes blink{0%,100%{opacity:1} 50%{opacity:0}}
 
