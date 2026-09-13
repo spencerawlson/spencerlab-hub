@@ -1,0 +1,89 @@
+<header class="masthead">
+  <div class="readwrap">
+    <p class="eyebrow"><span class="dot"></span> Built · design stage</p>
+    <h1 class="title">Custom cyberdeck — the RPI DEV build</h1>
+    <p class="lede">A portable Raspberry&nbsp;Pi cyberdeck for cloud-security and lab work: the design decisions, the open kit it starts from, and the two problems that shaped it — power and balance. Nothing here is assembled yet; this is the record of the design as it is being made.</p>
+    <div class="byline">
+      <span><b>Stage</b> design — not built</span>
+      <span><b>Chassis</b> RPI DEV open kit</span>
+      <span><b>Power</b> Anker SOLIX C1000</span>
+    </div>
+  </div>
+</header>
+
+<div class="readwrap">
+
+<div class="callout gotcha">
+  <p class="ctag">Design stage — read this first</p>
+  <p>None of this is built. The renders below are a concept visualization and the enclosure is an open kit designed by someone else, credited below. This page is the working design record — it will be replaced with real photographs and measured numbers once the deck is assembled.</p>
+</div>
+
+<section>
+  <p class="part-tag">Intent</p>
+  <h2>What it is, and what it is for</h2>
+  <p>A self-contained, transportable Raspberry&nbsp;Pi deck that runs Kali Linux for cloud-posture scanning and general lab work — a real keyboard and displays, a control surface, and enough compute to run scans without depending on a network it did not bring with it. It is meant to be set down and worked on next to its power source, not walked around.</p>
+
+  <figure>
+    <img src="/static/cyberdeck-concept.jpg" alt="Concept render of the cyberdeck: a rugged clamshell with dual displays and a backlit mechanical keyboard." loading="lazy" width="1100" height="561">
+    <figcaption>Concept render — industrial-design target, not a photograph. The badging and exact hardware are illustrative; the real chassis is the open kit described below.</figcaption>
+  </figure>
+
+  <dl class="facts">
+    <div><dt>Compute</dt><dd>Raspberry Pi 5</dd></div>
+    <div><dt>OS</dt><dd>Kali Linux ARM64</dd></div>
+    <div><dt>Chassis</dt><dd>RPI DEV open kit</dd></div>
+    <div><dt>Power</dt><dd>Anker SOLIX C1000</dd></div>
+    <div><dt>Displays</dt><dd>dual, rotary hinge</dd></div>
+    <div><dt>Fabrication</dt><dd>FDM print + PCBWay boards</dd></div>
+  </dl>
+</section>
+
+<section>
+  <p class="part-tag">The kit</p>
+  <h2>Starting from an open design, not a blank sheet</h2>
+  <p>The enclosure is an existing open cyberdeck kit — 42 printable STL parts plus STEP source, and four support PCBs (KiCad + a PCBWay ordering pack). It is authored in Onshape and distributed on GitHub; it is <b>not my design</b>, and a build entry will credit the original author once the exact project is confirmed.</p>
+  <p>Reading the STL parts and the board schematics settled one thing early: this is a <b>single-Pi</b> deck. It has one Pi bay and one 40-pin carrier; the four boards are the deck's own keyboard, power, GPIO riser and USB expansion, not compute nodes. A signature rotary hinge carries the display on two printed arms. That single-Pi reality turned out to match the work exactly — see the right-sizing note at the end.</p>
+  <div class="callout lesson">
+    <p class="ctag">Verify what a file actually is</p>
+    <p>The board set is named <code>RPI_Dev_1</code>…<code>4</code>, which reads like four nodes. The schematics say otherwise: one is a switch/rotary control HAT, one a Pi carrier with a barrel jack, one a GPIO riser, one a USB board. Four PCBs, one computer.</p>
+  </div>
+</section>
+
+<section>
+  <p class="part-tag">Power</p>
+  <h2>An external station removes the hard part</h2>
+  <p>Rather than pack cells inside the deck, power comes from an external Anker SOLIX C1000 — a 1,024&nbsp;Wh LiFePO4 station with a 2,000&nbsp;W inverter and a UPS mode. Against a deck that draws roughly 50&nbsp;W, that is all-day runtime plus automatic ride-through of a mains cut, with no internal battery, BMS or charger to design, age or certify.</p>
+  <p>One non-obvious detail: feed the deck from the station's <b>DC outputs</b> (USB-C or 12&nbsp;V), not the AC outlet. Running a 2,000&nbsp;W inverter to power a 50&nbsp;W load wastes ~15–20&nbsp;W on the inverter's own idle — up to a third of the actual draw.</p>
+</section>
+
+<section>
+  <p class="part-tag">Balance</p>
+  <h2>The problem the external battery created</h2>
+  <p>Moving the battery out of the deck removed its heaviest forward component — which was also, in a clamshell, the counterweight. A laptop tips backward when the open lid's centre of mass passes behind the rear feet, and a dual-display lid with no ballast in the base does exactly that.</p>
+  <p>The fix is a dense plate carried to the <b>front lip</b> of the base — position matters more than mass, because weight added at the rear makes tipping worse. Brass or steel earns its place here where aluminium does not: same volume, roughly three times the mass. The other honest fix is a lighter lid — dropping the displays from 10.1″ to 7″ cuts lid mass about 40% and does more for stability than any plate.</p>
+  <div class="callout lesson">
+    <p class="ctag">The lever, stated plainly</p>
+    <p>Stability is a ratio of moments about the rear feet: base mass × its distance forward, over lid mass × its distance back. Every gram of counterweight only counts for how far forward it sits.</p>
+  </div>
+</section>
+
+<section>
+  <p class="part-tag">Right-sizing</p>
+  <h2>One Pi is the honest answer to the work</h2>
+  <p>The temptation with a cyberdeck is to cluster several Pis for the sense of power. But the actual work — cloud-posture scanning against provider APIs — is network- and rate-limit-bound, not compute-bound. More local cores do not scan faster when the ceiling is the cloud provider's API. So the single-Pi kit is not a compromise; it is correctly sized, and the effort goes where it matters: NVMe instead of an SD card, honest cooling, and a clean power feed.</p>
+  <p>The maximal four-node version still has a place — as a portfolio piece and for learning cluster orchestration on real hardware — but it is a different machine with a different chassis, and it would not do this job any faster.</p>
+</section>
+
+<section>
+  <p class="part-tag">Next</p>
+  <h2>What turns this into a build entry</h2>
+  <ul class="tight">
+    <li>Confirm and credit the original kit designer.</li>
+    <li>Print the chassis; order the four boards from PCBWay.</li>
+    <li>Bench the Pi and the scan workflow flat, before any enclosure.</li>
+    <li>Weigh every part and re-run the balance numbers — the estimates decide the plate.</li>
+    <li>Assemble, then replace the concept render here with real photographs.</li>
+  </ul>
+</section>
+
+</div>
