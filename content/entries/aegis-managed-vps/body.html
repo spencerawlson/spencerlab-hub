@@ -1,0 +1,57 @@
+<header class="masthead">
+  <div class="readwrap">
+    <p class="eyebrow"><span class="dot"></span> Built · coming soon</p>
+    <h1 class="title">Aegis Managed VPS — building in the open</h1>
+    <p class="lede">A Linux-first, automation-first managed VPS service, currently in design. This is an announcement, not a finished record: the trials and errors of building it will be documented as they happen and published here.</p>
+    <div class="byline">
+      <span><b>Stage</b> coming soon</span>
+      <span><b>Focus</b> Linux managed VPS</span>
+      <span><b>Build log</b> via Fieldnote</span>
+    </div>
+  </div>
+</header>
+
+<div class="readwrap">
+
+<div class="callout lesson">
+  <p class="ctag">Coming soon</p>
+  <p>The service has not launched. What follows is the shape of the project and one engineering question already worked through. As the build progresses, each decision — and each thing that goes wrong — will be written up in <b>Fieldnote</b> and published to this hub, so the record grows with the work rather than being reconstructed after it.</p>
+</div>
+
+<section>
+  <p class="part-tag">The project</p>
+  <h2>What it is</h2>
+  <p>A managed VPS offering built on one principle: the automation is the operations team. Every routine task — provisioning, hardening, patching, backup, health scoring, consent-gated remediation — is handled by an agent layer, so that human attention is spent on exceptions rather than on toil. Linux only, starting narrow on Ubuntu LTS.</p>
+  <p>The commercial detail lives elsewhere. What belongs on a working record is the engineering discipline behind it, and the honest answers it forces.</p>
+</section>
+
+<section>
+  <p class="part-tag">A worked example</p>
+  <h2>How much can a Pi cluster actually host?</h2>
+  <p>An early capacity question: as a substrate, how many sites could a 20-node Raspberry&nbsp;Pi&nbsp;5 cluster serve? The instinct is to count cores. The honest answer starts by refusing to.</p>
+  <p>For isolated VPS, <b>RAM is the binding constraint</b> — it cannot be oversubscribed the way shared hosting oversubscribes it. Twenty 16&nbsp;GB nodes hold 320&nbsp;GB raw; after host overhead and a reserve to survive two dead nodes, roughly 260&nbsp;GB is sellable. Divided into small instances, that is on the order of <b>120–150 managed instances</b> — not the thousands a core-count guess suggests, and not the handful a naive one-VPS-per-node layout would give.</p>
+  <div class="callout gotcha">
+    <p class="ctag">Where the claim would have drifted</p>
+    <p>A tempting mistake is to advertise the premium tiers on this hardware. A Pi&nbsp;5 has four cores and no ECC RAM, one power input and one network port. A tier specified at eight vCPU per instance does not fit a four-core node at all, and a machine with no internal redundancy cannot honestly carry a premium uptime guarantee. The Pi cluster is right for an entry tier and for development and staging — not for the top of the range.</p>
+  </div>
+  <p>That is the pattern the whole project is built to enforce: a price, an SLA, and a capacity claim must each be backed by something that can be measured, not by something that sounds right.</p>
+</section>
+
+<section>
+  <p class="part-tag">Principles</p>
+  <h2>The rules the build holds to</h2>
+  <ul class="tight">
+    <li><b>Capacity-backed pricing.</b> Every tier maps to real, measured headroom, with a redundancy reserve held back.</li>
+    <li><b>Consent-gated automation.</b> Low-risk fixes run automatically when opted in; anything high-risk waits for a human.</li>
+    <li><b>Honest SLAs.</b> A guarantee is only advertised once the substrate and the staffing can actually keep it.</li>
+    <li><b>Automation density as the margin.</b> Every manual operations hour is a cost; the agent layer exists to remove it.</li>
+  </ul>
+</section>
+
+<section>
+  <p class="part-tag">What lands here next</p>
+  <h2>The build log, as it happens</h2>
+  <p>This page will be followed by entries covering the real work: the provisioning agent, the hardening baseline, the backup and monitoring stack, the first live nodes, and — deliberately — the mistakes and dead ends along the way. Each will be written in Fieldnote and published straight to this hub. Check back, or watch this space grow.</p>
+</section>
+
+</div>
