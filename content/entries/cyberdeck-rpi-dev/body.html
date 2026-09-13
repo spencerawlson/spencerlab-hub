@@ -2,11 +2,11 @@
   <div class="readwrap">
     <p class="eyebrow"><span class="dot"></span> Built · design stage</p>
     <h1 class="title">Custom cyberdeck — the RPI DEV build</h1>
-    <p class="lede">A portable Raspberry&nbsp;Pi cyberdeck for cloud-security and lab work: the design decisions, the open kit it starts from, and the two problems that shaped it — power and balance. Nothing here is assembled yet; this is the record of the design as it is being made.</p>
+    <p class="lede">A portable Raspberry&nbsp;Pi cyberdeck for cloud-security and lab work, built on SECTOR 07's open-source RPI DEV design: a single Pi 5, dual swiveling touchscreens and a custom control surface. This page records adapting it for Kali and cloud-posture work. Nothing is assembled yet — it is the design record as the build is planned.</p>
     <div class="byline">
       <span><b>Stage</b> design — not built</span>
-      <span><b>Chassis</b> RPI DEV open kit</span>
-      <span><b>Power</b> Anker SOLIX C1000</span>
+      <span><b>Chassis</b> RPI DEV (SECTOR 07)</span>
+      <span><b>Compute</b> single Raspberry Pi 5</span>
     </div>
   </div>
 </header>
@@ -32,8 +32,8 @@
     <div><dt>Compute</dt><dd>Raspberry Pi 5</dd></div>
     <div><dt>OS</dt><dd>Kali Linux ARM64</dd></div>
     <div><dt>Chassis</dt><dd>RPI DEV open kit</dd></div>
-    <div><dt>Power</dt><dd>Anker SOLIX C1000</dd></div>
-    <div><dt>Displays</dt><dd>dual, rotary hinge</dd></div>
+    <div><dt>Power</dt><dd>5V barrel jack (5.1V)</dd></div>
+    <div><dt>Displays</dt><dd>dual 9″ touch, swivel</dd></div>
     <div><dt>Fabrication</dt><dd>FDM print + PCBWay boards</dd></div>
   </dl>
 </section>
@@ -61,27 +61,25 @@
 
 <section>
   <p class="part-tag">Power</p>
-  <h2>An external station removes the hard part</h2>
-  <p>Rather than pack cells inside the deck, power comes from an external Anker SOLIX C1000 — a 1,024&nbsp;Wh LiFePO4 station with a 2,000&nbsp;W inverter and a UPS mode. Against a deck that draws roughly 50&nbsp;W, that is all-day runtime plus automatic ride-through of a mains cut, with no internal battery, BMS or charger to design, age or certify.</p>
-  <p>One non-obvious detail: feed the deck from the station's <b>DC outputs</b> (USB-C or 12&nbsp;V), not the AC outlet. Running a 2,000&nbsp;W inverter to power a 50&nbsp;W load wastes ~15–20&nbsp;W on the inverter's own idle — up to a third of the actual draw.</p>
+  <h2>One 5&nbsp;V rail, fed rather than stored</h2>
+  <p>RPI DEV runs from a single 5&nbsp;V input at the base's barrel jack. The assembly calls for a supply trimmed to about 5.3&nbsp;V so the carrier board sees a clean 5.1&nbsp;V at the Pi. A single Pi&nbsp;5 with dual 9″ screens and a powered hub is a modest load — on the order of 20–30&nbsp;W — so there is no internal battery, BMS or charger in the design: the deck is fed, not self-powered.</p>
+  <p>That leaves field power as a simple, separate choice layered on top: the same 5&nbsp;V rail can come from a USB-C PD bank stepped to 5&nbsp;V, or from a portable power station for a long session away from mains. It changes nothing in the deck itself — only what sits at the other end of the barrel jack.</p>
 </section>
 
 <section>
-  <p class="part-tag">Balance</p>
-  <h2>The problem the external battery created</h2>
-  <p>Moving the battery out of the deck removed its heaviest forward component — which was also, in a clamshell, the counterweight. A laptop tips backward when the open lid's centre of mass passes behind the rear feet, and a dual-display lid with no ballast in the base does exactly that.</p>
-  <p>The fix is a dense plate carried to the <b>front lip</b> of the base — position matters more than mass, because weight added at the rear makes tipping worse. Brass or steel earns its place here where aluminium does not: same volume, roughly three times the mass. The other honest fix is a lighter lid — dropping the displays from 10.1″ to 7″ cuts lid mass about 40% and does more for stability than any plate.</p>
+  <p class="part-tag">Mechanics</p>
+  <h2>The hard mechanical work is already solved</h2>
+  <p>Starting from a finished design means the balance and hinge problems a scratch-built clamshell would fight are already handled. Each screen rides an orange rotary-hinge disc on ball bearings, swiveling independently between landscape and portrait, and the printed arms route the display cables down to the base. The enclosure is almost entirely snap-fit — screws only where they must be — which is what keeps it printable and serviceable at home.</p>
   <div class="callout lesson">
-    <p class="ctag">The lever, stated plainly</p>
-    <p>Stability is a ratio of moments about the rear feet: base mass × its distance forward, over lid mass × its distance back. Every gram of counterweight only counts for how far forward it sits.</p>
+    <p class="ctag">Why adopt rather than design</p>
+    <p>Taking a proven open design skips exactly this class of work. The mechanical R&amp;D is done, so the effort moves to the parts that are specific to the job: the OS, the security tooling, and how it gets powered in the field.</p>
   </div>
 </section>
 
 <section>
   <p class="part-tag">Right-sizing</p>
-  <h2>One Pi is the honest answer to the work</h2>
-  <p>The temptation with a cyberdeck is to cluster several Pis for the sense of power. But the actual work — cloud-posture scanning against provider APIs — is network- and rate-limit-bound, not compute-bound. More local cores do not scan faster when the ceiling is the cloud provider's API. So the single-Pi kit is not a compromise; it is correctly sized, and the effort goes where it matters: NVMe instead of an SD card, honest cooling, and a clean power feed.</p>
-  <p>The maximal four-node version still has a place — as a portfolio piece and for learning cluster orchestration on real hardware — but it is a different machine with a different chassis, and it would not do this job any faster.</p>
+  <h2>Single-Pi is the right size for this work</h2>
+  <p>RPI DEV is a single-Pi deck by design, and for cloud-security work that is the correct size, not a limit. Cloud-posture scanning runs against provider APIs — it is network- and rate-limit-bound, not compute-bound — so more local cores do not scan faster once the ceiling is the provider's own API. The effort goes where it actually helps: NVMe over an SD card, honest cooling, and the Kali tooling on top.</p>
 </section>
 
 <section>
@@ -91,8 +89,8 @@
     <li>Source the Pi 5, the dual 9″ touchscreens and the rest of SECTOR 07's BOM.</li>
     <li>Print the chassis; order the four boards from PCBWay.</li>
     <li>Bench the Pi and the scan workflow flat, before any enclosure.</li>
-    <li>Weigh every part and re-run the balance numbers — the estimates decide the plate.</li>
-    <li>Assemble, then replace the concept render here with real photographs.</li>
+    <li>Settle field power — a 5&nbsp;V PD bank or a station sized to the ~20–30&nbsp;W load.</li>
+    <li>Assemble, then replace these renders with real photographs.</li>
   </ul>
 </section>
 
