@@ -863,3 +863,9 @@ html[data-skin="light"] .skin-toggle .st-knob{
   box-shadow:0 1px 3px rgba(12,46,36,.34), inset 0 1px 0 rgba(255,255,255,.95)}
 html[data-skin="light"] .skin-toggle[aria-pressed="true"] .st-track{
   background:linear-gradient(180deg, var(--accent-2), var(--accent-iris)); border-color:transparent}
+
+/* a render or photograph filling a card thumbnail well (vs .shot.brand, which
+   centres a logo). object-position is tuned rather than the crop baked in, so the
+   visible band can be moved without regenerating the file. */
+.shot.photo{padding:0; display:block; background:var(--term-bg)}
+.shot.photo img{width:100%; height:100%; object-fit:cover; object-position:center 46%; display:block}
