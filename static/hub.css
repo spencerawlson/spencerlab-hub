@@ -869,3 +869,25 @@ html[data-skin="light"] .skin-toggle[aria-pressed="true"] .st-track{
    visible band can be moved without regenerating the file. */
 .shot.photo{padding:0; display:block; background:var(--term-bg)}
 .shot.photo img{width:100%; height:100%; object-fit:cover; object-position:center 46%; display:block}
+
+/* ============================================================
+   HERO HUD — live terminal cursor + animated edge-signal bars
+   Both are disabled by the global prefers-reduced-motion rule above.
+   ============================================================ */
+/* blinking prompt cursor after spencerlab@edge in the terminal title bar */
+.term-bar .who .cursor{display:inline-block; width:7px; height:12px; margin-left:6px;
+  vertical-align:-1px; background:var(--term-ink); border-radius:1px;
+  box-shadow:0 0 7px rgba(77,253,126,.6); animation:blink 1.05s step-end infinite}
+@keyframes blink{0%,100%{opacity:1} 50%{opacity:0}}
+
+/* edge-signal equalizer: each bar pulses from the baseline (all bars sit at y=44),
+   with staggered delays so the row reads as a flowing live signal rather than a synced blink */
+.hud-spark rect{transform-box:fill-box; transform-origin:50% 100%;
+  animation:eq 1.9s ease-in-out infinite}
+@keyframes eq{0%,100%{transform:scaleY(.42)} 50%{transform:scaleY(1)}}
+.hud-spark rect:nth-child(6n+1){animation-delay:0s;    animation-duration:1.7s}
+.hud-spark rect:nth-child(6n+2){animation-delay:.16s;  animation-duration:2.1s}
+.hud-spark rect:nth-child(6n+3){animation-delay:.32s;  animation-duration:1.8s}
+.hud-spark rect:nth-child(6n+4){animation-delay:.48s;  animation-duration:2.0s}
+.hud-spark rect:nth-child(6n+5){animation-delay:.30s;  animation-duration:1.6s}
+.hud-spark rect:nth-child(6n){  animation-delay:.14s;  animation-duration:2.2s}
