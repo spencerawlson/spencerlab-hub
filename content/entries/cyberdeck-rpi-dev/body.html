@@ -15,7 +15,7 @@
 
 <div class="callout gotcha">
   <p class="ctag">Design stage — read this first</p>
-  <p>None of this is built. The renders below are a concept visualization and the enclosure is an open kit designed by someone else, credited below. This page is the working design record — it will be replaced with real photographs and measured numbers once the deck is assembled.</p>
+  <p>None of this is built. The images below are rendered from the kit's own 3D files — the actual chassis geometry, not a styled mock-up — and the enclosure is an open kit designed by someone else, credited below. This page is the working design record; it will be replaced with real photographs and measured numbers once the deck is assembled.</p>
 </div>
 
 <section>
@@ -24,8 +24,8 @@
   <p>A self-contained, transportable Raspberry&nbsp;Pi deck that runs Kali Linux for cloud-posture scanning and general lab work — a real keyboard and displays, a control surface, and enough compute to run scans without depending on a network it did not bring with it. It is meant to be set down and worked on next to its power source, not walked around.</p>
 
   <figure>
-    <img src="/static/cyberdeck-concept.jpg" alt="Concept render of the cyberdeck: a rugged clamshell with dual displays and a backlit mechanical keyboard." loading="lazy" width="1100" height="561">
-    <figcaption>Concept render — industrial-design target, not a photograph. The badging and exact hardware are illustrative; the real chassis is the open kit described below.</figcaption>
+    <img src="/static/cyberdeck-rpi-dev.jpg" alt="Render of the RPI DEV cyberdeck chassis from the kit's STL files: the base tub with embossed RPI DEV marking, two hinge brackets and a screen arm." loading="lazy" width="1200" height="900">
+    <figcaption>Rendered from the kit's own STL files — the actual RPI DEV chassis, not a styled concept. The display is a separate LCD that mounts on the printed arms, so it does not appear here.</figcaption>
   </figure>
 
   <dl class="facts">
@@ -43,6 +43,11 @@
   <h2>Starting from an open design, not a blank sheet</h2>
   <p>The enclosure is an existing open cyberdeck kit — 42 printable STL parts plus STEP source, and four support PCBs (KiCad + a PCBWay ordering pack). It is authored in Onshape and distributed on GitHub; it is <b>not an in-house design</b>, and this entry will credit the original author once the exact project is confirmed.</p>
   <p>Reading the STL parts and the board schematics settled one thing early: this is a <b>single-Pi</b> deck. It has one Pi bay and one 40-pin carrier; the four boards are the deck's own keyboard, power, GPIO riser and USB expansion, not compute nodes. A signature rotary hinge carries the display on two printed arms. That single-Pi reality turned out to match the work exactly — see the right-sizing note at the end.</p>
+
+  <figure>
+    <img src="/static/cyberdeck-rpi-dev-hinge.jpg" alt="Render of the printed rotary hinge disc and the arm that carries the display." loading="lazy" width="1000" height="750">
+    <figcaption>The rotary hinge and screen arm, rendered from the kit's STL files — the mechanism that holds the LCD, printed rather than bought.</figcaption>
+  </figure>
   <div class="callout lesson">
     <p class="ctag">Verify what a file actually is</p>
     <p>The board set is named <code>RPI_Dev_1</code>…<code>4</code>, which reads like four nodes. The schematics say otherwise: one is a switch/rotary control HAT, one a Pi carrier with a barrel jack, one a GPIO riser, one a USB board. Four PCBs, one computer.</p>
