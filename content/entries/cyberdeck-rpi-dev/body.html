@@ -24,8 +24,8 @@
   <p>A self-contained, transportable Raspberry&nbsp;Pi deck that runs Kali Linux for cloud-posture scanning and general lab work — a real keyboard and displays, a control surface, and enough compute to run scans without depending on a network it did not bring with it. It is meant to be set down and worked on next to its power source, not walked around.</p>
 
   <figure>
-    <img src="/static/cyberdeck-rpi-dev.jpg" alt="Render of the RPI DEV cyberdeck chassis from the kit's STL files: the base tub with embossed RPI DEV marking, two hinge brackets and a screen arm." loading="lazy" width="1200" height="900">
-    <figcaption>Rendered from the kit's own STL files — the actual RPI DEV chassis, not a styled concept. The display is a separate LCD that mounts on the printed arms, so it does not appear here.</figcaption>
+    <img src="/static/cyberdeck-rpi-dev-open.jpg" alt="Render of the assembled RPI DEV cyberdeck: dual swiveling touchscreens on rotary hinges, above a base carrying a wide center display." loading="lazy" width="1200" height="637">
+    <figcaption>The assembled RPI DEV design by SECTOR 07 — dual 9″ touchscreens on rotary hinges over a base with a wide secondary display. A CAD render of the design, not a photo of a physical build.</figcaption>
   </figure>
 
   <dl class="facts">
@@ -45,8 +45,13 @@
   <p>Reading the STL parts and the board schematics settled one thing early: this is a <b>single-Pi</b> deck. It has one Pi bay and one 40-pin carrier; the four boards are the deck's own keyboard, power, GPIO riser and USB expansion, not compute nodes. A signature rotary hinge carries the display on two printed arms. That single-Pi reality turned out to match the work exactly — see the right-sizing note at the end.</p>
 
   <figure>
-    <img src="/static/cyberdeck-rpi-dev-hinge.jpg" alt="Render of the printed rotary hinge disc and the arm that carries the display." loading="lazy" width="1000" height="750">
-    <figcaption>The rotary hinge and screen arm, rendered from the kit's STL files — the mechanism that holds the LCD, printed rather than bought.</figcaption>
+    <img src="/static/cyberdeck-rpi-dev-internal.jpg" alt="Render of the RPI DEV interior with the covers off: a single Raspberry Pi and the four support boards flanking the wide center display." loading="lazy" width="1200" height="637">
+    <figcaption>Covers off: one Raspberry&nbsp;Pi and the four support boards flank the base's center display. The single Pi bay is what makes this a single-node deck, not a cluster.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="/static/cyberdeck-rpi-dev-rear.jpg" alt="Rear render of the RPI DEV: the backs of the two screens marked RPI DEV, the orange rotary-hinge discs, and the EXTEND IO panel on the base." loading="lazy" width="1200" height="637">
+    <figcaption>From the rear: the orange rotary-hinge discs that let each screen swivel independently, the RPI DEV screen backs, and the EXTEND IO panel — the exposed GPIO / I²C port for adding sensors.</figcaption>
   </figure>
   <div class="callout lesson">
     <p class="ctag">Verify what a file actually is</p>
