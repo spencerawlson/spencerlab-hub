@@ -1,0 +1,10 @@
+{
+  "slug": "the-real-life-atm",
+  "title": "The Real-Life ATM — my backend, Claude Code's frontend",
+  "category": "built",
+  "date": "2026-09-24",
+  "summary": "A three-bank ATM in Python: I wrote the object-oriented banking backend, Claude Code built the Pygame arcade machine on top of it — and the same game now runs in your browser, compiled to WebAssembly.",
+  "tags": ["python", "pygame", "oop", "webassembly", "claude-code"],
+  "source": "hand",
+  "cover": "dispense.png"
+}

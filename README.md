@@ -21,9 +21,9 @@ spencerlab-hub/
   tests/               pytest suite (pip install -r requirements-dev.txt; pytest)
 ```
 
-Pages: `/` (featured + recent + videos + topics), `/posts`, `/videos`, `/topics`,
+Pages: `/` (live lab panel, featured, now building, recent, videos, activity, topics), `/posts`, `/videos`, `/topics`, `/lab`,
 `/<category>`, `/<category>/<slug>`, `/tags/<tag>`, `/search?q=`, `/about`, plus
-`/feed.xml` (RSS), `/sitemap.xml`, `/robots.txt`, `/healthz`. Listings paginate at 9.
+`/feed.xml` (RSS), `/sitemap.xml`, `/robots.txt`, `/healthz`, `/api/lab`. Listings paginate at 9.
 
 Categories (fixed, in `app/content.py`): `built`, `repaired`, `pentested`, `assessed`,
 `administered`.
@@ -65,6 +65,60 @@ Copy the file into the entry folder and name it in `meta.json`:
 The post then renders a player and appears under `/videos`. Files are served with HTTP
 Range support, so seeking works. Encode for the web before uploading (H.264/AAC MP4 with
 `-movflags +faststart`) — every view streams from the homelab through the tunnel.
+
+### Build logs
+
+A post can be a running build log. In `meta.json`:
+
+```json
+{ "status": "in-progress", "progress": 40,
+  "updates": [{ "date": "2026-09-24", "note": "Second node racked." }] }
+```
+
+`status` is `planned`, `in-progress` or `complete`; `progress` (0-100) is optional. Posts
+that are planned or in progress appear under **Now building** on the home page, and every
+update shows in the activity feed. Through the API, send `status` / `progress` and an
+`update_note` with `"replace": true`; the site keeps its own fields (logos, cover, history).
+
+### Embedding a demo (games, WebAssembly)
+
+Put the build under `static/play/<name>/` and add a click-to-launch box to the post body,
+so the heavy runtime only loads when a reader asks for it:
+
+```html
+<div class="playframe" data-embed-src="/static/play/atm/index.html" data-embed-title="…">
+  <img src="/media/<slug>/screenshot.png" alt="…"><button type="button" class="btn primary">▶ Launch</button>
+</div>
+```
+
+See `play-src/atm/` for how the ATM game was built.
+
+## The live lab panel and HA agents
+
+A background task (`app/lab.py`) samples the host every 30 s: CPU, memory and disk from
+`/proc` / `statvfs`, a round-trip to the public `/healthz` through Cloudflare, and
+`systemctl is-active` for `cloudflared` and `spencerlab-hub`. It keeps 30 minutes of history
+for the sparklines. Every 5 minutes it hands the latest sample to five **ha-agent-layer**
+agents (observability, storage, networking, verification, predictive_sentinel). They are
+advisory only: their findings are shown on `/lab`, and nothing is executed.
+
+The agent code is **private and not in this repo**. Clone it on the server and point the
+service at it; without it the panel shows telemetry and reports the agents as offline.
+
+```bash
+git clone git@github.com:spencerawlson/ha-agent-layer.git ~/ha-agent-layer
+sudo systemctl edit spencerlab-hub     # add under [Service]:
+#   Environment=HA_AGENT_LAYER_PATH=/home/sspady/ha-agent-layer
+sudo systemctl restart spencerlab-hub
+```
+
+Only coarse numbers are published — no addresses, versions, hostnames or patch levels
+(`patch_management` is deliberately not wired in). `/api/lab` serves the same data as JSON.
+
+The activity feed (`app/activity.py`) is built from the content (publish dates, build-log
+updates) plus a runtime log at `data/activity.jsonl` (gitignored): deploys (a new git commit
+running) and agent sweeps changing state. `HUB_DATA_DIR` moves it; `HUB_LAB_DISABLED=1`
+turns the background task off (the tests do this).
 
 ## Deploy on UbuntuServ (behind the existing tunnel)
 

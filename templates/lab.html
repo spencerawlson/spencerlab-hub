@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% import "lab_macros.html" as lab_m %}
+{% block title %}Live lab · SpencerLab{% endblock %}
+{% block description %}Live telemetry from the homelab server behind this site, judged by the same HA agents that run in Aegis CloudOps.{% endblock %}
+{% block content %}
+<header class="wrap pagehead">
+  <p class="kicker">Live lab</p>
+  <h1>The server behind this page, right now.</h1>
+  <p>Real numbers from the homelab node serving this site, sampled every {{ lab.sample_every }} seconds — then judged by the same HA agents that run inside <a href="https://aegiscloudops.io" rel="noopener" style="color:var(--accent-ink)">Aegis CloudOps</a>. Advisory only: the agents say what they'd recommend; nothing they return is executed.</p>
+</header>
+
+<section class="wrap">{{ lab_m.panel(lab, full=true) }}</section>
+
+<section class="wrap section" aria-labelledby="h-agents">
+  <div class="sec-head"><h2 id="h-agents">HA agent sweep</h2></div>
+  {{ lab_m.agent_table(lab) }}
+</section>
+
+<section class="wrap section" id="activity" aria-labelledby="h-act">
+  <div class="sec-head"><h2 id="h-act">Activity log</h2><a href="/feed.xml">RSS →</a></div>
+  {{ lab_m.feed(activity) }}
+</section>
+
+<section class="wrap section">
+  <div class="empty" style="text-align:left">
+    <b>What's published, and what isn't.</b> Utilisation, uptime, round-trip time and service state only.
+    No addresses, hostnames, software versions or patch levels — this is a security portfolio, and
+    a public page is the last place to list what an attacker would want to know.
+  </div>
+</section>
+{% endblock %}

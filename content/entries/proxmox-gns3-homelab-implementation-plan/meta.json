@@ -8,5 +8,6 @@
   "source": "fieldnote",
   "logos": [
     "proxmox.svg"
-  ]
+  ],
+  "status": "planned"
 }

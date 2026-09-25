@@ -24,6 +24,21 @@
     <p class="lede">{{ entry.summary }}</p>
     {{ m.meta(entry) }}
     {% if entry.byline %}<div class="byline">{{ entry.byline | safe }}</div>{% endif %}
+    {% if entry.status or entry.updates %}
+    <div class="buildlog">
+      <div class="bl-top">
+        <span class="k">Build log</span>
+        {% if entry.status %}<span class="chip status {{ entry.status }}">{{ entry.status | replace("-", " ") }}</span>{% endif %}
+        {% if entry.progress is defined %}<span class="bl-pct">{{ entry.progress }}%</span>{% endif %}
+      </div>
+      {% if entry.progress is defined %}<div class="meter" role="progressbar" aria-valuenow="{{ entry.progress }}" aria-valuemin="0" aria-valuemax="100"><i style="width:{{ entry.progress }}%"></i></div>{% endif %}
+      {% if entry.updates %}
+      <ol class="bl-updates">
+        {% for u in entry.updates %}<li><time datetime="{{ u.date }}">{{ u.date | pretty_date }}</time><span>{{ u.note }}</span></li>{% endfor %}
+      </ol>
+      {% endif %}
+    </div>
+    {% endif %}
   </header>
 
   <div class="wrap">
@@ -85,6 +100,16 @@
     if (b) b.addEventListener('click', function(){
       var done = function(){ b.textContent = 'Copied'; setTimeout(function(){ b.textContent = 'Copy link'; }, 1600); };
       if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.url).then(done, function(){});
+    });
+    /* Click-to-launch embeds: heavy demos (a WebAssembly game) load only when asked for. */
+    document.querySelectorAll('[data-embed-src]').forEach(function(box){
+      var go = box.querySelector('button');
+      if (go) go.addEventListener('click', function(){
+        var f = document.createElement('iframe');
+        f.src = box.dataset.embedSrc; f.title = box.dataset.embedTitle || 'Embedded demo';
+        f.allow = 'autoplay; fullscreen'; f.setAttribute('allowfullscreen', '');
+        box.innerHTML = ''; box.appendChild(f); box.classList.add('launched'); f.focus();
+      });
     });
     /* Highlight the section being read in the table of contents. */
     var links = document.querySelectorAll('.toc a');

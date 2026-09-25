@@ -1,0 +1,105 @@
+{# The live lab panel + the activity feed. Values are server-rendered, then kept fresh by
+   /static/lab.js polling /api/lab. Every live element is addressed by data-k / data-spark. #}
+
+{% set CAUSES = {
+  "high_cpu": "CPU above 90%", "high_memory": "memory above 90%", "alert_storm": "alert storm",
+  "storage_full": "disk above 90%", "io_degradation": "disk I/O errors",
+  "high_latency": "edge latency above 500 ms", "dns_failure": "DNS not resolving",
+  "post_remediation_failure": "a health check is failing", "missing_verification_checks": "no health checks defined",
+  "quota_exhaustion_risk": "disk trending toward full", "error_rate_spike_predicted": "edge probes failing",
+  "high_change_velocity": "unusually many changes", "metric_rising_to_threshold": "a metric climbing toward its limit",
+} %}
+{% set AGENT_FEEDS = {
+  "observability": "CPU and memory utilisation",
+  "storage": "root filesystem usage",
+  "networking": "edge round-trip time and DNS",
+  "verification": "edge HTTPS, tunnel and site service checks",
+  "predictive_sentinel": "the last 30 minutes of CPU, memory and disk trends",
+} %}
+
+{% macro pct(v) -%}{{ "—" if v is none else ("%.0f" | format(v)) ~ "%" }}{%- endmacro %}
+{% macro ms(v) -%}{{ "—" if v is none else v ~ " ms" }}{%- endmacro %}
+{% macro dot(v) -%}<span class="dot {{ 'up' if v else ('down' if v == false else 'unk') }}"></span>{%- endmacro %}
+{% macro updown(v) -%}{{ "up" if v else ("down" if v == false else "n/a") }}{%- endmacro %}
+
+{% macro panel(lab, full=false) -%}
+{% set n = lab.now %}
+{% set sweep = lab.agents.sweep %}
+<section class="labpanel hud{% if full %} full{% endif %}" data-lab aria-label="Live lab telemetry">
+  <header class="lp-head">
+    <span class="live"><span class="pulse"></span>Live · homelab node</span>
+    <span class="lp-at">updated <time data-k="at" datetime="{{ lab.at or '' }}">{{ "waiting for first sample" if not lab.at else "just now" }}</time></span>
+  </header>
+  <div class="lp-grid">
+    <div class="lp-m"><span class="k">CPU</span><b data-k="cpu">{{ pct(n.cpu) }}</b><svg class="spark" data-spark="cpu" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+    <div class="lp-m"><span class="k">Memory</span><b data-k="memory">{{ pct(n.memory) }}</b><svg class="spark" data-spark="memory" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+    <div class="lp-m"><span class="k">Edge RTT</span><b data-k="latency_ms">{{ ms(n.latency_ms) }}</b><svg class="spark" data-spark="latency_ms" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+    <div class="lp-m"><span class="k">Disk</span><b data-k="disk">{{ pct(n.disk) }}</b><span class="meter"><i data-bar="disk" style="width:{{ n.disk or 0 }}%"></i></span></div>
+  </div>
+  <div class="lp-svc">
+    <span>{{ dot(n.edge_ok) }}HTTPS edge <b data-k="edge_ok">{{ updown(n.edge_ok) }}</b></span>
+    <span>{{ dot(n.tunnel) }}Tunnel <b data-k="tunnel">{{ updown(n.tunnel) }}</b></span>
+    <span>{{ dot(n.site) }}Site <b data-k="site">{{ updown(n.site) }}</b></span>
+    <span class="lp-up">Uptime <b data-k="uptime">{{ lab.uptime.host_s | duration if lab.uptime.host_s else "—" }}</b></span>
+  </div>
+  <a class="lp-agents" href="/lab" data-agents>
+    <span class="k">HA agents</span>
+    {% if not lab.agents.online %}
+      <span class="st off">offline</span><span class="why">the Aegis agent layer isn't loaded on this host</span>
+    {% elif not sweep %}
+      <span class="st">starting</span><span class="why">first sweep runs shortly after boot</span>
+    {% elif sweep.attention %}
+      <span class="st warn">{{ sweep.attention }} of {{ sweep.results | length }} flagged</span><span class="why">advisory · see what they found →</span>
+    {% else %}
+      <span class="st ok">{{ sweep.results | length }}/{{ sweep.results | length }} nominal</span><span class="why">the same agents Aegis CloudOps runs →</span>
+    {% endif %}
+  </a>
+</section>
+{%- endmacro %}
+
+{% macro agent_table(lab) -%}
+{% set sweep = lab.agents.sweep %}
+{% if not lab.agents.online %}
+<div class="empty">The HA agent layer isn't loaded on this host, so there's no verdict to show. Telemetry above is still live.</div>
+{% elif not sweep %}
+<div class="empty">The agents run their first sweep shortly after the site starts. Refresh in a minute.</div>
+{% else %}
+<div class="agents">
+  {% for r in sweep.results %}
+  <div class="agent {{ r.status }}">
+    <div class="a-top"><span class="dot {{ 'up' if r.status == 'nominal' else ('warn' if r.status == 'attention' else 'down') }}"></span><b>{{ r.agent }}</b><span class="a-st">{{ r.status }}</span></div>
+    <p class="a-feed">Reads {{ AGENT_FEEDS.get(r.agent, "host signals") }}.</p>
+    {% if r.findings %}
+      <p class="a-find">Found: {% for f in r.findings %}{{ CAUSES.get(f, f | replace("_", " ")) }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+      {% if r.recommendation %}<p class="a-rec">Would recommend <code>{{ r.recommendation }}</code> — advisory only, requires approval.</p>{% endif %}
+    {% elif r.status == "error" %}
+      <p class="a-find">Agent error ({{ r.error }}).</p>
+    {% else %}
+      <p class="a-ok">Nothing to report.</p>
+    {% endif %}
+    <div class="a-meta">confidence {{ "%.2f" | format(r.confidence) }}{% if r.latency_ms is not none %} · {{ r.latency_ms }} ms{% endif %}</div>
+  </div>
+  {% endfor %}
+</div>
+<p class="meta" style="margin-top:14px">Last sweep <time data-rel datetime="{{ sweep.at }}">{{ sweep.at }}</time> · every {{ (lab.agents.sweep_every // 60) }} minutes</p>
+{% endif %}
+{%- endmacro %}
+
+{% macro feed(events) -%}
+{% if events %}
+<ol class="activity">
+  {% for ev in events %}
+  <li class="ev {{ ev.kind }}">
+    <span class="ev-k">{{ {"post": "published", "video": "video", "update": "update", "deploy": "deploy", "agents": "agents"}.get(ev.kind, ev.kind) }}</span>
+    <div class="ev-b">
+      {% if ev.url %}<a href="{{ ev.url }}">{{ ev.title }}</a>{% else %}<span>{{ ev.title }}</span>{% endif %}
+      {% if ev.detail and ev.kind != "deploy" %}<small>{{ ev.detail }}</small>{% endif %}
+    </div>
+    <time datetime="{{ ev.at }}" {% if "T" in (ev.at or "") %}data-rel{% endif %}>{{ ev.at[:10] | pretty_date if ev.at else "" }}</time>
+  </li>
+  {% endfor %}
+</ol>
+{% else %}
+<div class="empty">No activity yet.</div>
+{% endif %}
+{%- endmacro %}

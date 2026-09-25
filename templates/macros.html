@@ -26,7 +26,7 @@
 {%- endmacro %}
 
 {% macro chips(e) -%}
-<div class="top">{% if e.type == "video" %}<span class="chip video">Video</span>{% endif %}<span class="chip">{{ e.category_name }}</span></div>
+<div class="top">{% if e.type == "video" %}<span class="chip video">Video</span>{% endif %}<span class="chip">{{ e.category_name }}</span>{% if e.status in ("in-progress", "planned") %}<span class="chip status {{ e.status }}">{{ e.status | replace("-", " ") }}</span>{% endif %}</div>
 {%- endmacro %}
 
 {% macro meta(e) -%}

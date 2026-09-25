@@ -7,9 +7,13 @@ content/entries/<slug>/ (meta.json + body.html + any media) and are loaded at st
 
 POST /api/publish lets AuditForge and Fieldnote push finalized, sanitized documents
 straight in; see the README for the request shape and its three guards.
+
+A background task samples the host and runs the HA agents for the live lab panel (app/lab.py);
+app/activity.py merges content and runtime events into the activity feed.
 """
 from __future__ import annotations
 
+import asyncio
 import hmac
 import json
 import math
@@ -26,16 +30,35 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.activity import Activity
 from app.content import (CAT_BY_SLUG, CATEGORIES, MEDIA_TYPES, extract_inline_images,
                          load_entries, media_path, search)
+from app.lab import Lab
 from app.security import scan_secrets
 
 ROOT = Path(__file__).resolve().parent.parent
 CONTENT = Path(os.environ.get("HUB_CONTENT_DIR") or ROOT / "content" / "entries")
 BASE_URL = os.environ.get("HUB_BASE_URL", "https://spencerlab.tech").rstrip("/")
+DATA = Path(os.environ.get("HUB_DATA_DIR") or ROOT / "data")
 PER_PAGE = 9
 
 _ENTRIES: list[dict] = []
+LAB = Lab(BASE_URL)
+ACTIVITY = Activity(DATA, ROOT)
+
+
+def _log_sweep_change(previous: dict | None, current: dict) -> None:
+    """Only a CHANGE of state is news; a steady nominal sweep every 5 minutes is not."""
+    was = (previous or {}).get("attention", 0)
+    now = current["attention"]
+    if previous is None or (now > 0) != (was > 0):
+        flagged = [r["agent"] for r in current["results"] if r["status"] == "attention"]
+        ACTIVITY.record("agents", f"HA agents: {now} of {len(current['results'])} flagged attention"
+                        if now else f"HA agents: all {len(current['results'])} nominal",
+                        url="/lab", detail=", ".join(flagged) or None)
+
+
+LAB._on_sweep = _log_sweep_change
 
 
 def reload_entries() -> None:
@@ -46,7 +69,13 @@ def reload_entries() -> None:
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     reload_entries()
+    task = None
+    if not os.environ.get("HUB_LAB_DISABLED"):
+        ACTIVITY.record_deploy()
+        task = asyncio.create_task(LAB.loop())
     yield
+    if task:
+        task.cancel()
 
 
 app = FastAPI(title="spencerlab.tech", docs_url=None, redoc_url=None, openapi_url=None,
@@ -66,6 +95,15 @@ def _pretty_date(value: str) -> str:
 
 
 templates.env.filters["pretty_date"] = _pretty_date
+
+
+def _duration(seconds: int) -> str:
+    d, rem = divmod(int(seconds), 86400)
+    h, rem = divmod(rem, 3600)
+    return f"{d}d {h}h" if d else (f"{h}h {rem // 60}m" if h else f"{rem // 60}m")
+
+
+templates.env.filters["duration"] = _duration
 
 
 def _topics() -> list[dict]:
@@ -108,6 +146,8 @@ def home(request: Request):
         "latest": _ENTRIES[1:7],
         "videos": [e for e in _ENTRIES if e["type"] == "video"][:3],
         "total_posts": len(posts), "total": len(_ENTRIES),
+        "lab": LAB.status(), "activity": ACTIVITY.feed(_ENTRIES, limit=8),
+        "building": [e for e in _ENTRIES if e.get("status") in ("in-progress", "planned")][:3],
     })
 
 
@@ -154,6 +194,17 @@ def about(request: Request):
     return _render(request, "about.html", {"nav": "about", "total": len(_ENTRIES)})
 
 
+@app.get("/lab", response_class=HTMLResponse)
+def lab_page(request: Request):
+    return _render(request, "lab.html", {"nav": "lab", "lab": LAB.status(),
+                                         "activity": ACTIVITY.feed(_ENTRIES, limit=30)})
+
+
+@app.get("/api/lab")
+def lab_api():
+    return JSONResponse(LAB.status(), headers={"Cache-Control": "no-store"})
+
+
 @app.get("/healthz")
 def healthz():
     return JSONResponse({"status": "ok", "entries": len(_ENTRIES)})
@@ -188,7 +239,7 @@ def feed(request: Request):
 
 @app.get("/sitemap.xml")
 def sitemap():
-    urls = ["/", "/posts", "/videos", "/topics", "/about"]
+    urls = ["/", "/posts", "/videos", "/topics", "/lab", "/about"]
     urls += [f"/{c['slug']}" for c in CATEGORIES] + [e["url"] for e in _ENTRIES]
     xml = "".join(f"<url><loc>{BASE_URL}{u}</loc></url>" for u in urls)
     return Response('<?xml version="1.0" encoding="UTF-8"?>'
@@ -234,6 +285,7 @@ def entry(request: Request, cat: str, slug: str):
 # --- The publish pipeline ----------------------------------------------------------
 _SLUG_OK = re.compile(r"[^a-z0-9]+")
 _SOURCES = {"auditforge", "fieldnote", "hand"}
+_STATUSES = {"planned", "in-progress", "complete"}
 
 
 def _safe_slug(text: str) -> str:
@@ -291,6 +343,12 @@ def publish(payload: dict = Body(...), authorization: str = Header(default="")):
             "clear the document before it can be published.",
         )
 
+    if payload.get("status") not in (None, *_STATUSES):
+        raise HTTPException(422, f"status must be one of {sorted(_STATUSES)}")
+    if payload.get("progress") is not None and not (
+            isinstance(payload["progress"], int) and 0 <= payload["progress"] <= 100):
+        raise HTTPException(422, "progress must be an integer 0-100")
+
     slug = _safe_slug(payload.get("slug") or payload["title"])
     if (CONTENT / slug).exists() and payload.get("replace") is not True:
         raise HTTPException(409, f"an entry with slug {slug!r} already exists; "
@@ -300,7 +358,8 @@ def publish(payload: dict = Body(...), authorization: str = Header(default="")):
     body_html, files = extract_inline_images(slug, payload["body_html"])
 
     # Automated backstop. Reports the KIND of match, never the value.
-    hits = scan_secrets(payload["title"], payload["summary"], body_html)
+    hits = scan_secrets(payload["title"], payload["summary"], body_html,
+                        str(payload.get("update_note") or ""))
     if hits:
         raise HTTPException(422, {"refused": "possible secret or sensitive content", "matched": hits})
 
@@ -313,6 +372,19 @@ def publish(payload: dict = Body(...), authorization: str = Header(default="")):
         "tags": [str(t) for t in payload.get("tags", [])][:12],
         "source": payload["source"],
     }
+    # A replace keeps what the site added on top of the source document (logos, cover, the
+    # build-log history) and can append one dated update to that history.
+    old_meta_f = CONTENT / slug / "meta.json"
+    old = json.loads(old_meta_f.read_text(encoding="utf-8")) if old_meta_f.exists() else {}
+    for keep in ("logos", "cover", "video", "poster", "duration", "captions", "status", "progress", "updates"):
+        if keep in old:
+            meta[keep] = old[keep]
+    for field in ("status", "progress"):
+        if payload.get(field) is not None:
+            meta[field] = payload[field]
+    if payload.get("update_note"):
+        meta["updates"] = [{"date": date.today().isoformat(), "note": str(payload["update_note"])[:280]},
+                           *meta.get("updates", [])]
     _write_entry(meta, body_html, files)
     reload_entries()
     return JSONResponse(

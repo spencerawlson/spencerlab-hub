@@ -1,0 +1,98 @@
+<header class="masthead"><div class="readwrap">
+<p class="eyebrow"><span class="dot"></span> Built · Python</p>
+<h1 class="title">The Real-Life ATM</h1>
+<p class="lede">A three-bank ATM in Python: my banking backend, Claude Code's arcade frontend, now playable in the browser.</p>
+<div class="byline"><span><b>Backend</b> Spencer</span><span><b>Frontend</b> Claude Code</span><span><b>Runs</b> desktop · terminal · browser</span></div>
+</div></header>
+
+<div class="readwrap">
+
+<section>
+  <p class="part-tag">Play it</p>
+  <h2>Try the machine</h2>
+  <p>This is the actual Pygame game, not a remake. It's compiled to WebAssembly and runs entirely in your browser. The first launch downloads a Python runtime, so give it a few seconds, then click once to start.</p>
+
+  <div class="playframe" data-embed-src="/static/play/atm/index.html" data-embed-title="The Real-Life ATM, playable">
+    <img src="/media/the-real-life-atm/attract.png" alt="The ATM's attract screen: THE REAL-LIFE ATM, press OK to begin" loading="lazy">
+    <button type="button" class="btn primary">▶ Launch the ATM</button>
+  </div>
+
+  <p class="small">Click the keypad or use your keyboard: number keys, <b>Enter</b> = OK, <b>Backspace</b> = CLEAR, <b>Esc</b> = CANCEL. Balances live in the page's memory and reset when you reload.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Bank</th><th>Type digits</th><th>PIN</th><th>Name</th><th>Balance</th></tr></thead>
+      <tbody>
+        <tr><td>CIBC</td><td class="mono">001</td><td class="mono">1234</td><td>John Smith</td><td class="mono">$1,000</td></tr>
+        <tr><td>CIBC</td><td class="mono">002</td><td class="mono">2345</td><td>Sarah Johnson</td><td class="mono">$2,500</td></tr>
+        <tr><td>RBC</td><td class="mono">001</td><td class="mono">4567</td><td>David Wilson</td><td class="mono">$1,500</td></tr>
+        <tr><td>BMO</td><td class="mono">001</td><td class="mono">7890</td><td>Robert Taylor</td><td class="mono">$2,000</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small">Demo accounts only. Get the PIN wrong three times and the machine keeps your card, just like a real one.</p>
+</section>
+
+<section>
+  <p class="part-tag">The idea</p>
+  <h2>The bank is the backend; the machine is just the interface</h2>
+  <p>I started with a plain terminal ATM to learn classes and methods: state and behaviour. The design question that made it worth writing up came later. Can the same banking code drive a completely different front end without changing?</p>
+  <p>It can. The logic sits behind one small service layer that never prints and never asks for input. The terminal program and the arcade game both call the same methods, so neither one knows how accounts or balances actually work.</p>
+  <figure>
+    <pre>  atm.py       (terminal) ─┐
+                           ├─▶  atm_service.py  ──▶  Bank ─▶ Account ─▶ Customer
+  atm_game.py  (Pygame)   ─┘     clean API, no I/O       OOP logic + flat-file storage</pre>
+    <figcaption>Two front ends, one backend. The browser build is the Pygame front end again.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <p class="part-tag">My part</p>
+  <h2>The backend</h2>
+  <p>Three classes, each owning one idea:</p>
+  <ul>
+    <li><b><code>Customer</code></b>: identity and the PIN check.</li>
+    <li><b><code>Account</code></b>: the balance, deposit and withdraw, and writing every transaction to the bank's log with a timestamp, amount and new balance. Invalid amounts and overdrafts raise an <code>ATMError</code> rather than printing, so each interface decides how to show the reason.</li>
+    <li><b><code>Bank</code></b>: loads its customers from a flat file and writes changed balances back.</li>
+  </ul>
+  <p>Storage is deliberately simple: one pipe-delimited file per bank (<code>ID|Name|PIN|Account|Balance</code>) and one transaction log per bank. Three banks (CIBC, RBC and Bank of Montreal) share one ATM network, each with its own customers and log.</p>
+  <figure><img src="/media/the-real-life-atm/pin.png" alt="PIN entry screen: Welcome, John Smith, enter PIN, two digits masked as asterisks" loading="lazy"><figcaption>PIN entry. Three attempts, then the machine retains the card, matching the original terminal logic.</figcaption></figure>
+</section>
+
+<section>
+  <p class="part-tag">Claude Code's part</p>
+  <h2>The frontend</h2>
+  <p>Claude Code built the machine around that backend: <code>atm_game.py</code>, a drawn ATM kiosk with a card slot, a numeric keypad, a phosphor-green CRT screen, an animated cash dispenser and a receipt printer. It also generates its sound effects in code, with no audio files.</p>
+  <figure><img src="/media/the-real-life-atm/menu.png" alt="Main menu: Welcome John Smith, 1 Check Balance, 2 Deposit, 3 Withdraw Cash, 4 Exit" loading="lazy"><figcaption>The main menu, driven by the same service calls as the terminal version.</figcaption></figure>
+  <p>Withdrawals are enforced in multiples of $5 and broken into real bills ($100, $50, $20, $10, $5), which drop into the tray one by one:</p>
+  <figure><img src="/media/the-real-life-atm/dispense.png" alt="Take your cash: $185 dispensed, with $100, $50, $20, $10 and $5 bills in the tray" loading="lazy"><figcaption>$185, dispensed as one of each bill.</figcaption></figure>
+  <p>Getting there meant a small refactor of my code, which is worth being specific about:</p>
+  <ul>
+    <li>It extracted <code>atm_service.py</code>, the clean seam both interfaces now sit on.</li>
+    <li>It added <b>balance persistence</b>. My original never wrote balances back, so every run started from the same amounts. <code>Bank.update_balance</code> now rewrites only the matching account's field, through a temp file, so a crash can't leave half a file.</li>
+    <li>It fixed my <b>transaction log</b>. I'd used <code>( )</code> instead of <code>{ }</code> inside an f-string, so the log recorded the literal text instead of the amounts.</li>
+  </ul>
+  <div class="callout lesson">
+    <p class="ctag">What I took from it</p>
+    <p>Splitting the work this way (I own the domain model, the AI builds the interface against it) only worked because the backend had a clean boundary. Once nothing in the logic printed or read input, a whole new front end could be built on it without touching how money moves.</p>
+  </div>
+</section>
+
+<section>
+  <p class="part-tag">Into the browser</p>
+  <h2>Pygame on a web page</h2>
+  <p>The game above is compiled with <a href="https://pygame-web.github.io/" rel="noopener">pygbag</a>, which packages a Pygame project for CPython running in WebAssembly. The browser needs control back every frame, so the only new code is a small <code>main.py</code> that drives the game's own <code>handle</code>, <code>update</code> and <code>draw</code> from an async loop. The game file itself is unchanged.</p>
+  <div class="callout gotcha">
+    <p class="ctag">Gotcha</p>
+    <p>A pygbag build produces an <code>.apk</code> <i>and</i> a <code>.tar.gz</code>. The first test shipped only the <code>.apk</code>: the Python runtime loaded, then stopped on a 404 for the archive. Ship both.</p>
+  </div>
+</section>
+
+<section>
+  <p class="part-tag">Honest notes</p>
+  <h2>What it isn't</h2>
+  <p>It's a learning project. PINs are stored in plain text in the demo data files. That's fine for a simulation, and not how a real ATM stores credentials. Hashing them and wrapping <code>atm_service</code> in a small web API are the obvious next steps.</p>
+  <p>The source is on GitHub: <a href="https://github.com/spencerawlson/Python_for_IT_Automation/tree/master/Bank_ATM/The_Real_Life_ATM" rel="noopener">Python_for_IT_Automation / Bank_ATM / The_Real_Life_ATM</a>.</p>
+</section>
+
+</div>

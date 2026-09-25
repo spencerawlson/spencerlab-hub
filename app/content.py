@@ -169,6 +169,13 @@ def build_entry(entry_dir: Path) -> dict | None:
     })
     meta.setdefault("tags", [])
     meta["type"] = "video" if meta["video_url"] else "post"
+    # Build logs: a status, an optional 0-100 progress, and dated updates (newest first).
+    if meta.get("status") not in ("planned", "in-progress", "complete"):
+        meta.pop("status", None)
+    if not isinstance(meta.get("progress"), int) or not 0 <= meta["progress"] <= 100:
+        meta.pop("progress", None)
+    meta["updates"] = sorted((u for u in meta.get("updates", []) if isinstance(u, dict) and u.get("note")),
+                             key=lambda u: u.get("date", ""), reverse=True)
     return meta
 
 

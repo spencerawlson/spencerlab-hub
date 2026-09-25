@@ -6,6 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app import main
+from app.activity import Activity
 from app.content import load_entries
 
 REAL_CONTENT = Path(__file__).resolve().parent.parent / "content" / "entries"
@@ -37,7 +38,9 @@ def client(tmp_path, monkeypatch):
            video="video.mp4", poster="poster.jpg", duration="12:04", date="2026-09-06")
     _entry(tmp_path, "winserv-report", "<p>WinRM finding.</p>", category="assessed", tags=["dns"])
     monkeypatch.setattr(main, "CONTENT", tmp_path)
+    monkeypatch.setattr(main, "ACTIVITY", Activity(tmp_path / "_data", tmp_path))
     monkeypatch.setenv("HUB_PUBLISH_TOKEN", TOKEN)
+    monkeypatch.setenv("HUB_LAB_DISABLED", "1")   # no background probes of the real site
     with TestClient(main.app) as c:
         yield c
 
@@ -62,7 +65,7 @@ def test_real_content_loads_and_is_light():
 
 # --- pages ------------------------------------------------------------------------
 
-@pytest.mark.parametrize("path", ["/", "/posts", "/videos", "/topics", "/about", "/built",
+@pytest.mark.parametrize("path", ["/", "/posts", "/videos", "/topics", "/about", "/lab", "/built",
                                   "/assessed", "/tags/dns", "/search?q=nmap", "/search"])
 def test_pages_render(client, path):
     assert client.get(path).status_code == 200

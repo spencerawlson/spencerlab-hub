@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;600&display=swap">
-<link rel="stylesheet" href="/static/site.css?v=5">
+<link rel="stylesheet" href="/static/site.css?v=10">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23030806' stroke='%2300ff9c' stroke-width='2'/><text x='16' y='21.5' font-family='monospace' font-weight='700' font-size='14' text-anchor='middle' fill='%2300ff9c'>SL</text></svg>">
 </head>
 <body>
@@ -24,6 +24,7 @@
       <a href="/posts" {% if nav == 'posts' %}aria-current="page"{% endif %}>Posts</a>
       <a href="/videos" {% if nav == 'videos' %}aria-current="page"{% endif %}>Videos</a>
       <a href="/topics" {% if nav == 'topics' %}aria-current="page"{% endif %}>Topics</a>
+      <a href="/lab" {% if nav == 'lab' %}aria-current="page"{% endif %}>Lab</a>
       <a href="/about" {% if nav == 'about' %}aria-current="page"{% endif %}>About</a>
     </nav>
     <div class="head-tools">
@@ -56,6 +57,7 @@
           <li><a href="/posts">All posts</a></li>
           <li><a href="/videos">Videos</a></li>
           <li><a href="/topics">Topics</a></li>
+          <li><a href="/lab">Live lab</a></li>
           <li><a href="/search">Search</a></li>
         </ul>
       </div>
@@ -80,6 +82,7 @@
     </div>
   </div>
 </footer>
+<script src="/static/lab.js?v=1" defer></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>
