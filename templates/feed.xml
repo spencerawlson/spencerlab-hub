@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>SpencerLab</title>
+  <link>{{ base }}/</link>
+  <description>Build logs, security write-ups and videos from a working homelab.</description>
+  <language>en</language>
+  <lastBuildDate>{{ built }}</lastBuildDate>
+  <atom:link href="{{ base }}/feed.xml" rel="self" type="application/rss+xml"/>
+  {% for e in entries %}
+  <item>
+    <title>{{ e.title }}</title>
+    <link>{{ base }}{{ e.url }}</link>
+    <guid isPermaLink="true">{{ base }}{{ e.url }}</guid>
+    <pubDate>{{ rfc822(e.date) }}</pubDate>
+    <category>{{ e.category_name }}</category>
+    <description>{{ e.summary }}</description>
+  </item>
+  {% endfor %}
+</channel>
+</rss>

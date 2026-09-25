@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}Topics · SpencerLab{% endblock %}
+{% block content %}
+<header class="wrap pagehead">
+  <p class="kicker">Topics</p>
+  <h1>Build it, fix it, break it, judge it, run it.</h1>
+  <p>Every post sits in one of five disciplines — the full lifecycle of a real system.</p>
+</header>
+<section class="wrap">
+  <div class="topic-grid">
+    {% for t in topics %}
+    <a class="topic" href="/{{ t.slug }}" data-cat="{{ t.slug }}">
+      <span class="ic">{{ m.glyph(t.slug) }}</span>
+      <h3>{{ t.name }}</h3>
+      <p>{{ t.blurb }}</p>
+      <span class="n">{{ t.count }} post{{ "" if t.count == 1 else "s" }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

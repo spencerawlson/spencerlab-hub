@@ -1,27 +1,31 @@
 # spencerlab.tech — the tech hub
 
-A small, self-hosted FastAPI site: a working technical journal of what gets **built,
-repaired, pentested, assessed, and administered**. Replaces srspady.com. Served publicly
-through the Cloudflare Tunnel already running on UbuntuServ — no inbound ports, home IP
-hidden.
-
-This is **Hub v0**: the read side. Entries are flat files on disk. Phase 2 adds the
-authenticated publish API so AuditForge and Fieldnote can push finalized, sanitized docs
-straight in.
+A small, self-hosted FastAPI blog and vlog: a working technical journal of what gets
+**built, repaired, pentested, assessed, and administered** — as write-ups and self-hosted
+videos. Served publicly through the Cloudflare Tunnel on UbuntuServ — no inbound ports,
+home IP hidden. AuditForge and Fieldnote publish straight in through `/api/publish`.
 
 ## Layout
 
 ```
 spencerlab-hub/
-  app/main.py          FastAPI: home, /{category}, /{category}/{slug}, /healthz
-  templates/           base · home · category · entry  (Jinja2)
-  static/hub.css       the whole design system (IBM Plex · indigo · status accents)
+  app/main.py          routes, feeds, media, the publish API
+  app/content.py       loads entries: masthead → post header, TOC, reading time, media URLs
+  app/security.py      the secret-scan backstop for publishing
+  templates/           base · home · list · post · topics · search · about · 404 · feed.xml
+  static/site.css      the design system (Inter · IBM Plex Mono · viridian accent, light/dark)
   content/entries/
-    <slug>/meta.json   {title, category, date, summary, tags, ...}
+    <slug>/meta.json   {title, category, date, summary, tags, cover?, video?, poster?, ...}
     <slug>/body.html   the entry body, using the shared component classes
+    <slug>/*.png|mp4   media the entry uses, served at /media/<slug>/<file>
+  tests/               pytest suite (pip install -r requirements-dev.txt; pytest)
 ```
 
-Categories (fixed, in `app/main.py`): `built`, `repaired`, `pentested`, `assessed`,
+Pages: `/` (featured + recent + videos + topics), `/posts`, `/videos`, `/topics`,
+`/<category>`, `/<category>/<slug>`, `/tags/<tag>`, `/search?q=`, `/about`, plus
+`/feed.xml` (RSS), `/sitemap.xml`, `/robots.txt`, `/healthz`. Listings paginate at 9.
+
+Categories (fixed, in `app/content.py`): `built`, `repaired`, `pentested`, `assessed`,
 `administered`.
 
 ## Run locally
@@ -34,14 +38,31 @@ uvicorn app.main:app --reload --port 8080
 # → http://localhost:8080
 ```
 
-## Add an entry (by hand, for now)
+## Add an entry (by hand)
 
 1. `mkdir content/entries/my-slug`
 2. Write `meta.json` (copy an existing one — `category` must be one of the five).
-3. Write `body.html` — the article body. Reuse the component classes already in
-   `static/hub.css`: `.term` (command blocks), `.callout .lesson|.gotcha|.fail|.win`,
-   `.facts`, `.tablewrap`, `.ladder`, `.pillrow`, `figure`.
-4. Restart (or run with `--reload`). Entries are loaded at startup, newest date first.
+3. Write `body.html` — the article body. Reuse the component classes in
+   `static/site.css`: `.term` (command blocks), `.callout .lesson|.gotcha|.fail|.win`,
+   `.facts`, `.tablewrap`, `.ladder`, `.pillrow`, `figure`. A leading
+   `<header class="masthead">` is optional — the page header is built from `meta.json`,
+   and only the masthead's `.byline` is kept.
+4. Put images next to it and reference them as `/media/my-slug/<file>`. Optional
+   `"cover": "cover.jpg"` sets the card thumbnail (otherwise a topic graphic is drawn).
+5. Restart (or run with `--reload`). Entries load at startup, newest date first; reading
+   time and the "On this page" contents (3+ `<h2>`s) are computed automatically.
+
+### Video posts
+
+Copy the file into the entry folder and name it in `meta.json`:
+
+```json
+{ "video": "video.mp4", "poster": "poster.jpg", "duration": "12:04", "captions": "en.vtt" }
+```
+
+The post then renders a player and appears under `/videos`. Files are served with HTTP
+Range support, so seeking works. Encode for the web before uploading (H.264/AAC MP4 with
+`-movflags +faststart`) — every view streams from the homelab through the tunnel.
 
 ## Deploy on UbuntuServ (behind the existing tunnel)
 
@@ -120,6 +141,11 @@ Request body:
 
 On success: `201 {"status":"published","url":"/pentested/…","slug":"…"}`. The entry is
 written to `content/entries/<slug>/` and picked up immediately.
+
+- An existing slug returns **409** unless the request sends `"replace": true`.
+- Inline `data:` images in `body_html` are written out as files (identical images once)
+  and the body is rewritten to `/media/<slug>/…`, so pages stay light.
+- Videos are not sent through the API — copy them into the entry folder (see above).
 
 Body HTML should use the shared component classes (`.term`, `.callout`, `.facts`, …) so
 published entries match the house style. The next sub-phase adds the actual **Publish**

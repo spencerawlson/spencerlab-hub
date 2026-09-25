@@ -1,341 +1,79 @@
 {% extends "base.html" %}
+{% import "macros.html" as m %}
 {% block content %}
 
-<!-- ============ HERO ============ -->
-<header class="hero">
-  <div class="wrap grid">
-    <div class="hero-lead">
-      <p class="kicker">Build · Break · Repair · Secure · Run</p>
-      <h1>The working record of<br><span class="accent">what gets built &amp; run.</span></h1>
-      <p class="sub">A self-hosted technical journal — infrastructure stood up, faults diagnosed, systems pentested and assessed, networks administered. Written honestly: the commands, the wrong turns, and why each fix mattered.</p>
-      <div class="actions">
-        <a class="btn primary" href="#projects">View my work <span class="arw">→</span></a>
-        <a class="btn ghost" href="#contact">Get in touch <span class="arw">→</span></a>
-      </div>
-    </div>
-
-    <div class="deck">
-      <div class="globe" aria-hidden="true">
-        <svg viewBox="0 0 320 340" role="img" aria-label="A holographic data globe over a projector ring.">
-          <defs>
-            <radialGradient id="gcore" cx="50%" cy="46%" r="55%">
-              <stop offset="0%" stop-color="#8ff0d6" stop-opacity=".42"/>
-              <stop offset="50%" stop-color="#1fb894" stop-opacity=".10"/>
-              <stop offset="100%" stop-color="#1fb894" stop-opacity="0"/>
-            </radialGradient>
-            <linearGradient id="gbeam" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#2ee6c0" stop-opacity=".5"/>
-              <stop offset="100%" stop-color="#2ee6c0" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <g class="g-glow"><circle cx="160" cy="150" r="122" fill="url(#gcore)"/></g>
-          <path d="M160 150 L128 300 L192 300 Z" fill="url(#gbeam)" opacity=".45"/>
-          <ellipse cx="160" cy="300" rx="86" ry="14" fill="none" stroke="#2ee6c0" stroke-width="1.2" opacity=".55"/>
-          <ellipse cx="160" cy="300" rx="50" ry="8" fill="none" stroke="#35d6a8" stroke-width="1" opacity=".38"/>
-          <circle cx="160" cy="300" r="3.2" fill="#8ff5d0"/>
-          <g stroke="#35d6a8" fill="none">
-            <circle cx="160" cy="150" r="104" stroke-opacity=".34" stroke-width="1.1"/>
-            <ellipse cx="160" cy="150" rx="34" ry="104" stroke-opacity=".16"/>
-            <ellipse cx="160" cy="150" rx="68" ry="104" stroke-opacity=".12"/>
-          </g>
-          <g>
-{{ globe_dots | safe }}
-          </g>
-          <g fill="none">
-            <ellipse class="g-ring" cx="160" cy="150" rx="126" ry="40" transform="rotate(-18 160 150)"
-              stroke="#2ee6c0" stroke-opacity=".55" stroke-width="1.3" stroke-dasharray="3 9"/>
-            <ellipse cx="160" cy="150" rx="126" ry="40" transform="rotate(-18 160 150)" stroke="#35d6a8" stroke-opacity=".18" stroke-width="1"/>
-            <circle cx="286" cy="150" r="3.4" fill="#8ff5d0" transform="rotate(-18 160 150)"/>
-          </g>
-        </svg>
-      </div>
-
-      <div class="hud-row">
-        <div class="term">
-          <div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span class="who">spencerlab@edge</span></div>
-<pre><span class="c">$</span> <span class="p">curl</span> -s spencerlab.tech/healthz
-<span class="v">{"status":"ok","entries":{{ total_entries }}}</span>
-<span class="c">$</span> <span class="p">systemctl</span> is-active spencerlab-hub
-<span class="g">active</span>
-<span class="c">$</span> <span class="p">cloudflared</span> tunnel info
-<span class="g">HEALTHY</span> · 0 inbound ports
-<span class="c">$</span> <span class="cursor" aria-hidden="true"></span></pre>
-        </div>
-        <div class="glass hud">
-          <div class="hud-tag"><span class="d"></span> System status · edge signal</div>
-          <svg class="hud-spark" viewBox="0 0 200 44" preserveAspectRatio="none" aria-hidden="true">
-            <rect x="0.8" y="31" width="5.3" height="13" rx="1" fill="#2ee6c0" opacity="0.9"/>
-            <rect x="8.5" y="22" width="5.3" height="22" rx="1" fill="#1fb894" opacity="0.55"/>
-            <rect x="16.2" y="15" width="5.3" height="29" rx="1" fill="#35d6a8" opacity="0.55"/>
-            <rect x="23.9" y="7" width="5.3" height="37" rx="1" fill="#1fb894" opacity="0.55"/>
-            <rect x="31.6" y="27" width="5.3" height="17" rx="1" fill="#35d6a8" opacity="0.55"/>
-            <rect x="39.3" y="24" width="5.3" height="20" rx="1" fill="#2ee6c0" opacity="0.9"/>
-            <rect x="47.0" y="17" width="5.3" height="27" rx="1" fill="#35d6a8" opacity="0.55"/>
-            <rect x="54.6" y="4" width="5.3" height="40" rx="1" fill="#1fb894" opacity="0.55"/>
-            <rect x="62.3" y="25" width="5.3" height="19" rx="1" fill="#35d6a8" opacity="0.55"/>
-            <rect x="70.0" y="22" width="5.3" height="22" rx="1" fill="#1fb894" opacity="0.55"/>
-            <rect x="77.7" y="15" width="5.3" height="29" rx="1" fill="#2ee6c0" opacity="0.9"/>
-            <rect x="85.4" y="30" width="5.3" height="14" rx="1" fill="#1fb894" opacity="0.55"/>
-            <rect x="93.1" y="25" width="5.3" height="19" rx="1" fill="#35d6a8" opacity="0.55"/>
-            <rect x="100.8" y="19" width="5.3" height="25" rx="1" fill="#1fb894" opacity="0.55"/>
-            <rect x="108.5" y="12" width="5.3" height="32" rx="1" fill="#35d6a8" opacity="0.55"/>
-            <rect x="116.2" y="26" width="5.3" height="18" rx="1" fill="#2ee6c0" opacity="0.9"/>
-            <rect x="123.9" y="26" width="5.3" height="18" rx="1" fill="#35d6a8" opacity="0.55"/>
-            <rect x="131.6" y="12" width="5.3" height="32" rx="1" fill="#1fb894" opacity="0.55"/>
-            <rect x="139.3" y="4" width="5.3" height="40" rx="1" fill="#35d6a8" opacity="0.55"/>
-            <rect x="147.0" y="29" width="5.3" height="15" rx="1" fill="#1fb894" opacity="0.55"/>
-            <rect x="154.6" y="23" width="5.3" height="21" rx="1" fill="#2ee6c0" opacity="0.9"/>
-            <rect x="162.3" y="7" width="5.3" height="37" rx="1" fill="#1fb894" opacity="0.55"/>
-            <rect x="170.0" y="35" width="5.3" height="9" rx="1" fill="#35d6a8" opacity="0.55"/>
-            <rect x="177.7" y="28" width="5.3" height="16" rx="1" fill="#1fb894" opacity="0.55"/>
-            <rect x="185.4" y="20" width="5.3" height="24" rx="1" fill="#35d6a8" opacity="0.55"/>
-            <rect x="193.1" y="9" width="5.3" height="35" rx="1" fill="#2ee6c0" opacity="0.9"/>
-          </svg>
-          <dl>
-            <div class="kv"><dt>Service</dt><dd class="ok">ONLINE</dd></div>
-            <div class="kv"><dt>Transport</dt><dd>CF TUNNEL</dd></div>
-            <div class="kv"><dt>TLS</dt><dd class="ok">VALID</dd></div>
-            <div class="kv"><dt>Inbound</dt><dd>0 PORTS</dd></div>
-            <div class="kv"><dt>Entries</dt><dd>{{ total_entries }}</dd></div>
-            <div class="kv"><dt>Host</dt><dd>HOMELAB</dd></div>
-            <div class="kv"><dt>Local time</dt><dd id="clock">—</dd></div>
-          </dl>
-        </div>
-      </div>
-    </div>
+<section class="wrap hero">
+  <p class="kicker">The SpencerLab journal</p>
+  <h1>Notes from building, breaking &amp; <em>running real systems.</em></h1>
+  <p class="sub">Build logs, penetration-test write-ups and videos from a working homelab — every command, every wrong turn, and why each fix mattered.</p>
+  <div class="actions">
+    <a class="btn primary" href="/posts">Read the latest</a>
+    <a class="btn" href="/videos">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch videos</a>
+    <a class="btn" href="/feed.xml">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14"/><circle cx="6" cy="18" r="1.3" fill="currentColor"/></svg>RSS</a>
   </div>
-</header>
-
-<!-- ============ WHAT I DO — CORE EXPERTISE ============ -->
-<section class="wrap" id="expertise">
-  <div class="panel">
-    <div class="sec-head">
-      <span class="lbl">What I do</span>
-      <h2>Core expertise</h2>
-      <p class="intro">End-to-end capability across the technology stack — from securing and running infrastructure to shipping software that acts on real data.</p>
-    </div>
-    <div class="xgrid">
-      <div class="xcard">
-        <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></span>
-        <h3>Cybersecurity</h3>
-        <p>Penetration testing, vulnerability assessment and security analysis on authorized lab scope — with evidence, findings and remediation, documented end to end.</p>
-      </div>
-      <div class="xcard">
-        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M7.6 7.6L11 15M16.4 7.6L13 15M8 6h8"/></svg></span>
-        <h3>Networking</h3>
-        <p>Network design, routing &amp; switching, VLANs, VPN and firewalls — plus software-defined networking with GNS3, Open vSwitch and segmentation.</p>
-      </div>
-      <div class="xcard">
-        <span class="ico"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-7.97A5 5 0 0 1 16 9.5a3.5 3.5 0 0 1 .5 6.97"/><path d="M6.5 18H17"/></svg></span>
-        <h3>Cloud computing</h3>
-        <p>AWS, Azure and GCP — infrastructure-as-code, containers, serverless and resilient multi-account architecture that scales and stays observable.</p>
-      </div>
-      <div class="xcard">
-        <span class="ico"><svg viewBox="0 0 24 24"><path d="M9 8l-4 4 4 4M15 8l4 4-4 4"/></svg></span>
-        <h3>SaaS development</h3>
-        <p>Full-stack SaaS platforms — FastAPI and React, REST APIs, microservices and AI-driven features, from data model to shipped product.</p>
-      </div>
-      <div class="xcard">
-        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></span>
-        <h3>AI &amp; automation</h3>
-        <p>Infrastructure as code, CI/CD, scripting and monitoring — and autonomous agents that reason over real signals and act through consented pipelines.</p>
-      </div>
-    </div>
+  <div class="stats">
+    <span><b>{{ total }}</b> published</span>
+    <span><b>{{ topics | selectattr("count") | list | length }}</b> of 5 topics covered</span>
+    <span>Self-hosted · <b>0</b> inbound ports</span>
   </div>
 </section>
 
-<!-- ============ FEATURED PROJECTS ============ -->
-<section class="wrap" id="projects">
-  <div class="panel">
-    <div class="sec-head">
-      <span class="lbl">Selected work</span>
-      <h2>Featured projects</h2>
-      <p class="intro">Systems designed, built and operated — with the problem they solved and how they were tested.</p>
+{% if featured %}
+<section class="wrap section" aria-labelledby="h-featured">
+  <div class="sec-head"><h2 id="h-featured">Latest</h2><a href="/posts">View all →</a></div>
+  <a class="feature" href="{{ featured.url }}">
+    {{ m.thumb(featured) }}
+    <div>
+      {{ m.chips(featured) }}
+      <h2>{{ featured.title }}</h2>
+      <p>{{ featured.summary }}</p>
+      {{ m.meta(featured) }}
     </div>
-    <div class="projects">
+  </a>
+</section>
+{% endif %}
 
-      <a class="pcard" href="https://aegiscloudops.io" target="_blank" rel="noopener noreferrer">
-        <div class="shot brand">
-          <span class="tag">Cloud · SaaS</span>
-          <img src="/static/logos/aegis.png" alt="Aegis CloudOps logo" loading="lazy">
-        </div>
-        <div class="pbody">
-          <h3>Aegis CloudOps</h3>
-          <p>AI-assisted cloud monitoring and remediation — live health, cost anomalies and security findings, with consented auto-fixes across AWS, Azure and GCP.</p>
-          <div class="tags"><span>AWS</span><span>Docker</span><span>Python</span><span>React</span><span>PostgreSQL</span></div>
-          <span class="view">aegiscloudops.io <span class="arw">↗</span></span>
-        </div>
-      </a>
+{% if latest %}
+<section class="wrap section" aria-labelledby="h-recent">
+  <div class="sec-head"><h2 id="h-recent">Recent posts</h2><a href="/posts">Archive →</a></div>
+  <div class="grid">
+    {% for e in latest %}{{ m.card(e) }}{% endfor %}
+  </div>
+</section>
+{% endif %}
 
-      <a class="pcard" href="https://fishingrodterminal.io" target="_blank" rel="noopener noreferrer">
-        <div class="shot brand">
-          <span class="tag">SaaS · Data</span>
-          <img src="/static/logos/fishingrod.png" alt="Fishing Rod Terminal logo" loading="lazy">
-        </div>
-        <div class="pbody">
-          <h3>Fishing Rod Terminal</h3>
-          <p>A real-time market-intelligence terminal — live signals, per-asset bias, macro-cycle scoring and scenario analytics, rendered from a computed engine.</p>
-          <div class="tags"><span>Python</span><span>FastAPI</span><span>WebSockets</span><span>Postgres</span></div>
-          <span class="view">fishingrodterminal.io <span class="arw">↗</span></span>
-        </div>
-      </a>
+<section class="wrap section" aria-labelledby="h-videos">
+  <div class="sec-head"><h2 id="h-videos">Videos</h2><a href="/videos">All videos →</a></div>
+  {% if videos %}
+  <div class="grid">{% for e in videos %}{{ m.card(e) }}{% endfor %}</div>
+  {% else %}
+  <div class="empty"><b>The vlog is coming.</b> Build logs and walkthroughs on camera will be posted here as they're recorded.</div>
+  {% endif %}
+</section>
 
-      <div class="pcard big spencerlab">
-        <div class="pbody">
-          <div class="lab-head">
-            <span class="chip">The Lab</span>
-            <h3>SpencerLab</h3>
-          </div>
-          <p>The self-hosted lab behind this site — an offensive-security range and the hand-built hardware it runs on, wired over a private mesh and served through a zero-inbound Cloudflare Tunnel.</p>
-          <div class="sublab">
-
-            <a class="sublab-item" href="/pentested">
-              <div class="shot">
-                <span class="tag">Cybersecurity</span>
-                <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                  <rect width="300" height="150" fill="#071711"/>
-                  <rect x="0" y="0" width="300" height="20" fill="#0a1f18"/><rect x="12" y="7" width="8" height="6" rx="1.5" fill="#ff6f6b"/><rect x="26" y="7" width="60" height="6" rx="3" fill="#6de9c2" opacity=".6"/>
-                  <g transform="translate(66,86)">
-                    <g fill="none" stroke="#35d6a8" stroke-opacity=".4"><circle r="44"/><circle r="30"/><circle r="15"/></g>
-                    <line x1="-44" y1="0" x2="44" y2="0" stroke="#2ee6c0" stroke-opacity=".25"/><line x1="0" y1="-44" x2="0" y2="44" stroke="#2ee6c0" stroke-opacity=".25"/>
-                    <path d="M0 0 L38 -22 A44 44 0 0 1 43 6 Z" fill="#2ee6c0" opacity=".14"/>
-                    <g fill="#4dfd7e"><circle cx="22" cy="-13" r="2.6"/><circle cx="-17" cy="17" r="2.6"/><circle cx="11" cy="26" r="2.2"/><circle cx="-26" cy="-8" r="2"/></g></g>
-                  <g transform="translate(130,30)" font-family="IBM Plex Mono,monospace" font-size="6.5" fill="#93b3a5">
-                    <rect x="0" y="0" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="4.5" width="4" height="6" fill="#ff6f6b"/><text x="18" y="10.5">CVE-2023-… critical</text>
-                    <rect x="0" y="20" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="24.5" width="4" height="6" fill="#f2b84f"/><text x="18" y="30.5">weak-cipher · high</text>
-                    <rect x="0" y="40" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="44.5" width="4" height="6" fill="#f2b84f"/><text x="18" y="50.5">smb-signing · high</text>
-                    <rect x="0" y="60" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="64.5" width="4" height="6" fill="#4dfd7e"/><text x="18" y="70.5">info-leak · medium</text>
-                    <rect x="0" y="80" width="156" height="15" rx="3" fill="#0d241b"/><rect x="7" y="84.5" width="4" height="6" fill="#4dfd7e"/><text x="18" y="90.5">remediated · closed</text></g>
-                </svg>
-              </div>
-              <div class="sb">
-                <h4>Penetration Test Lab</h4>
-                <p>A self-built offensive-security range — a Kali workstation against Windows and Linux targets, enumerated, exploited and reported with remediation.</p>
-                <div class="tags"><span>Kali</span><span>Nmap</span><span>Metasploit</span><span>Burp</span><span>GVM</span></div>
-                <span class="view">Read the pentest reports <span class="arw">→</span></span>
-              </div>
-            </a>
-
-            <div class="sublab-item">
-              {# IN PROGRESS — no public entry. The build is planned; design notes are kept
-                 offline (Lab_Guides) until there is a real, assembled build to document.
-                 Neutral placeholder art on purpose — no borrowed renders on the homepage. #}
-              <div class="shot">
-                <span class="tag">Hardware &middot; In progress</span>
-                <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                  <rect width="300" height="150" fill="#071711"/>
-                  <line x1="236" y1="30" x2="248" y2="12" stroke="#2ee6c0" stroke-opacity=".55" stroke-width="1.3"/><circle cx="248" cy="12" r="2.6" fill="#8ff5d0"/>
-                  <rect x="52" y="28" width="196" height="98" rx="14" fill="#0a1f18" stroke="#35d6a8" stroke-opacity=".55" stroke-width="1.5"/>
-                  <rect x="66" y="38" width="168" height="50" rx="4" fill="#03100a" stroke="#2ee6c0" stroke-opacity=".5"/>
-                  <g font-family="IBM Plex Mono,monospace" font-size="6.5"><text x="72" y="50" fill="#4dfd7e">$ nmap -sV 10.0.0.0/24</text><text x="72" y="62" fill="#8ff5d0">host up · 3 ports open</text><text x="72" y="74" fill="#4dfd7e">$ <tspan fill="#6de9c2">_</tspan></text></g>
-                  <g fill="#0d241b" stroke="#2ee6c0" stroke-opacity=".3">
-                    <rect x="66" y="96" width="14" height="10" rx="2"/><rect x="84" y="96" width="14" height="10" rx="2"/><rect x="102" y="96" width="14" height="10" rx="2"/><rect x="120" y="96" width="14" height="10" rx="2"/><rect x="138" y="96" width="14" height="10" rx="2"/><rect x="156" y="96" width="14" height="10" rx="2"/><rect x="174" y="96" width="14" height="10" rx="2"/><rect x="192" y="96" width="14" height="10" rx="2"/>
-                    <rect x="66" y="110" width="14" height="10" rx="2"/><rect x="84" y="110" width="14" height="10" rx="2"/><rect x="102" y="110" width="14" height="10" rx="2"/><rect x="120" y="110" width="86" height="10" rx="2"/></g>
-                </svg>
-              </div>
-              <div class="sb">
-                <h4>Custom Computers — Cyberdeck</h4>
-                <p>A portable Raspberry Pi cyberdeck for cloud-security field work — build in progress. The write-up lands here once it is assembled, not before.</p>
-                <div class="tags"><span>Raspberry Pi</span><span>3D-print</span><span>Kali</span><span>In progress</span></div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-    </div>
+<section class="wrap section" aria-labelledby="h-topics">
+  <div class="sec-head"><h2 id="h-topics">Browse by topic</h2><a href="/topics">All topics →</a></div>
+  <div class="topic-grid">
+    {% for t in topics %}
+    <a class="topic" href="/{{ t.slug }}" data-cat="{{ t.slug }}">
+      <span class="ic">{{ m.glyph(t.slug) }}</span>
+      <h3>{{ t.name }}</h3>
+      <p>{{ t.blurb }}</p>
+      <span class="n">{{ t.count }} post{{ "" if t.count == 1 else "s" }}</span>
+    </a>
+    {% endfor %}
   </div>
 </section>
 
-<!-- ============ TECH STACK ============ -->
-<section class="wrap" id="stack">
-  <div class="panel">
-    <div class="sec-head">
-      <span class="lbl">Technologies &amp; tools</span>
-      <h2>Tech stack</h2>
-      <p class="intro">The tools I design, build, secure and operate with.</p>
+<section class="wrap section">
+  <div class="contact-band">
+    <div>
+      <h2>Who writes this?</h2>
+      <p>A security- and infrastructure-focused engineer documenting a homelab in public.</p>
     </div>
-    {# slug · name · official site. The tile IS the link, so the name (hidden on the
-       tile) has to carry it: alt gives the link its accessible name, title gives a
-       sighted visitor the tooltip the hidden label would otherwise have provided. #}
-    {% set stack = [
-      ["amazonwebservices","AWS","https://aws.amazon.com"],
-      ["azure","Azure","https://azure.microsoft.com"],
-      ["googlecloud","GCP","https://cloud.google.com"],
-      ["terraform","Terraform","https://www.terraform.io"],
-      ["kubernetes","Kubernetes","https://kubernetes.io"],
-      ["docker","Docker","https://www.docker.com"],
-      ["linux","Linux","https://www.kernel.org"],
-      ["ubuntu","Ubuntu","https://ubuntu.com"],
-      ["python","Python","https://www.python.org"],
-      ["go","Go","https://go.dev"],
-      ["typescript","TypeScript","https://www.typescriptlang.org"],
-      ["react","React","https://react.dev"],
-      ["nodejs","Node.js","https://nodejs.org"],
-      ["postgresql","PostgreSQL","https://www.postgresql.org"],
-      ["mongodb","MongoDB","https://www.mongodb.com"],
-      ["fastapi","FastAPI","https://fastapi.tiangolo.com"],
-      ["nginx","Nginx","https://nginx.org"],
-      ["cloudflare","Cloudflare","https://www.cloudflare.com"],
-      ["systemd","systemd","https://systemd.io"],
-      ["letsencrypt","Let's Encrypt","https://letsencrypt.org"],
-      ["zerotier","ZeroTier","https://www.zerotier.com"]
-    ] %}
-    <div class="stackgrid">
-      {% for s in stack %}
-      <a class="logotile" href="{{ s[2] }}" target="_blank" rel="noopener noreferrer" title="{{ s[1] }}"><img src="/static/logos/{{ s[0] }}.svg" alt="{{ s[1] }}" loading="lazy" width="30" height="30"><span>{{ s[1] }}</span></a>
-      {% endfor %}
-    </div>
+    <a class="btn" href="/about">About &amp; projects →</a>
   </div>
 </section>
-
-<!-- ============ CERTIFICATIONS ============ -->
-<section class="wrap" id="certs">
-  <div class="panel">
-    <div class="sec-head">
-      <span class="lbl">Credentials</span>
-      <h2>Certifications</h2>
-    </div>
-    <div class="certgrid">
-      <div class="certcards">
-        <div class="cert pending"><div class="cc">Coming soon</div><div class="cd">Certifications will be listed here as they are earned.</div></div>
-      </div>
-      <div class="learnpanel">
-        <h3>Always learning.<br>Always building.</h3>
-        <p>Credentials follow the work. The projects, labs and write-ups on this site are the demonstration; the certifications are the paper trail catching up.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ CONTACT — LET'S BUILD SOMETHING EXTRAORDINARY ============ -->
-<section class="wrap" id="contact">
-  <div class="cta">
-    <img class="cta-bg" src="/static/cityscape.png" alt="" aria-hidden="true">
-    <div class="cta-inner">
-      <div class="cta-lead">
-        <h2>Let&rsquo;s build something extraordinary.</h2>
-        <p>Open to new opportunities, collaborations and challenging projects.</p>
-      </div>
-      <div class="clist">
-        <a href="https://github.com/spencerawlson" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.69c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg>github.com/spencerawlson</a>
-        <span><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>Publishes from AuditForge · Fieldnote</span>
-        <span><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6l7-3z"/></svg>Token-gated · secret-scanned</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<script>
-  (function(){
-    var el = document.getElementById('clock');
-    if (!el) return;
-    function tick(){
-      try { el.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }
-      catch(e) { el.textContent = new Date().toTimeString().slice(0,8); }
-    }
-    tick(); setInterval(tick, 1000);
-  })();
-</script>
 {% endblock %}

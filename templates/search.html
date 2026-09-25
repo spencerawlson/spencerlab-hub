@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}{% if q %}“{{ q }}” · {% endif %}Search · SpencerLab{% endblock %}
+{% block content %}
+<header class="wrap pagehead searchpage">
+  <p class="kicker">Search</p>
+  <h1>{% if q %}Results for “{{ q }}”{% else %}Search the journal{% endif %}</h1>
+  <form action="/search" role="search">
+    <label class="sr-only" for="sq">Search posts</label>
+    <input id="sq" name="q" type="search" value="{{ q }}" placeholder="Try “nmap”, “tunnel” or “active directory”" autofocus>
+    <button class="btn primary" type="submit">Search</button>
+  </form>
+</header>
+<section class="wrap">
+  {% if q %}
+    <p class="meta">{{ results | length }} result{{ "" if results | length == 1 else "s" }}</p>
+    {% if results %}
+    <div class="results">
+      {% for e in results %}
+      <a class="result" href="{{ e.url }}">
+        {{ m.thumb(e) }}
+        <div>{{ m.chips(e) }}<h3>{{ e.title }}</h3><p>{{ e.summary }}</p><div style="margin-top:8px">{{ m.meta(e) }}</div></div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty" style="margin-top:20px">Nothing matched <b>{{ q }}</b>. Try fewer or different words, or <a href="/topics" style="color:var(--accent-ink)">browse by topic</a>.</div>
+    {% endif %}
+  {% endif %}
+</section>
+{% endblock %}

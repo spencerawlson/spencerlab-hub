@@ -1,0 +1,55 @@
+{# Shared building blocks. Import with: {% import "macros.html" as m %} #}
+
+{% set GLYPHS = {
+  "built":        '<path d="M12 3l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5"/><path d="M3 16.5L12 21l9-4.5"/>',
+  "repaired":     '<path d="M14.7 6.3a4 4 0 0 0-5.3 5.3L3.5 17.5a1.8 1.8 0 0 0 2.5 2.5l5.9-5.9a4 4 0 0 0 5.3-5.3l-2.4 2.4-2.3-.5-.5-2.3z"/>',
+  "pentested":    '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',
+  "assessed":     '<path d="M12 3l7 3v5c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6z"/><path d="M9 12l2 2 4-4"/>',
+  "administered": '<rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><path d="M7 7.5h.01M7 16.5h.01M11 7.5h6M11 16.5h6"/>',
+} %}
+
+{% macro glyph(cat) -%}
+<svg viewBox="0 0 24 24" aria-hidden="true">{{ GLYPHS[cat] | safe }}</svg>
+{%- endmacro %}
+
+{% macro thumb(e) -%}
+{% set img = e.poster_url if e.type == "video" else e.cover_url %}
+{% if img %}
+<div class="thumb"><img src="{{ img }}" alt="" loading="lazy">
+{% else %}
+<div class="thumb gen" data-cat="{{ e.category }}"><span class="word">{{ e.category_name }}</span><span class="glyph">{{ glyph(e.category) }}</span>
+{% endif %}
+{% if e.type == "video" %}<span class="play"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span></span>{% if e.duration %}<span class="dur">{{ e.duration }}</span>{% endif %}{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro chips(e) -%}
+<div class="top">{% if e.type == "video" %}<span class="chip video">Video</span>{% endif %}<span class="chip">{{ e.category_name }}</span></div>
+{%- endmacro %}
+
+{% macro meta(e) -%}
+<div class="meta"><time datetime="{{ e.date }}">{{ e.date | pretty_date }}</time><span class="sep"></span>
+<span>{% if e.type == "video" %}{{ e.duration ~ " watch" if e.duration else "Video" }}{% else %}{{ e.reading_time }} read{% endif %}</span></div>
+{%- endmacro %}
+
+{% macro card(e) -%}
+<a class="card" href="{{ e.url }}">
+  {{ thumb(e) }}
+  {{ chips(e) }}
+  <h3>{{ e.title }}</h3>
+  <p>{{ e.summary }}</p>
+  {{ meta(e) }}
+</a>
+{%- endmacro %}
+
+{% macro pager(p, base) -%}
+{% if p.pages > 1 %}
+<nav class="pager" aria-label="Pagination">
+  {% if p.page > 1 %}<a href="{{ base }}{% if p.page > 2 %}?page={{ p.page - 1 }}{% endif %}" aria-label="Newer posts">←</a>{% else %}<span class="off">←</span>{% endif %}
+  {% for n in range(1, p.pages + 1) %}
+    {% if n == p.page %}<span aria-current="page">{{ n }}</span>{% else %}<a href="{{ base }}{% if n > 1 %}?page={{ n }}{% endif %}">{{ n }}</a>{% endif %}
+  {% endfor %}
+  {% if p.page < p.pages %}<a href="{{ base }}?page={{ p.page + 1 }}" aria-label="Older posts">→</a>{% else %}<span class="off">→</span>{% endif %}
+</nav>
+{% endif %}
+{%- endmacro %}

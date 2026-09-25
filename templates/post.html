@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}{{ entry.title }} · SpencerLab{% endblock %}
+{% block description %}{{ entry.summary }}{% endblock %}
+{% block head_extra %}
+<link rel="canonical" href="{{ canonical }}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="{{ entry.title }}">
+<meta property="og:description" content="{{ entry.summary }}">
+<meta property="og:url" content="{{ canonical }}">
+{% set og = entry.poster_url or entry.cover_url %}
+{% if og %}<meta property="og:image" content="{{ base_url ~ og if og.startswith('/') else og }}">{% endif %}
+<meta property="article:published_time" content="{{ entry.date }}">
+<meta name="twitter:card" content="summary_large_image">
+{% endblock %}
+{% block content %}
+<article>
+  <header class="wrap post-head">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/posts">Posts</a><span aria-hidden="true">/</span><a href="/{{ entry.category }}">{{ entry.category_name }}</a>
+    </nav>
+    {{ m.chips(entry) }}
+    <h1>{{ entry.title }}</h1>
+    <p class="lede">{{ entry.summary }}</p>
+    {{ m.meta(entry) }}
+    {% if entry.byline %}<div class="byline">{{ entry.byline | safe }}</div>{% endif %}
+  </header>
+
+  <div class="wrap">
+    {% if entry.type == "video" %}
+    <div class="post-media">
+      <video controls preload="metadata" playsinline {% if entry.poster_url %}poster="{{ entry.poster_url }}"{% endif %}>
+        <source src="{{ entry.video_url }}" type="{{ 'video/webm' if entry.video_url.endswith('.webm') else 'video/mp4' }}">
+        {% if entry.captions_url %}<track kind="captions" src="{{ entry.captions_url }}" srclang="en" label="English" default>{% endif %}
+        Your browser can't play this video. <a href="{{ entry.video_url }}">Download it</a> instead.
+      </video>
+    </div>
+    {% endif %}
+
+    <div class="post-body{% if not entry.toc %} no-toc{% endif %}">
+      <div class="prose">
+        {{ entry.body | safe }}
+      </div>
+      {% if entry.toc %}
+      <aside class="toc" aria-label="On this page">
+        <h4>On this page</h4>
+        <ol>{% for h in entry.toc %}<li><a href="#{{ h.id }}">{{ h.text }}</a></li>{% endfor %}</ol>
+      </aside>
+      {% endif %}
+    </div>
+
+    <footer class="post-foot">
+      {% if entry.tags %}
+      <div class="tags">{% for t in entry.tags %}<a href="/tags/{{ t | urlencode }}">#{{ t }}</a>{% endfor %}</div>
+      {% else %}<span></span>{% endif %}
+      <div class="share">
+        <button class="btn" type="button" id="copyLink" data-url="{{ canonical }}">Copy link</button>
+        <a class="btn" href="https://www.linkedin.com/sharing/share-offsite/?url={{ canonical | urlencode }}" rel="noopener" target="_blank">Share</a>
+      </div>
+    </footer>
+
+    {% if newer or older %}
+    <nav class="adjacent" aria-label="More posts" style="max-width:var(--readw)">
+      {% if older %}<a class="prev" href="{{ older.url }}"><small>← Previous</small><b>{{ older.title }}</b></a>{% endif %}
+      {% if newer %}<a class="next" href="{{ newer.url }}"><small>Next →</small><b>{{ newer.title }}</b></a>{% endif %}
+    </nav>
+    {% endif %}
+  </div>
+</article>
+
+{% if related %}
+<section class="wrap section" aria-labelledby="h-related" style="margin-top:28px">
+  <div class="sec-head"><h2 id="h-related">Keep reading</h2><a href="/{{ entry.category }}">More in {{ entry.category_name }} →</a></div>
+  <div class="grid">{% for e in related %}{{ m.card(e) }}{% endfor %}</div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function(){
+    var b = document.getElementById('copyLink');
+    if (b) b.addEventListener('click', function(){
+      var done = function(){ b.textContent = 'Copied'; setTimeout(function(){ b.textContent = 'Copy link'; }, 1600); };
+      if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.url).then(done, function(){});
+    });
+    /* Highlight the section being read in the table of contents. */
+    var links = document.querySelectorAll('.toc a');
+    if (!links.length || !('IntersectionObserver' in window)) return;
+    var byId = {};
+    links.forEach(function(a){ byId[a.getAttribute('href').slice(1)] = a; });
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if (!e.isIntersecting) return;
+        links.forEach(function(a){ a.classList.remove('on'); });
+        var a = byId[e.target.id]; if (a) a.classList.add('on');
+      });
+    }, {rootMargin: '-80px 0px -70% 0px'});
+    Object.keys(byId).forEach(function(id){ var h = document.getElementById(id); if (h) io.observe(h); });
+  })();
+</script>
+{% endblock %}

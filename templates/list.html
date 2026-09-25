@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}{{ heading }}{% if pager.page > 1 %} · page {{ pager.page }}{% endif %} · SpencerLab{% endblock %}
+{% block description %}{{ intro }}{% endblock %}
+{% block content %}
+<header class="wrap pagehead">
+  <p class="kicker">{{ kicker }}</p>
+  <h1>{{ heading }}</h1>
+  <p>{{ intro }}</p>
+</header>
+
+<section class="wrap">
+  {% if nav in ("posts", "topics") %}
+  <nav class="filterbar" aria-label="Filter by topic">
+    <a href="/posts" {% if nav == "posts" %}aria-current="page"{% endif %}>All</a>
+    {% for t in topics %}
+    <a href="/{{ t.slug }}" {% if current_cat == t.slug %}aria-current="page"{% endif %}>{{ t.name }}<span class="n">{{ t.count }}</span></a>
+    {% endfor %}
+  </nav>
+  {% endif %}
+
+  {% if entries %}
+  <div class="grid">
+    {% for e in entries %}{{ m.card(e) }}{% endfor %}
+  </div>
+  {{ m.pager(pager, base) }}
+  {% else %}
+  <div class="empty">{{ empty or "Nothing here yet." }}</div>
+  {% endif %}
+</section>
+{% endblock %}

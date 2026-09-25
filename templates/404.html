@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}Not found · SpencerLab{% endblock %}
+{% block content %}
+<header class="wrap pagehead">
+  <p class="kicker">404</p>
+  <h1>That page doesn't exist.</h1>
+  <p>It may have moved, or the link is mistyped. Try <a href="/search" style="color:var(--accent-ink)">searching</a>, or start with something recent:</p>
+</header>
+{% if recent %}
+<section class="wrap"><div class="grid">{% for e in recent %}{{ m.card(e) }}{% endfor %}</div></section>
+{% endif %}
+{% endblock %}

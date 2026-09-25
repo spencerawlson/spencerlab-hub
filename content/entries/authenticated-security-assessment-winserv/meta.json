@@ -3,7 +3,7 @@
   "title": "Authenticated Security Assessment - WinServ",
   "category": "assessed",
   "date": "2026-09-08",
-  "summary": "An authorized, authenticated (assumed-breach) security assessment of WinServ (10.x.x.5), a standalone Windows Server 2025 file server on the isolated LabNet segment, to evaluate its configuration, access controls and b",
+  "summary": "An assumed-breach assessment of WinServ, a Windows Server 2025 file server on LabNet. The department-share RBAC held — but exposed WinRM plus a valid admin credential gave full remote control of the server. 1 Critical, 2 Medium findings.",
   "tags": [
     "pentest",
     "access control / remote management",
