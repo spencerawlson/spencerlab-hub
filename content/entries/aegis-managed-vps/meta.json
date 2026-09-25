@@ -4,7 +4,16 @@
   "category": "built",
   "date": "2026-09-13",
   "summary": "A Linux-first, automation-first managed VPS service, in design. Coming soon — the trials and errors of building it will be documented and published here via Fieldnote as the work happens.",
-  "tags": ["linux", "vps", "managed-services", "automation", "coming-soon"],
+  "tags": [
+    "linux",
+    "vps",
+    "managed-services",
+    "automation",
+    "coming-soon"
+  ],
   "source": "hand",
-  "reading_time": "4 min"
+  "reading_time": "4 min",
+  "logos": [
+    "aegis.png"
+  ]
 }

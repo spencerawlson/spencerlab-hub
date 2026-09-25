@@ -13,7 +13,7 @@ spencerlab-hub/
   app/content.py       loads entries: masthead → post header, TOC, reading time, media URLs
   app/security.py      the secret-scan backstop for publishing
   templates/           base · home · list · post · topics · search · about · 404 · feed.xml
-  static/site.css      the design system (Inter · IBM Plex Mono · viridian accent, light/dark)
+  static/site.css      the design system (liquid glass × cyberpunk: black, neon green, Chakra Petch)
   content/entries/
     <slug>/meta.json   {title, category, date, summary, tags, cover?, video?, poster?, ...}
     <slug>/body.html   the entry body, using the shared component classes
@@ -49,6 +49,8 @@ uvicorn app.main:app --reload --port 8080
    and only the masthead's `.byline` is kept.
 4. Put images next to it and reference them as `/media/my-slug/<file>`. Optional
    `"cover": "cover.jpg"` sets the card thumbnail (otherwise a topic graphic is drawn).
+   `"logos": ["kalilinux.svg"]` puts brand marks (files in `static/logos/`, up to 3) on
+   the post's thumbnail and banner — for the tools or products the post is about.
 5. Restart (or run with `--reload`). Entries load at startup, newest date first; reading
    time and the "On this page" contents (3+ `<h2>`s) are computed automatically.
 

@@ -35,6 +35,8 @@
         Your browser can't play this video. <a href="{{ entry.video_url }}">Download it</a> instead.
       </video>
     </div>
+    {% elif entry.logo_urls %}
+    <div class="post-media">{{ m.thumb(entry) }}</div>
     {% endif %}
 
     <div class="post-body{% if not entry.toc %} no-toc{% endif %}">

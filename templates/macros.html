@@ -17,7 +17,9 @@
 {% if img %}
 <div class="thumb"><img src="{{ img }}" alt="" loading="lazy">
 {% else %}
-<div class="thumb gen" data-cat="{{ e.category }}"><span class="word">{{ e.category_name }}</span><span class="glyph">{{ glyph(e.category) }}</span>
+<div class="thumb gen" data-cat="{{ e.category }}"><span class="word">{{ e.category_name }}</span>
+{% if e.logo_urls %}<span class="logos">{% for u in e.logo_urls %}<span class="plate"><img src="{{ u }}" alt="" loading="lazy"></span>{% endfor %}</span>
+{% else %}<span class="glyph">{{ glyph(e.category) }}</span>{% endif %}
 {% endif %}
 {% if e.type == "video" %}<span class="play"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span></span>{% if e.duration %}<span class="dur">{{ e.duration }}</span>{% endif %}{% endif %}
 </div>
@@ -33,7 +35,7 @@
 {%- endmacro %}
 
 {% macro card(e) -%}
-<a class="card" href="{{ e.url }}">
+<a class="card hud" href="{{ e.url }}">
   {{ thumb(e) }}
   {{ chips(e) }}
   <h3>{{ e.title }}</h3>

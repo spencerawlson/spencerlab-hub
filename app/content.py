@@ -163,6 +163,9 @@ def build_entry(entry_dir: Path) -> dict | None:
         "video_url": media_url(entry_dir.name, meta.get("video")),
         "poster_url": media_url(entry_dir.name, meta.get("poster") or meta.get("cover")),
         "captions_url": media_url(entry_dir.name, meta.get("captions")),
+        # Brand marks for the tools/products a post is about: a bare name is a file in
+        # static/logos/, anything else is a path or URL used as-is.
+        "logo_urls": [l if "/" in l else f"/static/logos/{l}" for l in meta.get("logos", [])][:3],
     })
     meta.setdefault("tags", [])
     meta["type"] = "video" if meta["video_url"] else "post"

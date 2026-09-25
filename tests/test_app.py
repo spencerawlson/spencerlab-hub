@@ -86,7 +86,7 @@ def test_video_post_renders_player_and_media_supports_range(client):
     assert "<video" in html and "/media/cyberdeck-video/video.mp4" in html
     r = client.get("/media/cyberdeck-video/video.mp4", headers={"Range": "bytes=0-9"})
     assert r.status_code == 206 and r.content == b"0123456789"
-    assert client.get("/videos").text.count('class="card"') == 1
+    assert client.get("/videos").text.count('<a class="card') == 1
 
 
 @pytest.mark.parametrize("name", ["meta.json", "body.html", "..%2Fmeta.json", "nope.mp4"])

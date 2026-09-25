@@ -4,7 +4,7 @@
 
 <section class="wrap hero">
   <p class="kicker">The SpencerLab journal</p>
-  <h1>Notes from building, breaking &amp; <em>running real systems.</em></h1>
+  <h1>Notes from building, breaking &amp; <em>running real systems.</em><span class="cursor" aria-hidden="true"></span></h1>
   <p class="sub">Build logs, penetration-test write-ups and videos from a working homelab — every command, every wrong turn, and why each fix mattered.</p>
   <div class="actions">
     <a class="btn primary" href="/posts">Read the latest</a>
@@ -23,7 +23,7 @@
 {% if featured %}
 <section class="wrap section" aria-labelledby="h-featured">
   <div class="sec-head"><h2 id="h-featured">Latest</h2><a href="/posts">View all →</a></div>
-  <a class="feature" href="{{ featured.url }}">
+  <a class="feature hud" href="{{ featured.url }}">
     {{ m.thumb(featured) }}
     <div>
       {{ m.chips(featured) }}

@@ -1,0 +1,12 @@
+{
+  "slug": "proxmox-gns3-homelab-implementation-plan",
+  "title": "Proxmox & GNS3 Homelab Implementation Plan",
+  "category": "built",
+  "date": "2026-09-19",
+  "summary": "Build and operations plan for a two-node Proxmox VE cluster with GNS3 network simulation and a Windows-based security workstation.",
+  "tags": [],
+  "source": "fieldnote",
+  "logos": [
+    "proxmox.svg"
+  ]
+}

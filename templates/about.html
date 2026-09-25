@@ -10,7 +10,7 @@
     <p>SpencerLab is a self-hosted technical journal. Infrastructure gets stood up, faults get diagnosed, lab systems get pentested and assessed — and each one is written up honestly: the commands, the wrong turns, and why each fix mattered.</p>
     <p>Write-ups are published straight from two in-house tools — <b>AuditForge</b> for assessment reports and <b>Fieldnote</b> for build notes — through a token-gated, secret-scanned publishing API.</p>
   </div>
-  <div class="card-side">
+  <div class="card-side hud">
     <dl>
       <div><dt>Focus</dt><dd>Cybersecurity · networking · cloud · SaaS</dd></div>
       <div><dt>Published</dt><dd>{{ total }} post{{ "" if total == 1 else "s" }} across {{ topics | selectattr("count") | list | length }} topics</dd></div>

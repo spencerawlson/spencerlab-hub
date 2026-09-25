@@ -9,5 +9,8 @@
     "credentials",
     "configuration"
   ],
-  "source": "auditforge"
+  "source": "auditforge",
+  "logos": [
+    "kalilinux.svg"
+  ]
 }
