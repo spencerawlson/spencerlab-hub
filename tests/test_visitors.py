@@ -18,6 +18,8 @@ def _stats(client, token=STATS_TOKEN, **params):
 
 
 def _rows():
+    if not main.VISITS.db.exists():
+        return []
     con = sqlite3.connect(main.VISITS.db)
     try:
         con.row_factory = sqlite3.Row
@@ -123,3 +125,25 @@ def test_stats_page_is_a_shell_that_is_never_logged_or_indexed(client):
     assert "203.0.113.7" not in html                  # no data in the HTML; it loads with the token
     assert [r["path"] for r in _rows()] == ["/"]
     assert "Disallow: /stats" in client.get("/robots.txt").text
+
+
+def test_about_page_discloses_the_visit_log_and_its_retention(client, monkeypatch):
+    html = client.get("/about").text
+    assert 'id="privacy"' in html and "No cookies" in html and f"after {main.VISITS.retain_days} days" in html
+    monkeypatch.setenv("HUB_VISITS_DISABLED", "1")
+    assert "Visit logging is switched off" in client.get("/about").text
+
+
+def test_purge_does_not_create_a_database(tmp_path):
+    v = Visitors(tmp_path)
+    assert v.purge() == 0 and not v.db.exists()
+
+
+def test_terminal_report(tmp_path):
+    from app.visitors import _report
+    v = Visitors(tmp_path)
+    v.record(path="/posts", query="", status=200, client_host="127.0.0.1",
+             headers={"cf-connecting-ip": "203.0.113.7", "cf-ipcountry": "GB", "cf-ipcity": "Leeds", "user-agent": CHROME_WIN})
+    text = _report(v.summary(days=7))
+    assert "views 1   unique visitors 1" in text and "United Kingdom" in text
+    assert "Leeds, GB" in text and "/posts" in text and "203.0.113.7" in text

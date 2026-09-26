@@ -14,7 +14,8 @@
     <dl>
       <div><dt>Focus</dt><dd>Cybersecurity · networking · cloud · SaaS</dd></div>
       <div><dt>Published</dt><dd>{{ total }} post{{ "" if total == 1 else "s" }} across {{ topics | selectattr("count") | list | length }} topics</dd></div>
-      <div><dt>Hosting</dt><dd>Homelab VM · FastAPI · Cloudflare Tunnel</dd></div>
+      <div><dt>Hosting</dt><dd>Homelab VM · FastAPI · Cloudflare Tunnel · 0 inbound ports</dd></div>
+      <div><dt>Analytics</dt><dd>{% if visits_on %}First-party visit log on the same box · no cookies · <a href="#privacy">details</a>{% else %}None{% endif %}</dd></div>
       <div><dt>Elsewhere</dt><dd><a href="https://github.com/spencerawlson" rel="noopener" style="color:var(--accent-ink)">github.com/spencerawlson</a></dd></div>
     </dl>
   </div>
@@ -117,6 +118,62 @@
     <a href="{{ s[2] }}" target="_blank" rel="noopener noreferrer"><span class="lg"><img src="/static/logos/{{ s[0] }}.svg" alt="" loading="lazy" width="30" height="30"></span>{{ s[1] }}</a>
     {% endfor %}
   </div>
+</section>
+
+<section class="wrap section" id="hosting" aria-labelledby="h-host">
+  <div class="sec-head"><div><h2 id="h-host">How this site runs</h2>
+    <p>Everything here is served from a VM in the homelab. Nothing on the home network accepts a connection from the internet.</p></div>
+    <a href="/lab">Live lab →</a></div>
+  <ol class="flow" aria-label="The path a request takes">
+    <li><b>Your browser</b><span>Requests spencerlab.tech over HTTPS.</span></li>
+    <li><b>Cloudflare edge</b><span>Terminates TLS and hides the home IP address.</span></li>
+    <li><b>Outbound tunnel</b><span>The server dials <em>out</em> to Cloudflare, so there are 0 inbound ports to open.</span></li>
+    <li><b>Homelab VM</b><span>A small FastAPI app renders the pages from flat files.</span></li>
+  </ol>
+  <div class="skills host-grid">
+    <div class="skill">
+      <h3>Live telemetry</h3>
+      <p>The server samples its own CPU, memory, disk, edge round-trip and service health every 30 seconds, and a set of HA agents reviews it every five minutes. That feeds the <a href="/lab">live lab</a> and the home page. Only coarse numbers are published: no addresses, hostnames or versions.</p>
+    </div>
+    <div class="skill">
+      <h3>Publishing pipeline</h3>
+      <p>Write-ups arrive from AuditForge and Fieldnote through a token-gated API. Each one has to clear its source tool's sensitivity review and an automated secret scan before it goes live.</p>
+    </div>
+    <div class="skill">
+      <h3>Self-hosted analytics</h3>
+      <p>{% if visits_on %}Page views are logged on the same VM that serves them, in a local database, with no analytics service, no tracking script and no cookies. The owner reads them on a private, token-locked dashboard.{% else %}Visit logging is switched off on this server.{% endif %}</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap section" id="privacy" aria-labelledby="h-privacy">
+  <div class="sec-head"><div><h2 id="h-privacy">Privacy: what's recorded when you visit</h2>
+    <p>Plain terms, because this is a security site and you should be able to check.</p></div></div>
+  {% if visits_on %}
+  <div class="privacy">
+    <div>
+      <h3>Recorded, for each page you open</h3>
+      <ul>
+        <li>The time, the page, and whether it loaded.</li>
+        <li>Your IP address, and the approximate location Cloudflare derives from it (country, and where available region and city).</li>
+        <li>The page that linked you here, and any <code>utm_source</code> tag in the link.</li>
+        <li>Your browser, operating system and device type, taken from the user-agent header, and whether it looks like a bot.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Not done</h3>
+      <ul>
+        <li>No cookies, fingerprinting or tracking scripts. Nothing is stored in your browser.</li>
+        <li>No analytics or advertising service. The log never leaves this server, and it isn't sold or shared.</li>
+        <li>Stylesheets, images, video and API calls aren't logged, only page views.</li>
+        <li>Records are deleted automatically after {{ retain_days }} days.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="privacy-note">Two third parties are involved in any visit: <b>Cloudflare</b>, which carries all traffic to this site, and <b>Google Fonts</b>, which serves the typefaces. Their own policies apply to what they see. To have your records removed sooner, get in touch through <a href="https://github.com/spencerawlson" rel="noopener">GitHub</a>.</p>
+  {% else %}
+  <div class="empty" style="text-align:left">Visit logging is switched off on this server, so nothing about your visit is recorded by this site. Cloudflare, which carries all traffic here, and Google Fonts, which serves the typefaces, see requests under their own policies.</div>
+  {% endif %}
 </section>
 
 <section class="wrap section" aria-labelledby="h-certs">

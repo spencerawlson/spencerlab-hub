@@ -158,6 +158,15 @@ views per day; top pages, referrers, countries, browsers, OS and devices; and re
 Bubbles sit on the city when Cloudflare sends coordinates, otherwise on the country's centre
 (`app/countries.json`, Google's public country-centroid table).
 
+**In the terminal.** On the home page's console: `unlock <stats token>` (masked as you
+type; shares the token with `/stats`), then `visitors` or `visitors 30`, and `lock` to
+forget the token. Over SSH on the server, no token needed:
+`.venv/bin/python -m app.visitors --days 30 --recent 50`.
+
+The About page's **How this site runs** and **Privacy** sections (`/about#privacy`, linked
+from the footer) tell visitors what is logged; the retention period shown there is read
+from the running config.
+
 Raw IPs are personal data: rows older than `HUB_VISITS_RETAIN_DAYS` (default 90) are purged
 at startup and periodically. `HUB_VISITS_DISABLED=1` turns logging off.
 

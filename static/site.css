@@ -622,3 +622,27 @@ a.project:hover{transform:translateY(-2px); border-color:rgba(37,99,235,.5)}
 .st-table td time{font-family:var(--mono); font-size:12px; color:var(--ink-2); white-space:nowrap}
 .st-table tr.bot td{color:var(--ink-3)}
 .st-code{margin-left:8px; font-size:11px; color:var(--warn)}
+
+/* ---------------- about: how this site runs + privacy ---------------- */
+.flow{list-style:none; margin:0 0 16px; padding:0; display:grid; grid-template-columns:repeat(4,1fr); gap:16px; counter-reset:f}
+@media(max-width:860px){.flow{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.flow{grid-template-columns:1fr}}
+.flow li{counter-increment:f; position:relative; display:flex; flex-direction:column; gap:4px; padding:16px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r)}
+.flow li::before{content:"0" counter(f); font-family:var(--mono); font-size:11px; font-weight:700; color:var(--accent)}
+.flow li:not(:last-child)::after{content:"→"; position:absolute; right:-13px; top:50%; transform:translateY(-50%); font-family:var(--mono); color:var(--ink-3)}
+@media(max-width:860px){.flow li::after{display:none}}
+.flow b{font-size:15px; color:var(--ink-hi)}
+.flow span{font-size:13.5px; color:var(--ink-2); line-height:1.5}
+.host-grid{grid-template-columns:repeat(3,1fr)}
+@media(max-width:860px){.host-grid{grid-template-columns:1fr}}
+.host-grid .skill p a{color:var(--accent)}
+.privacy{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+@media(max-width:760px){.privacy{grid-template-columns:1fr}}
+.privacy > div{padding:18px 20px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r)}
+.privacy > div:last-child{border-left:3px solid var(--ok)}
+.privacy h3{margin:0 0 10px; font-size:15px; font-weight:700; color:var(--ink-hi)}
+.privacy ul{margin:0; padding-left:1.2em; display:flex; flex-direction:column; gap:6px; font-size:14px; color:var(--ink-2); line-height:1.55}
+.privacy li::marker{color:var(--accent)}
+.privacy code{font-size:.9em; color:var(--accent-ink)}
+.privacy-note{margin:14px 0 0; font-size:14px; color:var(--ink-2); max-width:80ch}
+.privacy-note a{color:var(--accent)}

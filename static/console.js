@@ -52,13 +52,16 @@
     ['stack', 'tools and platforms in use'],
     ['search <q>', 'search every post'],
     ['contact', 'where to find me'],
+    ['visitors [days]', 'who visited and from where (owner: unlock first)'],
+    ['unlock <token>', 'unlock visitor stats with the stats token'],
+    ['lock', 'forget the stats token'],
     ['clear', 'clear the screen']
   ];
 
   var cmds = {
     help: function () {
       print(['Available commands:'].concat(HELP.map(function (h) {
-        return [' • ', hl(pad(h[0], 12)), h[1]];
+        return [' • ', hl(pad(h[0], 16)), h[1]];
       })));
     },
     whoami: function () {
@@ -138,24 +141,87 @@
         ['ABOUT    ', { t: '/about', href: '/about' }]
       ]);
     },
-    clear: function () { hist.textContent = ''; }
+    clear: function () { hist.textContent = ''; },
+
+    /* Owner-only: the same token and endpoint as the /stats dashboard. */
+    unlock: function (arg) {
+      if (!arg) return print([{ t: 'unlock: usage — unlock <stats token>', cls: 'bad' }]);
+      var out = print([dim('checking token …')]);
+      api('/api/visitors?days=1&recent=0', arg).then(function () {
+        hist.removeChild(out);
+        setToken(arg);
+        print([{ t: 'unlocked', cls: 'good' }, dim(' for this tab. Try '), hl('visitors'), dim(' or '), hl('visitors 30'), dim('.')]);
+      }, function (e) { hist.removeChild(out); print([{ t: 'unlock: ' + e.message, cls: 'bad' }]); });
+    },
+    lock: function () { setToken(null); print(['Locked. The stats token is forgotten in this tab.']); },
+    visitors: function (arg) {
+      var t = token();
+      if (!t) return print([[{ t: 'visitors: locked.', cls: 'warnc' }, ' Run ', hl('unlock <token>'), ' with the stats token, or open ', { t: '/stats', href: '/stats' }, '.']]);
+      var days = Math.max(1, Math.min(365, parseInt(arg, 10) || 7));
+      var out = print([dim('fetching /api/visitors …')]);
+      api('/api/visitors?days=' + days + '&recent=100', t).then(function (d) {
+        hist.removeChild(out);
+        var list = function (rows, label) {
+          return (rows || []).slice(0, 5).map(function (r) { return label(r) + ' ' + r.views; }).join(' · ') || '—';
+        };
+        var lines = [
+          [hl('VISITORS'), dim(' · last ' + (days === 1 ? '24 hours' : days + ' days'))],
+          ['VIEWS    ', hl(String(d.views)), '    UNIQUE  ', hl(String(d.visitors)), '    BOTS  ', dim(String(d.bot_views))],
+          ['COUNTRY  ', list(d.countries, function (r) { return r.name || r.k; })],
+          ['CITIES   ', list((d.points || []).filter(function (p) { return p.level === 'city'; }),
+                             function (p) { return p.label.split(',')[0]; })],
+          ['FROM     ', list(d.referrers, function (r) { return r.k; })],
+          [dim('RECENT (humans; bots hidden)')]
+        ];
+        var humans = (d.recent || []).filter(function (r) { return !r.bot; });
+        humans.slice(0, 12).forEach(function (r) {
+          var where = [r.city, r.country].filter(Boolean).join(', ') || 'unknown';
+          lines.push([dim(pad(ago(r.at), 9)), pad(where, 20).slice(0, 20), ' ', pad(r.path, 22).slice(0, 22),
+                      dim(' ' + r.device + '/' + r.browser + ' · ' + (r.ip || ''))]);
+        });
+        if (!humans.length) lines.push([dim('  no human visits in this range')]);
+        lines.push([dim('Full dashboard: '), { t: '/stats', href: '/stats' }]);
+        print(lines);
+      }, function (e) { hist.removeChild(out); print([{ t: 'visitors: ' + e.message, cls: 'bad' }]); });
+    }
   };
+  cmds.who = cmds.visitors;
+
+  var KEY = 'spencerlab.statsToken';
+  function token() { try { return sessionStorage.getItem(KEY); } catch (e) { return null; } }
+  function setToken(t) { try { t ? sessionStorage.setItem(KEY, t) : sessionStorage.removeItem(KEY); } catch (e) {} }
+  function api(url, t) {
+    return fetch(url, { headers: { Authorization: 'Bearer ' + t }, cache: 'no-store' }).then(function (r) {
+      if (r.status === 401) { if (t === token()) setToken(null); throw new Error('token not accepted.'); }
+      if (r.status === 503) throw new Error('stats are off on the server (HUB_STATS_TOKEN not set).');
+      if (!r.ok) throw new Error('server answered ' + r.status + '.');
+      return r.json();
+    });
+  }
+  function ago(iso) {
+    var s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
+    return s < 60 ? s + 's ago' : s < 3600 ? Math.round(s / 60) + 'm ago' : s < 86400 ? Math.round(s / 3600) + 'h ago' : Math.round(s / 86400) + 'd ago';
+  }
 
   function run(raw) {
     var line = (raw || '').trim();
     if (!line) return;
-    past.push(line); at = past.length;
     var sp = line.indexOf(' ');
     var name = (sp < 0 ? line : line.slice(0, sp)).toLowerCase();
     var arg = sp < 0 ? '' : line.slice(sp + 1).trim();
+    var shown = name === 'unlock' && arg ? 'unlock ' + new Array(Math.min(arg.length, 12) + 1).join('•') : line;
+    if (name !== 'unlock') { past.push(line); at = past.length; }
     if (name === 'clear') return cmds.clear();
-    echo(line);
+    echo(shown);
     if (cmds.hasOwnProperty(name)) cmds[name](arg);
     else print([{ t: 'command not found: ' + name, cls: 'bad' }, ['Type ', hl('help'), ' for the command list.']]);
   }
 
+  input.addEventListener('input', function () {
+    input.type = /^\s*unlock\s/i.test(input.value) ? 'password' : 'text';   // hide the token as it's typed
+  });
   input.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') { run(input.value); input.value = ''; }
+    if (e.key === 'Enter') { run(input.value); input.value = ''; input.type = 'text'; }
     else if (e.key === 'ArrowUp' && at > 0) { e.preventDefault(); input.value = past[--at]; }
     else if (e.key === 'ArrowDown') { e.preventDefault(); at = Math.min(at + 1, past.length); input.value = past[at] || ''; }
   });

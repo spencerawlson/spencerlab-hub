@@ -118,6 +118,8 @@ class Visitors:
         return hashlib.sha256(self._salt + f"{ip}|{ua}".encode()).hexdigest()[:16]
 
     def purge(self) -> int:
+        if not self.db.exists():
+            return 0     # nothing logged yet; don't create a database just to empty it
         cutoff = (datetime.now(timezone.utc) - timedelta(days=self.retain_days)).isoformat(timespec="seconds")
         with self._connect() as con:
             return con.execute("DELETE FROM visits WHERE at < ?", (cutoff,)).rowcount
@@ -229,3 +231,41 @@ class Visitors:
         out = [{**{k: v for k, v in m.items() if k != "_v"}, "visitors": len(m["_v"] - {""})}
                for m in merged.values()]
         return sorted(out, key=lambda p: p["views"], reverse=True)
+
+
+# --- terminal view, for use over SSH on the server ---------------------------------------
+#   .venv/bin/python -m app.visitors            last 7 days
+#   .venv/bin/python -m app.visitors --days 30 --recent 50
+
+def _report(d: dict) -> str:
+    def col(rows: list[dict], label=lambda r: r["k"], n: int = 8) -> list[str]:
+        return [f"  {str(label(r))[:34]:<34} {r['views']:>6}  {r['visitors']:>6}" for r in rows[:n]] or ["  —"]
+    head = f"  {'':<34} {'views':>6}  {'unique':>6}"
+    span = "24 hours" if d["days"] == 1 else f"{d['days']} days"
+    out = [f"VISITORS · last {span}",
+           f"  views {d['views']}   unique visitors {d['visitors']}   bot views {d['bot_views']} (excluded)", ""]
+    for title, rows, label in (
+            ("COUNTRIES", d.get("countries", []), lambda r: r.get("name") or r["k"]),
+            ("PLACES", d.get("points", []), lambda r: r["label"]),
+            ("PAGES", d.get("pages", []), lambda r: r["k"]),
+            ("REFERRERS", d.get("referrers", []), lambda r: r["k"])):
+        out += [title, head, *col(rows, label), ""]
+    out.append("RECENT (bots marked *)")
+    for r in d.get("recent", []):
+        where = ", ".join(x for x in (r["city"], r["country"]) if x) or "unknown"
+        who = "*bot" if r["bot"] else f"{r['device']}/{r['browser']}/{r['os']}"
+        out.append(f"  {r['at'][:16].replace('T', ' ')}  {where[:22]:<22} {r['path'][:30]:<30} {who[:28]:<28} {r['ip'] or ''}")
+    if not d.get("recent"):
+        out.append("  no visits in this range")
+    return "\n".join(out)
+
+
+if __name__ == "__main__":
+    import argparse
+    ap = argparse.ArgumentParser(prog="python -m app.visitors", description="Who visited the site, and from where.")
+    ap.add_argument("--days", type=int, default=7, help="look-back window (default 7)")
+    ap.add_argument("--recent", type=int, default=25, help="how many recent visits to list (default 25)")
+    args = ap.parse_args()
+    root = Path(__file__).resolve().parent.parent
+    data_dir = Path(os.environ.get("HUB_DATA_DIR") or root / "data")
+    print(_report(Visitors(data_dir).summary(days=max(1, args.days), recent=max(0, args.recent))))

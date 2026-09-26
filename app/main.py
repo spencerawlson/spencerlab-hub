@@ -208,7 +208,9 @@ def search_page(request: Request, q: str = ""):
 
 @app.get("/about", response_class=HTMLResponse)
 def about(request: Request):
-    return _render(request, "about.html", {"nav": "about", "total": len(_ENTRIES)})
+    return _render(request, "about.html", {"nav": "about", "total": len(_ENTRIES),
+                                           "visits_on": not os.environ.get("HUB_VISITS_DISABLED"),
+                                           "retain_days": VISITS.retain_days})
 
 
 @app.get("/lab", response_class=HTMLResponse)
