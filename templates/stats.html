@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}Visitors · SpencerLab{% endblock %}
+{% block description %}Private visitor dashboard.{% endblock %}
+{% block head_extra %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block content %}
+<header class="wrap pagehead">
+  <p class="kicker">{{ m.icon("lock") }}Private · stats token required</p>
+  <h1>Who's visiting, and from where.</h1>
+  <p>Page views from the visitor log, humans only unless a row says otherwise. Nothing on this page is public — the data loads only after you enter the stats token.</p>
+</header>
+
+<section class="wrap" data-stats>
+  <form class="st-gate" data-gate>
+    <label for="st-token">Stats token</label>
+    <div class="st-gate-row">
+      <input id="st-token" type="password" autocomplete="current-password" spellcheck="false" placeholder="HUB_STATS_TOKEN" required>
+      <button class="btn primary" type="submit">Unlock</button>
+    </div>
+    <p class="st-gate-msg" data-gate-msg role="status">Kept in this tab only (session storage) and sent as a bearer header, never in the URL.</p>
+  </form>
+
+  <div class="st-dash" data-dash hidden>
+    <div class="st-bar">
+      <div class="st-range" role="group" aria-label="Time range">
+        <button type="button" data-days="1">24 hours</button>
+        <button type="button" data-days="7">7 days</button>
+        <button type="button" data-days="30" aria-pressed="true">30 days</button>
+        <button type="button" data-days="90">90 days</button>
+      </div>
+      <span class="st-updated" data-updated></span>
+      <button type="button" class="st-link" data-refresh>Refresh</button>
+      <button type="button" class="st-link" data-signout>Lock</button>
+    </div>
+
+    <div class="st-kpis">
+      <div class="stat"><b class="c-cyan" data-kpi="views">—</b><span>Page views</span></div>
+      <div class="stat"><b data-kpi="visitors">—</b><span>Unique visitors</span></div>
+      <div class="stat"><b data-kpi="countries">—</b><span>Countries</span></div>
+      <div class="stat"><b data-kpi="bots">—</b><span>Bot views (excluded)</span></div>
+    </div>
+
+    <section class="section" aria-labelledby="h-map">
+      <div class="sec-head"><div><h2 id="h-map">{{ m.icon("grid") }}Visitor map</h2>
+        <p>Sized by page views. City when Cloudflare sends it, otherwise the country's centre. Tap a bubble or a row.</p></div></div>
+      <div class="wm" data-map>
+        {% include "partials/world_map.html" %}
+        <div class="wm-layer" data-map-layer></div>
+        <div class="wm-empty" data-map-empty hidden>No located visits in this range yet.</div>
+      </div>
+      <div class="st-loc">
+        <div>
+          <div class="st-label" data-loc-count>Locations</div>
+          <div class="st-loclist" data-loc-list></div>
+        </div>
+        <div>
+          <div class="st-label" data-loc-title>Select a location</div>
+          <div data-loc-detail><div class="empty">Tap a bubble or a location to see its recent visits.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="h-daily">
+      <div class="sec-head"><div><h2 id="h-daily">{{ m.icon("pulse") }}Views per day</h2>
+        <p>Human page views, UTC days. Hover a bar for visitors.</p></div></div>
+      <div class="st-chart" data-daily></div>
+    </section>
+
+    <section class="section" aria-labelledby="h-top">
+      <div class="sec-head"><div><h2 id="h-top">{{ m.icon("list") }}Top lists</h2>
+        <p>Where they land, where they came from, and what they use.</p></div></div>
+      <div class="st-tops">
+        <div class="st-top"><h3>Pages</h3><div data-top="pages"></div></div>
+        <div class="st-top"><h3>Referrers</h3><div data-top="referrers"></div></div>
+        <div class="st-top"><h3>Countries</h3><div data-top="countries"></div></div>
+        <div class="st-top"><h3>Browsers</h3><div data-top="browsers"></div></div>
+        <div class="st-top"><h3>Operating systems</h3><div data-top="os"></div></div>
+        <div class="st-top"><h3>Devices</h3><div data-top="devices"></div></div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="h-recent">
+      <div class="sec-head"><div><h2 id="h-recent">{{ m.icon("file") }}Recent visits</h2>
+        <p>Newest first, bots included and marked.</p></div></div>
+      <div class="st-tablewrap"><table class="st-table">
+        <thead><tr><th>When</th><th>Page</th><th>Location</th><th>IP</th><th>Device</th><th>From</th></tr></thead>
+        <tbody data-recent></tbody>
+      </table></div>
+    </section>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}<script src="/static/stats.js?v=2" defer></script>{% endblock %}

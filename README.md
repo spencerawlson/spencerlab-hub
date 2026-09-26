@@ -23,7 +23,7 @@ spencerlab-hub/
 
 Pages: `/` (live lab panel, featured, now building, recent, videos, activity, topics), `/posts`, `/videos`, `/topics`, `/lab`,
 `/<category>`, `/<category>/<slug>`, `/tags/<tag>`, `/search?q=`, `/about`, plus
-`/feed.xml` (RSS), `/sitemap.xml`, `/robots.txt`, `/healthz`, `/api/lab`. Listings paginate at 9.
+`/feed.xml` (RSS), `/sitemap.xml`, `/robots.txt`, `/healthz`, `/api/lab`, `/api/visitors` (token), `/stats` (private dashboard). Listings paginate at 9.
 
 Categories (fixed, in `app/content.py`): `built`, `repaired`, `pentested`, `assessed`,
 `administered`.
@@ -119,6 +119,47 @@ The activity feed (`app/activity.py`) is built from the content (publish dates, 
 updates) plus a runtime log at `data/activity.jsonl` (gitignored): deploys (a new git commit
 running) and agent sweeps changing state. `HUB_DATA_DIR` moves it; `HUB_LAB_DISABLED=1`
 turns the background task off (the tests do this).
+
+## Visitor log
+
+`app/visitors.py` records every HTML page view in `data/visits.db` (SQLite, gitignored):
+time, path, status, the visitor's **IP**, a stable visitor id (salted hash of IP + browser,
+for unique/returning counts), **country / region / city / timezone**, referrer and
+`utm_source`, browser / OS / device, and a bot flag. Static files, media, `/api/*`,
+`/healthz`, feeds and prefetches are not recorded.
+
+Location comes from Cloudflare headers, trusted only on requests from localhost (cloudflared
+or Nginx), so nobody can spoof an IP or place by hitting the app another way:
+
+- `CF-Connecting-IP` and `CF-IPCountry` arrive by default.
+- **City, region and timezone** need one switch: Cloudflare dashboard → the domain → *Rules*
+  → *Transform Rules* → *Managed Transforms* → enable **Add visitor location headers**.
+
+Read it with the stats endpoint — off unless `HUB_STATS_TOKEN` is set (use a different
+value from the publish token):
+
+```bash
+curl -s -H "Authorization: Bearer $HUB_STATS_TOKEN" "https://spencerlab.tech/api/visitors?days=7&recent=100"
+```
+
+It returns views, unique visitors and bot views, plus top countries, cities, pages,
+referrers, campaigns, browsers, OS, devices, a daily series and the most recent visits
+(with IP and location). For ad-hoc questions, query the database on the VM:
+`sqlite3 data/visits.db "SELECT at, ip, country, city, path FROM visits ORDER BY id DESC LIMIT 20"`.
+
+**Dashboard: `/stats`.** A private page (noindex, not linked, disallowed in robots.txt,
+and never logged itself). It holds no data: it asks for the stats token, keeps it in that
+tab's session storage and reads `/api/visitors` with it. It shows views, unique visitors,
+countries and bot views for 24 h / 7 / 30 / 90 days; a **visitor map** — the same world
+silhouette, equirectangular projection and cyan count bubbles as the Aegis CloudOps Cloud Map
+and the DJINN cockpit's geo heatmap (`WORLD_LAND`, copied into
+`templates/partials/world_map.html`) — with a location list and each place's recent visits;
+views per day; top pages, referrers, countries, browsers, OS and devices; and recent visits.
+Bubbles sit on the city when Cloudflare sends coordinates, otherwise on the country's centre
+(`app/countries.json`, Google's public country-centroid table).
+
+Raw IPs are personal data: rows older than `HUB_VISITS_RETAIN_DAYS` (default 90) are purged
+at startup and periodically. `HUB_VISITS_DISABLED=1` turns logging off.
 
 ## Deploy on UbuntuServ (behind the existing tunnel)
 

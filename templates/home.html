@@ -3,30 +3,68 @@
 {% import "lab_macros.html" as lab_m %}
 {% block content %}
 
-<section class="wrap hero">
+<section class="wrap hero" id="console">
   <div class="hero-lead">
-  <p class="kicker">The SpencerLab journal</p>
-  <h1>Notes from building, breaking &amp; <em>running real systems.</em><span class="cursor" aria-hidden="true"></span></h1>
-  <p class="sub">Build logs, penetration-test write-ups and videos from a working homelab — every command, every wrong turn, and why each fix mattered.</p>
-  <div class="actions">
-    <a class="btn primary" href="/posts">Read the latest</a>
-    <a class="btn" href="/videos">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch videos</a>
-    <a class="btn" href="/feed.xml">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14"/><circle cx="6" cy="18" r="1.3" fill="currentColor"/></svg>RSS</a>
+    <p class="kicker">{{ m.icon("shield") }}Homelab · security · infrastructure</p>
+    <h1>Notes from building, breaking &amp; <em>running real systems.</em></h1>
+    <p class="sub">Build logs, penetration-test write-ups and videos from a working homelab — every command, every wrong turn, and why each fix mattered.</p>
+    <div class="stat-grid">
+      <div class="stat"><b class="c-cyan">{{ total }}</b><span>Published write-ups</span></div>
+      <div class="stat"><b>{{ topics | selectattr("count") | list | length }}/5</b><span>Topics covered</span></div>
+      <div class="stat"><b>{{ lab.uptime.host_s | duration if lab.uptime.host_s else "—" }}</b><span>Host uptime</span></div>
+      <div class="stat"><b class="c-ok">0</b><span>Inbound ports open</span></div>
+    </div>
+    <div class="tech">
+      <span>Proxmox / GNS3</span><span>Kali Linux</span><span>Active Directory</span><span>Cloudflare Tunnel</span><span>Nginx</span><span>Python</span>
+    </div>
+    <div class="actions">
+      <a class="btn primary" href="/posts">Read the latest</a>
+      <a class="btn" href="/videos"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch videos</a>
+    </div>
   </div>
-  <div class="stats">
-    <span><b>{{ total }}</b> published</span>
-    <span><b>{{ topics | selectattr("count") | list | length }}</b> of 5 topics covered</span>
-    <span>Self-hosted · <b>0</b> inbound ports</span>
+
+  <div class="console" data-console>
+    <div class="console-bar">
+      <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="who">spencer@spencerlab:~ (ssh)</span>
+      <span class="tls">{{ m.icon("lock") }}Cloudflare Tunnel</span>
+    </div>
+    <div class="console-body" data-console-body>
+      <p class="console-intro">SpencerLab shell — a guided tour of this site.<br>Type <b>help</b> to list commands.</p>
+      <div class="console-history" data-console-history aria-live="polite"></div>
+      <div class="console-line">
+        <label class="prompt" for="console-in">spencer@lab:~$</label>
+        <input id="console-in" data-console-input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type a command…" enterkeyhint="send">
+      </div>
+      <noscript><p class="dim">The console needs JavaScript. Everything it shows is also on the pages linked above.</p></noscript>
+    </div>
+    <div class="console-foot">
+      <span class="dim">Shortcuts:</span>
+      <button type="button" data-cmd="whoami">whoami</button><span aria-hidden="true">•</span>
+      <button type="button" data-cmd="posts">posts</button><span aria-hidden="true">•</span>
+      <button type="button" data-cmd="lab">lab</button><span aria-hidden="true">•</span>
+      <button type="button" data-cmd="topics">topics</button><span aria-hidden="true">•</span>
+      <button type="button" data-cmd="stack">stack</button>
+    </div>
   </div>
+</section>
+
+<section class="wrap section" id="telemetry" aria-labelledby="h-telemetry">
+  <div class="sec-head">
+    <div><h2 id="h-telemetry">{{ m.icon("pulse") }}Live lab telemetry</h2>
+    <p>Real numbers from the homelab node serving this page, judged by the same HA agents that run in Aegis CloudOps.</p></div>
+    <a href="/lab">Lab status →</a>
   </div>
-  {{ lab_m.panel(lab) }}
+  {{ lab_m.panel(lab, full=true) }}
 </section>
 
 {% if featured %}
 <section class="wrap section" aria-labelledby="h-featured">
-  <div class="sec-head"><h2 id="h-featured">Latest</h2><a href="/posts">View all →</a></div>
+  <div class="sec-head">
+    <div><h2 id="h-featured">{{ m.icon("star") }}Latest</h2>
+    <p>The newest write-up off the bench.</p></div>
+    <a href="/posts">View all →</a>
+  </div>
   <a class="feature hud" href="{{ featured.url }}">
     {{ m.thumb(featured) }}
     <div>
@@ -41,14 +79,22 @@
 
 {% if building %}
 <section class="wrap section" aria-labelledby="h-building">
-  <div class="sec-head"><h2 id="h-building">Now building</h2><a href="/lab">Lab status →</a></div>
+  <div class="sec-head">
+    <div><h2 id="h-building">{{ m.icon("hammer") }}Now building</h2>
+    <p>Projects in progress, with build logs updated as they move.</p></div>
+    <a href="/lab">Lab status →</a>
+  </div>
   <div class="grid">{% for e in building %}{{ m.card(e) }}{% endfor %}</div>
 </section>
 {% endif %}
 
 {% if latest %}
 <section class="wrap section" aria-labelledby="h-recent">
-  <div class="sec-head"><h2 id="h-recent">Recent posts</h2><a href="/posts">Archive →</a></div>
+  <div class="sec-head">
+    <div><h2 id="h-recent">{{ m.icon("file") }}Recent posts</h2>
+    <p>Builds, repairs, pentests and assessments, newest first.</p></div>
+    <a href="/posts">Archive →</a>
+  </div>
   <div class="grid">
     {% for e in latest %}{{ m.card(e) }}{% endfor %}
   </div>
@@ -56,7 +102,11 @@
 {% endif %}
 
 <section class="wrap section" aria-labelledby="h-videos">
-  <div class="sec-head"><h2 id="h-videos">Videos</h2><a href="/videos">All videos →</a></div>
+  <div class="sec-head">
+    <div><h2 id="h-videos">{{ m.icon("play") }}Videos</h2>
+    <p>Build logs and walkthroughs on camera, self-hosted.</p></div>
+    <a href="/videos">All videos →</a>
+  </div>
   {% if videos %}
   <div class="grid">{% for e in videos %}{{ m.card(e) }}{% endfor %}</div>
   {% else %}
@@ -65,12 +115,20 @@
 </section>
 
 <section class="wrap section" aria-labelledby="h-activity">
-  <div class="sec-head"><h2 id="h-activity">Activity</h2><a href="/lab#activity">Full log →</a></div>
+  <div class="sec-head">
+    <div><h2 id="h-activity">{{ m.icon("list") }}Activity</h2>
+    <p>Publishes, build-log updates, deploys and agent verdicts.</p></div>
+    <a href="/lab#activity">Full log →</a>
+  </div>
   {{ lab_m.feed(activity) }}
 </section>
 
 <section class="wrap section" aria-labelledby="h-topics">
-  <div class="sec-head"><h2 id="h-topics">Browse by topic</h2><a href="/topics">All topics →</a></div>
+  <div class="sec-head">
+    <div><h2 id="h-topics">{{ m.icon("grid") }}Browse by topic</h2>
+    <p>Build it, fix it, break it, judge it, run it.</p></div>
+    <a href="/topics">All topics →</a>
+  </div>
   <div class="topic-grid">
     {% for t in topics %}
     <a class="topic" href="/{{ t.slug }}" data-cat="{{ t.slug }}">
@@ -92,4 +150,13 @@
     <a class="btn" href="/about">About &amp; projects →</a>
   </div>
 </section>
+{% endblock %}
+
+{% block scripts %}
+{% set cposts = [] %}
+{% for e in ([featured] + latest) if e %}{% set _ = cposts.append({"t": e.title, "u": e.url, "c": e.category_name, "d": e.date}) %}{% endfor %}
+{% set ctopics = [] %}
+{% for t in topics %}{% set _ = ctopics.append({"n": t.name, "u": "/" ~ t.slug, "k": t.count}) %}{% endfor %}
+<script type="application/json" id="console-data">{{ {"posts": cposts, "topics": ctopics, "total": total} | tojson }}</script>
+<script src="/static/console.js?v=1" defer></script>
 {% endblock %}

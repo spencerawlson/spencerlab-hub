@@ -1,4 +1,5 @@
 <!doctype html>
+{% import "macros.html" as bm %}
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -7,19 +8,20 @@
 <meta name="description" content="{% block description %}A self-hosted technical journal and vlog — infrastructure built, faults repaired, systems pentested and assessed, networks administered. The commands, the wrong turns, and why each fix mattered.{% endblock %}">
 {% block head_extra %}{% endblock %}
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#030806">
+<meta name="theme-color" content="#070C18">
 <link rel="alternate" type="application/rss+xml" title="SpencerLab" href="/feed.xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;600&display=swap">
-<link rel="stylesheet" href="/static/site.css?v=10">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23030806' stroke='%2300ff9c' stroke-width='2'/><text x='16' y='21.5' font-family='monospace' font-weight='700' font-size='14' text-anchor='middle' fill='%2300ff9c'>SL</text></svg>">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="/static/site.css?v=14">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='1' x2='1' y2='0'><stop offset='0' stop-color='%232563EB'/><stop offset='1' stop-color='%230EA5E9'/></linearGradient></defs><rect width='32' height='32' rx='7' fill='url(%23g)'/><text x='16' y='21' font-family='monospace' font-weight='700' font-size='14' text-anchor='middle' fill='white'>&gt;_</text></svg>">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-head">
   <div class="wrap bar">
-    <a class="brand" href="/" aria-label="SpencerLab home"><span class="mark">SL</span>SpencerLab<span class="tld">.tech</span></a>
+    <a class="brand" href="/" aria-label="SpencerLab home"><span class="mark">&gt;_</span><span class="name"><b>SPENCERLAB</b><small>SECURITY · INFRASTRUCTURE</small></span></a>
+    <span class="status-pill"><span class="ping" aria-hidden="true"></span><span class="ok">SERVING FROM THE HOMELAB</span><span class="sep">|</span><span class="dim">0 INBOUND PORTS</span></span>
     <nav class="mainnav" aria-label="Main">
       <a href="/posts" {% if nav == 'posts' %}aria-current="page"{% endif %}>Posts</a>
       <a href="/videos" {% if nav == 'videos' %}aria-current="page"{% endif %}>Videos</a>
@@ -36,6 +38,7 @@
       <a class="iconbtn only-mobile" href="/search" aria-label="Search">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
       </a>
+      <a class="head-btn" href="/feed.xml">{{ bm.icon("rss") }}<span>RSS</span></a>
     </div>
   </div>
 </header>
@@ -48,7 +51,7 @@
   <div class="wrap">
     <div class="cols">
       <div>
-        <a class="brand" href="/"><span class="mark">SL</span>SpencerLab<span class="tld">.tech</span></a>
+        <a class="brand" href="/"><span class="mark">&gt;_</span><span class="name"><b>SPENCERLAB</b><small>SECURITY · INFRASTRUCTURE</small></span></a>
         <p>Build logs, security write-ups and videos from a working homelab — the commands, the wrong turns, and why each fix mattered.</p>
       </div>
       <div>
@@ -78,7 +81,7 @@
     </div>
     <div class="fine">
       <span>© {{ year }} SpencerLab. A working record, not a résumé.</span>
-      <span>Self-hosted in a homelab · served through a Cloudflare Tunnel · 0 inbound ports</span>
+      <span class="badges"><span>Self-hosted</span><span>•</span><span>Cloudflare Tunnel</span><span>•</span><span class="ok">{{ bm.icon("shield") }}0 inbound ports</span></span>
     </div>
   </div>
 </footer>

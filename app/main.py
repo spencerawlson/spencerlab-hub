@@ -10,6 +10,7 @@ straight in; see the README for the request shape and its three guards.
 
 A background task samples the host and runs the HA agents for the live lab panel (app/lab.py);
 app/activity.py merges content and runtime events into the activity feed.
+app/visitors.py logs page views (IP, location, referrer, device) for GET /api/visitors.
 """
 from __future__ import annotations
 
@@ -35,6 +36,7 @@ from app.content import (CAT_BY_SLUG, CATEGORIES, MEDIA_TYPES, extract_inline_im
                          load_entries, media_path, search)
 from app.lab import Lab
 from app.security import scan_secrets
+from app.visitors import Visitors
 
 ROOT = Path(__file__).resolve().parent.parent
 CONTENT = Path(os.environ.get("HUB_CONTENT_DIR") or ROOT / "content" / "entries")
@@ -45,6 +47,7 @@ PER_PAGE = 9
 _ENTRIES: list[dict] = []
 LAB = Lab(BASE_URL)
 ACTIVITY = Activity(DATA, ROOT)
+VISITS = Visitors(DATA, site_host=BASE_URL.split("://", 1)[-1].split("/")[0])
 
 
 def _log_sweep_change(previous: dict | None, current: dict) -> None:
@@ -69,6 +72,7 @@ def reload_entries() -> None:
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     reload_entries()
+    await asyncio.to_thread(VISITS.purge)
     task = None
     if not os.environ.get("HUB_LAB_DISABLED"):
         ACTIVITY.record_deploy()
@@ -84,6 +88,19 @@ app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 templates = Jinja2Templates(directory=str(ROOT / "templates"))
 templates.env.globals["year"] = date.today().year
 templates.env.globals["base_url"] = BASE_URL
+
+
+@app.middleware("http")
+async def _log_visit(request: Request, call_next):
+    response = await call_next(request)
+    if not os.environ.get("HUB_VISITS_DISABLED") and VISITS.should_record(
+            request.method, request.url.path, response.status_code,
+            response.headers.get("content-type", ""), request.headers):
+        await asyncio.to_thread(
+            VISITS.record, path=request.url.path, query=request.url.query,
+            status=response.status_code, client_host=request.client.host if request.client else "",
+            headers=request.headers)
+    return response
 
 
 def _pretty_date(value: str) -> str:
@@ -200,9 +217,33 @@ def lab_page(request: Request):
                                          "activity": ACTIVITY.feed(_ENTRIES, limit=30)})
 
 
+@app.get("/stats", response_class=HTMLResponse)
+def stats_page(request: Request):
+    """The visitor dashboard shell. It holds no data: the page asks for the stats token and
+    reads /api/visitors in the browser, so the HTML itself is safe to serve to anyone."""
+    return _render(request, "stats.html", {})
+
+
 @app.get("/api/lab")
 def lab_api():
     return JSONResponse(LAB.status(), headers={"Cache-Control": "no-store"})
+
+
+def _require_token(env_var: str, authorization: str, what: str) -> None:
+    """Bearer-token gate. No token configured means the endpoint is off entirely."""
+    token = os.environ.get(env_var)
+    if not token:
+        raise HTTPException(503, f"{what} is disabled ({env_var} is not set)")
+    if not hmac.compare_digest(authorization.encode(), f"Bearer {token}".encode()):
+        raise HTTPException(401, "missing or invalid bearer token")
+
+
+@app.get("/api/visitors")
+def visitors_api(days: int = 30, recent: int = 50, authorization: str = Header(default="")):
+    """Who visited and from where. Private: needs HUB_STATS_TOKEN, a separate token from publishing."""
+    _require_token("HUB_STATS_TOKEN", authorization, "visitor stats")
+    return JSONResponse(VISITS.summary(days=max(1, min(days, 365)), recent=max(0, min(recent, 500))),
+                        headers={"Cache-Control": "no-store"})
 
 
 @app.get("/healthz")
@@ -249,7 +290,7 @@ def sitemap():
 
 @app.get("/robots.txt", response_class=PlainTextResponse)
 def robots():
-    return f"User-agent: *\nDisallow: /api/\nSitemap: {BASE_URL}/sitemap.xml\n"
+    return f"User-agent: *\nDisallow: /api/\nDisallow: /stats\nSitemap: {BASE_URL}/sitemap.xml\n"
 
 
 # --- Topic + post pages (catch-all shapes, so they come after the fixed routes) ----
@@ -313,11 +354,7 @@ def publish(payload: dict = Body(...), authorization: str = Header(default="")):
     Disabled entirely unless HUB_PUBLISH_TOKEN is set — no token, no endpoint.
     An existing slug is only overwritten when the caller sends "replace": true.
     """
-    token = os.environ.get("HUB_PUBLISH_TOKEN")
-    if not token:
-        raise HTTPException(503, "publish is disabled (HUB_PUBLISH_TOKEN is not set)")
-    if not hmac.compare_digest(authorization.encode(), f"Bearer {token}".encode()):
-        raise HTTPException(401, "missing or invalid bearer token")
+    _require_token("HUB_PUBLISH_TOKEN", authorization, "publish")
 
     for field in ("title", "category", "summary", "body_html", "source"):
         if not isinstance(payload.get(field), str) or not payload[field].strip():

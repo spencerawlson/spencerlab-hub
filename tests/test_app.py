@@ -8,9 +8,11 @@ from fastapi.testclient import TestClient
 from app import main
 from app.activity import Activity
 from app.content import load_entries
+from app.visitors import Visitors
 
 REAL_CONTENT = Path(__file__).resolve().parent.parent / "content" / "entries"
 TOKEN = "test-token-0123456789"
+STATS_TOKEN = "stats-token-9876543210"
 PNG = base64.b64encode(b"\x89PNG\r\n\x1a\nfake").decode()
 
 
@@ -39,6 +41,10 @@ def client(tmp_path, monkeypatch):
     _entry(tmp_path, "winserv-report", "<p>WinRM finding.</p>", category="assessed", tags=["dns"])
     monkeypatch.setattr(main, "CONTENT", tmp_path)
     monkeypatch.setattr(main, "ACTIVITY", Activity(tmp_path / "_data", tmp_path))
+    # TestClient connects as "testclient"; trust it like the local tunnel/Nginx hop.
+    monkeypatch.setattr(main, "VISITS", Visitors(tmp_path / "_data", "spencerlab.tech",
+                                                 trusted_proxies={"testclient"}))
+    monkeypatch.setenv("HUB_STATS_TOKEN", STATS_TOKEN)
     monkeypatch.setenv("HUB_PUBLISH_TOKEN", TOKEN)
     monkeypatch.setenv("HUB_LAB_DISABLED", "1")   # no background probes of the real site
     with TestClient(main.app) as c:
