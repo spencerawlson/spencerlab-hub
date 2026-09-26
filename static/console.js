@@ -207,7 +207,14 @@
         if (!watch) return;
         if (d.active_now !== watch.active) {
           watch.active = d.active_now;
-          print([[dim('active now: '), hl(String(d.active_now)), dim(d.active_now === 1 ? ' person' : ' people')]]);
+          var places = {};
+          (d.active || []).forEach(function (a) {
+            var p = a.point ? a.point.label : 'unknown location';
+            places[p] = (places[p] || 0) + 1;
+          });
+          var where = Object.keys(places).map(function (p) { return p + (places[p] > 1 ? ' ×' + places[p] : ''); }).join(' · ');
+          print([[dim('active now: '), hl(String(d.active_now)), dim(d.active_now === 1 ? ' person' : ' people'),
+                  where ? dim(' — ' + where) : null].filter(Boolean)]);
         }
         d.visits.filter(function (v) { return !v.bot; }).forEach(function (v) { print([visitLine(v)]); });
         watch.cursor = d.last_id;

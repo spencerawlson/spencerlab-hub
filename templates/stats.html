@@ -48,7 +48,9 @@
       <div class="wm" data-map>
         {% include "partials/world_map.html" %}
         <div class="wm-layer" data-map-layer></div>
+        <div class="wm-active" data-map-active></div>
         <div class="wm-pings" data-map-pings aria-hidden="true"></div>
+        <div class="wm-legend" aria-hidden="true"><span><i class="lg-live"></i>Active now</span><span><i class="lg-views"></i>Views in range</span></div>
         <div class="wm-empty" data-map-empty hidden>No located visits in this range yet.</div>
       </div>
       <div class="st-loc">
@@ -94,4 +96,4 @@
 </section>
 {% endblock %}
 
-{% block scripts %}<script src="/static/stats.js?v=4" defer></script>{% endblock %}
+{% block scripts %}<script src="/static/stats.js?v=5" defer></script>{% endblock %}

@@ -243,12 +243,15 @@ class Visitors:
                     visits.append(v)
                 if len(visits) == limit:
                     last_id = visits[-1]["id"]      # more are waiting; resume from here next poll
+            # One row per person active in the window; with MAX(at), SQLite takes the other
+            # columns from that person's latest visit, so the marker sits where they are now.
             active = [dict(r) for r in con.execute(
-                "SELECT visitor, MAX(at) AS at, country, city,"
+                "SELECT visitor, MAX(at) AS at, country, region, city, lat, lon,"
                 " (SELECT path FROM visits v2 WHERE v2.visitor = v.visitor ORDER BY id DESC LIMIT 1) AS path"
-                " FROM visits v WHERE at >= ? AND bot = 0 GROUP BY visitor ORDER BY at DESC LIMIT 20", (cutoff,))]
+                " FROM visits v WHERE at >= ? AND bot = 0 GROUP BY visitor ORDER BY at DESC LIMIT 50", (cutoff,))]
             for a in active:
                 a.pop("visitor")
+                a["point"] = place(a["country"], a["region"], a["city"], a.pop("lat"), a.pop("lon"))
             active_now = con.execute("SELECT COUNT(DISTINCT visitor) FROM visits WHERE at >= ? AND bot = 0",
                                      (cutoff,)).fetchone()[0]
             return {"last_id": last_id, "active_now": active_now, "active": active, "visits": visits}

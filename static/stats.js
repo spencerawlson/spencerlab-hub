@@ -56,7 +56,7 @@
   // Poll the live feed; ripple each new human visit on the map, then quietly re-read the
   // summary so every number, list and chart catches up.
   function startLive() { if (!liveTimer) { liveTimer = setInterval(tick, LIVE_EVERY); tick(); } }
-  function stopLive() { clearInterval(liveTimer); liveTimer = null; cursor = null; }
+  function stopLive() { clearInterval(liveTimer); liveTimer = null; cursor = null; $('[data-map-active]').textContent = ''; }
   function tick() {
     var t = token();
     if (!t || !liveOn || document.hidden || dash.hidden) return;
@@ -83,6 +83,35 @@
       ? 'Active in the last 5 minutes:\n' + d.active.map(function (a) {
           return (a.city || a.country || 'unknown') + ' — ' + a.path; }).join('\n')
       : 'Nobody in the last 5 minutes. Checking every 5 seconds.';
+    drawActive(d.active || []);
+  }
+  // Everyone active in the last 5 minutes, pinned where they are: one pulsing marker per
+  // place (a count when several people share it), redrawn every poll so markers appear as
+  // people arrive and drop off once they've been idle for 5 minutes.
+  function drawActive(active) {
+    var layer = $('[data-map-active]'), groups = {}, order = [];
+    layer.textContent = '';
+    active.forEach(function (a) {
+      if (!a.point) return;
+      var key = pointKey(a.point);
+      if (!groups[key]) { groups[key] = { point: a.point, people: [] }; order.push(key); }
+      groups[key].people.push(a);
+    });
+    order.forEach(function (key) {
+      var g = groups[key], xy = proj(g.point.lon, g.point.lat), n = g.people.length;
+      var tip = g.point.label + (g.point.level === 'country' ? ' (country-level)' : '') + '\n' +
+        g.people.map(function (a) { return '• ' + a.path + ' — ' + ago(a.at); }).join('\n');
+      layer.appendChild(el('button', {
+        type: 'button', class: 'wm-live', title: tip,
+        'aria-label': n + ' active now in ' + g.point.label,
+        style: 'left:' + xy.x + '%;top:' + xy.y + '%',
+        on: { click: function () { if (data) select(key); } }
+      }, [el('span', { class: 'wm-live-ring', 'aria-hidden': 'true' }), n > 1 ? el('b', { text: String(n) }) : null]));
+    });
+  }
+  function ago(iso) {
+    var s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
+    return s < 60 ? 'just now' : Math.round(s / 60) + 'm ago';
   }
   function ping(p) {
     var xy = proj(p.lon, p.lat), layer = $('[data-map-pings]');

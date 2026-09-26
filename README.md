@@ -166,6 +166,9 @@ forget the token. Over SSH on the server, no token needed:
 **Live.** `/stats` polls `GET /api/visitors/live?since=<id>` every 5 s (token-gated; the
 first call returns only a cursor): a LIVE pill shows who's active in the last 5 minutes, each
 new human visit ripples on the map and lands highlighted in the table, and the totals refresh.
+Everyone active in the last 5 minutes is pinned on the map where they are (a pulsing green
+marker per place, with a count when several share it; hover for their pages), and drops off
+once idle. Location is IP-based via Cloudflare, city-level when the location headers are on.
 In the console: `visitors live` (then `stop`). Over SSH: `python -m app.visitors --follow`.
 
 The About page's **How this site runs** and **Privacy** sections (`/about#privacy`, linked

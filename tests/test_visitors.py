@@ -182,3 +182,17 @@ def test_live_feed_pages_through_a_burst(tmp_path):
     page = v.live(since_id=0, limit=3)
     assert [r["path"] for r in page["visits"]] == ["/p0", "/p1", "/p2"] and page["last_id"] == 3
     assert [r["path"] for r in v.live(since_id=page["last_id"], limit=3)["visits"]] == ["/p3", "/p4"]
+
+
+def test_active_visitors_carry_their_map_point(client):
+    client.get("/", headers={**CF, "cf-iplatitude": "53.80", "cf-iplongitude": "-1.55"})
+    client.get("/posts", headers={**CF, "cf-iplatitude": "53.80", "cf-iplongitude": "-1.55"})   # same person, newer page
+    client.get("/about", headers={"CF-Connecting-IP": "198.51.100.9", "CF-IPCountry": "JP", "User-Agent": SAFARI_IPHONE})
+    client.get("/", headers={**CF, "CF-Connecting-IP": "198.51.100.10", "CF-IPCountry": "XX"})  # no known place
+    active = {a["path"]: a for a in _live(client).json()["active"]}
+    assert set(active) == {"/posts", "/about", "/"}
+    assert active["/posts"]["point"] == {"lat": 53.8, "lon": -1.55, "level": "city", "country": "GB",
+                                         "label": "Leeds, England, United Kingdom"}
+    assert active["/about"]["point"]["level"] == "country" and active["/about"]["point"]["label"] == "Japan"
+    assert active["/"]["point"] is None
+    assert all("lat" not in a and "visitor" not in a for a in active.values())
