@@ -248,6 +248,14 @@ def visitors_api(days: int = 30, recent: int = 50, authorization: str = Header(d
                         headers={"Cache-Control": "no-store"})
 
 
+@app.get("/api/visitors/live")
+def visitors_live_api(since: int | None = None, authorization: str = Header(default="")):
+    """The live feed for /stats and the console: visits after `since` plus who's active now.
+    Poll it; the first call (no `since`) just returns the cursor to start from."""
+    _require_token("HUB_STATS_TOKEN", authorization, "visitor stats")
+    return JSONResponse(VISITS.live(since_id=since), headers={"Cache-Control": "no-store"})
+
+
 @app.get("/healthz")
 def healthz():
     return JSONResponse({"status": "ok", "entries": len(_ENTRIES)})

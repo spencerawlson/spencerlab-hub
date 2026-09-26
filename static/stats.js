@@ -10,6 +10,7 @@
   var $ = function (sel) { return root.querySelector(sel); };
   var gate = $('[data-gate]'), dash = $('[data-dash]'), msg = $('[data-gate-msg]');
   var days = 30, data = null, selected = null;
+  var LIVE_EVERY = 5000, liveOn = true, cursor = null, liveTimer = null, reloadTimer = null, fresh = {};
 
   function el(tag, attrs, kids) {
     var n = document.createElement(tag);
@@ -32,10 +33,10 @@
   function setToken(t) { try { t ? sessionStorage.setItem(KEY, t) : sessionStorage.removeItem(KEY); } catch (e) {} }
 
   // --- loading -------------------------------------------------------------------------
-  function load() {
+  function load(silent) {
     var t = token();
     if (!t) return showGate();
-    $('[data-updated]').textContent = 'loading…';
+    if (!silent) $('[data-updated]').textContent = 'loading…';
     fetch('/api/visitors?days=' + days + '&recent=200', { headers: { Authorization: 'Bearer ' + t }, cache: 'no-store' })
       .then(function (r) {
         if (r.status === 401) { setToken(null); throw new Error('That token was not accepted.'); }
@@ -43,9 +44,59 @@
         if (!r.ok) throw new Error('The server answered ' + r.status + '.');
         return r.json();
       })
-      .then(function (d) { data = d; selected = null; gate.hidden = true; dash.hidden = false; render(); })
-      .catch(function (e) { showGate(e.message); });
+      .then(function (d) {
+        data = d;
+        if (!silent) selected = null;
+        gate.hidden = true; dash.hidden = false; render(); startLive();
+      })
+      .catch(function (e) { if (!silent || !token()) showGate(e.message); });
   }
+
+  // --- live ----------------------------------------------------------------------------
+  // Poll the live feed; ripple each new human visit on the map, then quietly re-read the
+  // summary so every number, list and chart catches up.
+  function startLive() { if (!liveTimer) { liveTimer = setInterval(tick, LIVE_EVERY); tick(); } }
+  function stopLive() { clearInterval(liveTimer); liveTimer = null; cursor = null; }
+  function tick() {
+    var t = token();
+    if (!t || !liveOn || document.hidden || dash.hidden) return;
+    fetch('/api/visitors/live' + (cursor == null ? '' : '?since=' + cursor),
+          { headers: { Authorization: 'Bearer ' + t }, cache: 'no-store' })
+      .then(function (r) {
+        if (r.status === 401) { setToken(null); stopLive(); showGate('That token was not accepted.'); throw 0; }
+        if (!r.ok) throw 0;
+        return r.json();
+      })
+      .then(function (d) {
+        var humans = d.visits.filter(function (v) { return !v.bot; });
+        humans.forEach(function (v) { fresh[v.id] = true; if (v.point) ping(v.point); });
+        cursor = d.last_id;
+        showActive(d);
+        if (humans.length) { clearTimeout(reloadTimer); reloadTimer = setTimeout(function () { load(true); }, 800); }
+      })
+      .catch(function () { $('[data-live-text]').textContent = 'Live · reconnecting…'; });
+  }
+  function showActive(d) {
+    var b = $('[data-live]');
+    $('[data-live-text]').textContent = 'Live · ' + d.active_now + ' active now';
+    b.title = d.active.length
+      ? 'Active in the last 5 minutes:\n' + d.active.map(function (a) {
+          return (a.city || a.country || 'unknown') + ' — ' + a.path; }).join('\n')
+      : 'Nobody in the last 5 minutes. Checking every 5 seconds.';
+  }
+  function ping(p) {
+    var xy = proj(p.lon, p.lat), layer = $('[data-map-pings]');
+    var dot = el('span', { class: 'wm-ping', style: 'left:' + xy.x + '%;top:' + xy.y + '%' });
+    layer.appendChild(dot);
+    setTimeout(function () { dot.remove(); }, 2600);
+  }
+  $('[data-live]').addEventListener('click', function () {
+    liveOn = !liveOn;
+    this.setAttribute('aria-pressed', String(liveOn));
+    if (liveOn) { $('[data-live-text]').textContent = 'Live'; tick(); }
+    else $('[data-live-text]').textContent = 'Paused';
+  });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) tick(); });
   function showGate(err) {
     dash.hidden = true; gate.hidden = false;
     if (err) { msg.textContent = err; msg.classList.add('bad'); }
@@ -66,7 +117,7 @@
   });
   $('[data-refresh]').addEventListener('click', load);
   $('[data-signout]').addEventListener('click', function () {
-    setToken(null); data = null; msg.textContent = 'Locked. Enter the token to view the dashboard again.';
+    setToken(null); data = null; stopLive(); msg.textContent = 'Locked. Enter the token to view the dashboard again.';
     msg.classList.remove('bad'); showGate();
   });
 
@@ -230,7 +281,7 @@
     body.textContent = '';
     (data.recent || []).forEach(function (r) {
       var place = [r.city, r.region, r.country].filter(Boolean).join(', ') || 'unknown';
-      body.appendChild(el('tr', { class: r.bot ? 'bot' : '' }, [
+      body.appendChild(el('tr', { class: (r.bot ? 'bot' : '') + (fresh[r.id] ? ' new' : '') }, [
         el('td', {}, [el('time', { datetime: r.at, title: r.at, text: when(r.at) })]),
         el('td', { class: 'mono' }, [r.path, r.status >= 400 ? el('span', { class: 'st-code', text: String(r.status) }) : null]),
         el('td', { text: place }),
@@ -240,6 +291,7 @@
       ]));
     });
     if (!(data.recent || []).length) body.appendChild(el('tr', {}, [el('td', { colspan: '6', class: 'st-none', text: 'No visits in this range yet.' })]));
+    fresh = {};   // highlighted once, on the render that first shows them
   }
 
   var resizeT;

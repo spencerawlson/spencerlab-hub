@@ -28,6 +28,8 @@
         <button type="button" data-days="30" aria-pressed="true">30 days</button>
         <button type="button" data-days="90">90 days</button>
       </div>
+      <button type="button" class="st-live" data-live aria-pressed="true" title="Checking for new visits every 5 seconds">
+        <span class="st-live-dot" aria-hidden="true"></span><span data-live-text>Live</span></button>
       <span class="st-updated" data-updated></span>
       <button type="button" class="st-link" data-refresh>Refresh</button>
       <button type="button" class="st-link" data-signout>Lock</button>
@@ -46,6 +48,7 @@
       <div class="wm" data-map>
         {% include "partials/world_map.html" %}
         <div class="wm-layer" data-map-layer></div>
+        <div class="wm-pings" data-map-pings aria-hidden="true"></div>
         <div class="wm-empty" data-map-empty hidden>No located visits in this range yet.</div>
       </div>
       <div class="st-loc">
@@ -91,4 +94,4 @@
 </section>
 {% endblock %}
 
-{% block scripts %}<script src="/static/stats.js?v=2" defer></script>{% endblock %}
+{% block scripts %}<script src="/static/stats.js?v=4" defer></script>{% endblock %}

@@ -158,5 +158,5 @@
 {% set ctopics = [] %}
 {% for t in topics %}{% set _ = ctopics.append({"n": t.name, "u": "/" ~ t.slug, "k": t.count}) %}{% endfor %}
 <script type="application/json" id="console-data">{{ {"posts": cposts, "topics": ctopics, "total": total} | tojson }}</script>
-<script src="/static/console.js?v=3" defer></script>
+<script src="/static/console.js?v=5" defer></script>
 {% endblock %}

@@ -53,8 +53,10 @@
     ['search <q>', 'search every post'],
     ['contact', 'where to find me'],
     ['visitors [days]', 'who visited and from where (owner: unlock first)'],
+    ['visitors live', 'watch new visits as they happen; stop to end'],
     ['unlock <token>', 'unlock visitor stats with the stats token'],
     ['lock', 'forget the stats token'],
+    ['stop', 'stop a running visitors live'],
     ['clear', 'clear the screen']
   ];
 
@@ -137,7 +139,6 @@
     contact: function () {
       print([
         ['GITHUB   ', { t: 'github.com/spencerawlson', href: 'https://github.com/spencerawlson' }],
-        ['RSS      ', { t: '/feed.xml', href: '/feed.xml' }],
         ['ABOUT    ', { t: '/about', href: '/about' }]
       ]);
     },
@@ -153,10 +154,12 @@
         print([{ t: 'unlocked', cls: 'good' }, dim(' for this tab. Try '), hl('visitors'), dim(' or '), hl('visitors 30'), dim('.')]);
       }, function (e) { hist.removeChild(out); print([{ t: 'unlock: ' + e.message, cls: 'bad' }]); });
     },
-    lock: function () { setToken(null); print(['Locked. The stats token is forgotten in this tab.']); },
+    lock: function () { stopWatch(true); setToken(null); print(['Locked. The stats token is forgotten in this tab.']); },
+    stop: function () { if (!stopWatch()) print([dim('Nothing is running.')]); },
     visitors: function (arg) {
       var t = token();
       if (!t) return print([[{ t: 'visitors: locked.', cls: 'warnc' }, ' Run ', hl('unlock <token>'), ' with the stats token, or open ', { t: '/stats', href: '/stats' }, '.']]);
+      if (/^(live|watch|-f)$/i.test(arg)) return startWatch(t);
       var days = Math.max(1, Math.min(365, parseInt(arg, 10) || 7));
       var out = print([dim('fetching /api/visitors …')]);
       api('/api/visitors?days=' + days + '&recent=100', t).then(function (d) {
@@ -186,6 +189,39 @@
     }
   };
   cmds.who = cmds.visitors;
+
+  /* visitors live: poll the live feed every 5 s and print each new human visit. */
+  var watch = null;
+  function visitLine(r) {
+    var where = [r.city, r.country].filter(Boolean).join(', ') || 'unknown';
+    return [{ t: '● ', cls: 'good' }, dim(pad(new Date(r.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }), 10)),
+            pad(where, 20).slice(0, 20), ' ', pad(r.path, 22).slice(0, 22), dim(' ' + r.device + '/' + r.browser + ' · ' + (r.ip || ''))];
+  }
+  function startWatch(t) {
+    if (watch) return print([dim('Already watching. Type '), hl('stop'), dim(' to end.')]);
+    watch = { cursor: null, active: null, timer: null };
+    print([[{ t: 'LIVE', cls: 'good' }, dim(' · new visits appear here as they happen (bots hidden). Type '), hl('stop'), dim(' to end.')]]);
+    var poll = function () {
+      if (!watch || document.hidden) return;
+      api('/api/visitors/live' + (watch.cursor == null ? '' : '?since=' + watch.cursor), token() || t).then(function (d) {
+        if (!watch) return;
+        if (d.active_now !== watch.active) {
+          watch.active = d.active_now;
+          print([[dim('active now: '), hl(String(d.active_now)), dim(d.active_now === 1 ? ' person' : ' people')]]);
+        }
+        d.visits.filter(function (v) { return !v.bot; }).forEach(function (v) { print([visitLine(v)]); });
+        watch.cursor = d.last_id;
+      }, function (e) { print([{ t: 'live: ' + e.message, cls: 'bad' }]); stopWatch(true); });
+    };
+    watch.timer = setInterval(poll, 5000);
+    poll();
+  }
+  function stopWatch(quiet) {
+    if (!watch) return false;
+    clearInterval(watch.timer); watch = null;
+    if (!quiet) print([dim('Stopped watching.')]);
+    return true;
+  }
 
   var KEY = 'spencerlab.statsToken';
   function token() { try { return sessionStorage.getItem(KEY); } catch (e) { return null; } }

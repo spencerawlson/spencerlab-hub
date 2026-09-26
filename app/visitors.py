@@ -36,6 +36,25 @@ _PURGE_EVERY = 500    # records between retention sweeps
 # dataset), so a visit still lands on the map when Cloudflare sends a country but no city.
 COUNTRIES: dict[str, list] = json.loads((Path(__file__).with_name("countries.json")).read_text(encoding="utf-8"))
 
+ACTIVE_WINDOW = timedelta(minutes=5)    # "active now" = seen within this window
+
+
+def place(country: str | None, region: str | None, city: str | None,
+          lat: float | None, lon: float | None) -> dict | None:
+    """Where a visit sits on the map: the city when Cloudflare sent coordinates, else the
+    country's centroid. None for "XX" (unknown), "T1" (Tor) or no country at all."""
+    if not country:
+        return None
+    name = (COUNTRIES.get(country) or [None, None, country])[2]
+    if lat is not None and lon is not None:
+        return {"lat": round(lat, 2), "lon": round(lon, 2), "level": "city", "country": country,
+                "label": ", ".join(x for x in (city, region, name) if x)}
+    if country in COUNTRIES:
+        clat, clon, _ = COUNTRIES[country]
+        return {"lat": clat, "lon": clon, "level": "country", "country": country, "label": name}
+    return None
+
+
 _BOT = re.compile(r"bot|crawl|spider|slurp|scan|curl|wget|python-|httpx|aiohttp|go-http|java/|"
                   r"headless|lighthouse|preview|facebookexternalhit|embedly|monitor|uptime|feed", re.I)
 _BROWSERS = [("Edge", r"Edg(e|A|iOS)?/"), ("Opera", r"OPR/|Opera"), ("Samsung Internet", r"SamsungBrowser"),
@@ -180,7 +199,7 @@ class Visitors:
                 "SELECT SUM(bot = 0) AS views, COUNT(DISTINCT CASE WHEN bot = 0 THEN visitor END) AS visitors,"
                 " SUM(bot) AS bot_views FROM visits WHERE at >= ?", (since,)).fetchone()
             rows = con.execute(
-                "SELECT at, path, status, ip, country, region, city, timezone, ref_host, utm_source,"
+                "SELECT id, at, path, status, ip, country, region, city, timezone, ref_host, utm_source,"
                 " browser, os, device, bot FROM visits WHERE at >= ? ORDER BY id DESC LIMIT ?",
                 (since, int(recent))).fetchall()
             points = self._points(con, since)
@@ -204,6 +223,36 @@ class Visitors:
                 "recent": [dict(r) for r in rows],
             }
 
+    def live(self, since_id: int | None = None, limit: int = 50) -> dict:
+        """The live feed: visits newer than `since_id` (oldest first, each with its map point)
+        plus how many people are active right now. With no `since_id` it returns no visits,
+        only the cursor, so a watcher starts from "now" instead of replaying history."""
+        cutoff = (datetime.now(timezone.utc) - ACTIVE_WINDOW).isoformat(timespec="seconds")
+        if not self.db.exists():
+            return {"last_id": 0, "active_now": 0, "active": [], "visits": []}
+        with self._connect() as con:
+            last_id = con.execute("SELECT COALESCE(MAX(id), 0) FROM visits").fetchone()[0]
+            visits = []
+            if since_id is not None:
+                for r in con.execute(
+                        "SELECT id, at, path, status, ip, country, region, city, lat, lon, ref_host,"
+                        " utm_source, browser, os, device, bot FROM visits WHERE id > ?"
+                        " ORDER BY id LIMIT ?", (int(since_id), int(limit))):
+                    v = dict(r)
+                    v["point"] = place(v["country"], v["region"], v["city"], v.pop("lat"), v.pop("lon"))
+                    visits.append(v)
+                if len(visits) == limit:
+                    last_id = visits[-1]["id"]      # more are waiting; resume from here next poll
+            active = [dict(r) for r in con.execute(
+                "SELECT visitor, MAX(at) AS at, country, city,"
+                " (SELECT path FROM visits v2 WHERE v2.visitor = v.visitor ORDER BY id DESC LIMIT 1) AS path"
+                " FROM visits v WHERE at >= ? AND bot = 0 GROUP BY visitor ORDER BY at DESC LIMIT 20", (cutoff,))]
+            for a in active:
+                a.pop("visitor")
+            active_now = con.execute("SELECT COUNT(DISTINCT visitor) FROM visits WHERE at >= ? AND bot = 0",
+                                     (cutoff,)).fetchone()[0]
+            return {"last_id": last_id, "active_now": active_now, "active": active, "visits": visits}
+
     @staticmethod
     def _points(con: sqlite3.Connection, since: str) -> list[dict]:
         """Map markers: one per city when Cloudflare sent coordinates, else one per country
@@ -214,18 +263,11 @@ class Visitors:
                 " COUNT(*) AS views, GROUP_CONCAT(DISTINCT visitor) AS vs"
                 " FROM visits WHERE at >= ? AND bot = 0 AND country IS NOT NULL"
                 " GROUP BY country, region, city, la, lo", (since,)):
-            name = (COUNTRIES.get(r["country"]) or [None, None, r["country"]])[2]
-            if r["la"] is not None and r["lo"] is not None:
-                key = ("city", r["country"], r["city"], r["la"], r["lo"])
-                point = {"lat": r["la"], "lon": r["lo"], "level": "city",
-                         "label": ", ".join(x for x in (r["city"], r["region"], name) if x)}
-            elif r["country"] in COUNTRIES:
-                lat, lon, _ = COUNTRIES[r["country"]]
-                key = ("country", r["country"])
-                point = {"lat": lat, "lon": lon, "level": "country", "label": name}
-            else:
-                continue     # "XX" (unknown) or "T1" (Tor) has no place on a map
-            m = merged.setdefault(key, {**point, "country": r["country"], "views": 0, "_v": set()})
+            point = place(r["country"], r["region"], r["city"], r["la"], r["lo"])
+            if not point:
+                continue
+            key = (point["level"], point["label"], point["lat"], point["lon"])
+            m = merged.setdefault(key, {**point, "views": 0, "_v": set()})
             m["views"] += r["views"]
             m["_v"].update((r["vs"] or "").split(","))
         out = [{**{k: v for k, v in m.items() if k != "_v"}, "visitors": len(m["_v"] - {""})}
@@ -236,6 +278,28 @@ class Visitors:
 # --- terminal view, for use over SSH on the server ---------------------------------------
 #   .venv/bin/python -m app.visitors            last 7 days
 #   .venv/bin/python -m app.visitors --days 30 --recent 50
+#   .venv/bin/python -m app.visitors --follow   live, like tail -f (Ctrl+C to stop)
+
+def _line(r: dict) -> str:
+    where = ", ".join(x for x in (r.get("city"), r.get("country")) if x) or "unknown"
+    who = "*bot" if r["bot"] else f"{r['device']}/{r['browser']}/{r['os']}"
+    return f"  {r['at'][:19].replace('T', ' ')}  {where[:22]:<22} {r['path'][:30]:<30} {who[:28]:<28} {r['ip'] or ''}"
+
+
+def _follow(v: "Visitors", every: float = 2.0) -> None:
+    import time
+    cursor = v.live()["last_id"]
+    print(f"Watching for visits (active now: {v.live()['active_now']}). Ctrl+C to stop.  * = bot")
+    try:
+        while True:
+            time.sleep(every)
+            d = v.live(since_id=cursor)
+            for r in d["visits"]:
+                print(_line(r), flush=True)
+            cursor = d["last_id"]
+    except KeyboardInterrupt:
+        print()
+
 
 def _report(d: dict) -> str:
     def col(rows: list[dict], label=lambda r: r["k"], n: int = 8) -> list[str]:
@@ -251,10 +315,7 @@ def _report(d: dict) -> str:
             ("REFERRERS", d.get("referrers", []), lambda r: r["k"])):
         out += [title, head, *col(rows, label), ""]
     out.append("RECENT (bots marked *)")
-    for r in d.get("recent", []):
-        where = ", ".join(x for x in (r["city"], r["country"]) if x) or "unknown"
-        who = "*bot" if r["bot"] else f"{r['device']}/{r['browser']}/{r['os']}"
-        out.append(f"  {r['at'][:16].replace('T', ' ')}  {where[:22]:<22} {r['path'][:30]:<30} {who[:28]:<28} {r['ip'] or ''}")
+    out += [_line(r) for r in d.get("recent", [])]
     if not d.get("recent"):
         out.append("  no visits in this range")
     return "\n".join(out)
@@ -265,7 +326,12 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(prog="python -m app.visitors", description="Who visited the site, and from where.")
     ap.add_argument("--days", type=int, default=7, help="look-back window (default 7)")
     ap.add_argument("--recent", type=int, default=25, help="how many recent visits to list (default 25)")
+    ap.add_argument("--follow", "-f", action="store_true", help="watch new visits live, like tail -f")
     args = ap.parse_args()
     root = Path(__file__).resolve().parent.parent
     data_dir = Path(os.environ.get("HUB_DATA_DIR") or root / "data")
-    print(_report(Visitors(data_dir).summary(days=max(1, args.days), recent=max(0, args.recent))))
+    visitors = Visitors(data_dir)
+    if args.follow:
+        _follow(visitors)
+    else:
+        print(_report(visitors.summary(days=max(1, args.days), recent=max(0, args.recent))))

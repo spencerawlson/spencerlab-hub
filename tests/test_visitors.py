@@ -147,3 +147,38 @@ def test_terminal_report(tmp_path):
     text = _report(v.summary(days=7))
     assert "views 1   unique visitors 1" in text and "United Kingdom" in text
     assert "Leeds, GB" in text and "/posts" in text and "203.0.113.7" in text
+
+
+def _live(client, since=None, token=STATS_TOKEN):
+    q = "" if since is None else f"?since={since}"
+    return client.get(f"/api/visitors/live{q}", headers={"Authorization": f"Bearer {token}"})
+
+
+def test_live_feed_starts_from_now_then_returns_only_new_visits(client):
+    client.get("/", headers=CF)                                          # history, before watching
+    assert client.get("/api/visitors/live").status_code == 401
+    first = _live(client).json()
+    assert first["visits"] == [] and first["last_id"] == 1 and first["active_now"] == 1
+
+    client.get("/posts", headers={**CF, "cf-iplatitude": "53.80", "cf-iplongitude": "-1.55"})
+    client.get("/", headers={"CF-Connecting-IP": "198.51.100.9", "CF-IPCountry": "JP", "User-Agent": SAFARI_IPHONE})
+    client.get("/", headers={**CF, "User-Agent": "Googlebot/2.1"})
+    d = _live(client, first["last_id"]).json()
+    assert [v["path"] for v in d["visits"]] == ["/posts", "/", "/"]
+    leeds, japan, bot = d["visits"]
+    assert leeds["point"]["level"] == "city" and leeds["point"]["lat"] == 53.8
+    assert japan["point"] == {"lat": japan["point"]["lat"], "lon": japan["point"]["lon"], "level": "country",
+                              "country": "JP", "label": "Japan"}
+    assert bot["bot"] == 1
+    assert d["active_now"] == 2 and d["last_id"] == 4                    # GB + JP humans; the bot doesn't count
+    assert {a["country"] for a in d["active"]} == {"GB", "JP"} and "visitor" not in d["active"][0]
+    assert _live(client, d["last_id"]).json()["visits"] == []            # nothing replayed
+
+
+def test_live_feed_pages_through_a_burst(tmp_path):
+    v = Visitors(tmp_path)
+    for i in range(5):
+        v.record(path=f"/p{i}", query="", status=200, client_host="127.0.0.1", headers={"user-agent": CHROME_WIN})
+    page = v.live(since_id=0, limit=3)
+    assert [r["path"] for r in page["visits"]] == ["/p0", "/p1", "/p2"] and page["last_id"] == 3
+    assert [r["path"] for r in v.live(since_id=page["last_id"], limit=3)["visits"]] == ["/p3", "/p4"]

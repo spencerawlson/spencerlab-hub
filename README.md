@@ -163,6 +163,11 @@ type; shares the token with `/stats`), then `visitors` or `visitors 30`, and `lo
 forget the token. Over SSH on the server, no token needed:
 `.venv/bin/python -m app.visitors --days 30 --recent 50`.
 
+**Live.** `/stats` polls `GET /api/visitors/live?since=<id>` every 5 s (token-gated; the
+first call returns only a cursor): a LIVE pill shows who's active in the last 5 minutes, each
+new human visit ripples on the map and lands highlighted in the table, and the totals refresh.
+In the console: `visitors live` (then `stop`). Over SSH: `python -m app.visitors --follow`.
+
 The About page's **How this site runs** and **Privacy** sections (`/about#privacy`, linked
 from the footer) tell visitors what is logged; the retention period shown there is read
 from the running config.
