@@ -5,17 +5,29 @@
    machine would print: labels, metrics, the console. Dark by intent.
    ============================================================ */
 :root{
-  --void:#070C18; --bg:#0B1120;
-  --surface:#0F172A; --surface-2:#1E293B; --surface-3:#334155;
-  --ink:#E2E8F0; --ink-hi:#FFFFFF; --ink-2:#94A3B8; --ink-3:#64748B;
-  --line:#1E293B; --line-2:#334155;
-  --blue:#2563EB; --blue-hi:#3B82F6;
-  --accent:#0EA5E9; --accent-ink:#38BDF8; --accent-soft:rgba(14,165,233,.1); --on-accent:#fff;
-  --ok:#34D399; --warn:#FBBF24; --fail:#FB7185; --info:#60A5FA;
-  --ok-soft:rgba(16,185,129,.1); --warn-soft:rgba(245,158,11,.1); --fail-soft:rgba(244,63,94,.1); --info-soft:rgba(59,130,246,.1);
-  --glow:0 0 15px rgba(14,165,233,.25); --glow-blue:0 0 20px rgba(37,99,235,.3);
-  --shadow:0 20px 40px -24px rgba(0,0,0,.9);
-  --term-bg:#070C18; --term-ink:#CBD5E1; --term-dim:#64748B; --term-line:#1E293B;
+  /* ground — same navy family, raised a few stops so glass has light to bend */
+  --void:#0A1222; --bg:#141F39; --bg-2:#1A2848;
+
+  /* surfaces are no longer painted: they are panes. Translucent, blurred, edge-lit. */
+  --surface:rgba(214,232,255,.065); --surface-2:rgba(214,232,255,.115); --surface-3:rgba(214,232,255,.185);
+
+  /* the glass system */
+  --glass-fx:blur(22px) saturate(180%); --glass-fx-sm:blur(12px) saturate(155%);
+  --glass-tint:linear-gradient(147deg,rgba(232,244,255,.115),rgba(210,230,255,.035) 46%,rgba(138,176,230,.065));
+  --glass-sheen:inset 0 1px 0 rgba(255,255,255,.26), inset 0 -1px 0 rgba(6,14,30,.30), inset 1px 0 0 rgba(255,255,255,.07), inset -1px 0 0 rgba(255,255,255,.07);
+  --glass-lift:0 14px 38px -16px rgba(3,9,22,.78), 0 3px 10px -4px rgba(3,9,22,.52);
+  /* recessed glass — inputs, tracks, wells: darker pane, light caught on the far lip */
+  --glass-in:rgba(6,13,28,.36); --glass-in-shadow:inset 0 1px 3px rgba(2,7,18,.58), inset 0 -1px 0 rgba(255,255,255,.08);
+
+  --ink:#E9F0FA; --ink-hi:#FFFFFF; --ink-2:#AABCD6; --ink-3:#8298B8;
+  --line:rgba(190,216,255,.145); --line-2:rgba(190,216,255,.255);
+  --blue:#2563EB; --blue-hi:#5B9BFF;
+  --accent:#22B3F0; --accent-ink:#6AD3FF; --accent-soft:rgba(34,179,240,.14); --on-accent:#fff;
+  --ok:#34D399; --warn:#FBBF24; --fail:#FB7185; --info:#7DB3FF;
+  --ok-soft:rgba(16,185,129,.14); --warn-soft:rgba(245,158,11,.14); --fail-soft:rgba(244,63,94,.14); --info-soft:rgba(59,130,246,.16);
+  --glow:0 0 22px rgba(34,179,240,.32); --glow-blue:0 0 26px rgba(37,99,235,.42);
+  --shadow:var(--glass-lift);
+  --term-bg:rgba(6,13,28,.60); --term-ink:#D4E2F2; --term-dim:#8298B8; --term-line:rgba(190,216,255,.16);
   --maxw:1280px; --readw:720px; --pad:32px; --r:12px;
   --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --disp:var(--sans);
@@ -27,8 +39,34 @@
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%; scroll-behavior:smooth; scroll-padding-top:84px; background:var(--void)}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{transition:none!important; animation:none!important}}
-body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.6;
-  -webkit-font-smoothing:antialiased; overflow-x:hidden; min-height:100vh; display:flex; flex-direction:column}
+body{margin:0; color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden; min-height:100vh; display:flex; flex-direction:column;
+  /* isolate: keeps the ambient pseudo-layers inside body's stacking context, so every
+     backdrop-filter above them samples the field instead of a flat colour */
+  isolation:isolate;
+  background:
+    radial-gradient(42% 38% at 16% 10%, rgba(37,99,235,.30), transparent 66%),
+    radial-gradient(38% 34% at 86% 6%, rgba(34,179,240,.24), transparent 64%),
+    radial-gradient(46% 40% at 76% 80%, rgba(56,189,248,.15), transparent 66%),
+    radial-gradient(38% 34% at 8% 88%, rgba(16,185,129,.11), transparent 64%),
+    var(--bg);
+  background-attachment:fixed}
+/* the slow drift that makes the field read as liquid rather than wallpaper.
+   fixed + pointer-events:none + negative z-index — it is paint only, never a flex item. */
+body::before{content:""; position:fixed; inset:-18%; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(34% 30% at 22% 18%, rgba(37,99,235,.40), transparent 64%),
+    radial-gradient(30% 27% at 80% 12%, rgba(34,179,240,.32), transparent 62%),
+    radial-gradient(36% 32% at 70% 76%, rgba(99,179,255,.22), transparent 64%),
+    radial-gradient(30% 28% at 14% 82%, rgba(16,185,129,.15), transparent 62%);
+  animation:drift 48s ease-in-out infinite alternate}
+@keyframes drift{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(1.6%,-2.2%,0) scale(1.07)}
+  100%{transform:translate3d(-1.6%,1.8%,0) scale(1.03)}}
+/* vignette: pulls the edges down so panes read as lit from the middle */
+body::after{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:radial-gradient(125% 95% at 50% 0%, transparent 36%, rgba(5,11,24,.60) 100%)}
 main{flex:1}
 a{color:inherit; text-decoration:none}
 img,video{max-width:100%; display:block}
@@ -46,7 +84,9 @@ code,kbd,pre,.mono{font-family:var(--mono)}
 
 /* the surface, reused everywhere */
 .card,.topic,.skill,.project,.adjacent a,.empty,.callout,.facts,.rung,.tablewrap,.about-hero .card-side,.feature,.result,.toc,.agent,.buildlog,.stat{
-  background:var(--surface); border:1px solid var(--line); border-radius:var(--r)}
+  background:var(--glass-tint), var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  -webkit-backdrop-filter:var(--glass-fx); backdrop-filter:var(--glass-fx);
+  box-shadow:var(--glass-sheen), var(--glass-lift)}
 
 /* the old HUD brackets are retired; the class stays as a hook */
 .hud{position:relative}
@@ -179,7 +219,7 @@ code,kbd,pre,.mono{font-family:var(--mono)}
 .thumb.gen{--c:#0EA5E9; background:
     radial-gradient(120% 100% at 100% 0%, color-mix(in srgb, var(--c) 24%, transparent), transparent 60%),
     radial-gradient(80% 80% at 0% 100%, color-mix(in srgb, var(--c) 8%, transparent), transparent 70%),
-    linear-gradient(160deg,#0F172A,#070C18)}
+    linear-gradient(160deg,#1B2842,#0A1222)}
 .thumb.gen::before{content:""; position:absolute; inset:0; z-index:-1;
   background-image:linear-gradient(rgba(148,163,184,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.07) 1px, transparent 1px);
   background-size:24px 24px; mask-image:linear-gradient(210deg,#000 5%,transparent 80%); -webkit-mask-image:linear-gradient(210deg,#000 5%,transparent 80%)}
@@ -681,3 +721,114 @@ a.project:hover{transform:translateY(-2px); border-color:rgba(37,99,235,.5)}
 .wm-legend .lg-live{background:#34D399} .wm-legend .lg-views{background:#06b6d4}
 .wm-legend .lg-unplaced{color:var(--warn)}
 .wm-legend .lg-unplaced[hidden]{display:none}
+
+/* ============================================================
+   LIQUID GLASS
+   Every surface on the site is a pane, not a fill. Three materials only:
+     raised   — lighter pane, light caught on the top lip, shadow underneath
+     recessed — darker pane, light caught on the far lip (inputs, tracks, wells)
+     overlay  — chips and tags floating on artwork or the map
+   Paint only. Nothing below touches a box, a grid, a gap or a breakpoint.
+   ============================================================ */
+:root{
+  --glass-ov:rgba(10,20,42,.42);          /* overlay chips on art */
+  --glass-ov-edge:rgba(255,255,255,.18);
+  --glass-plate:rgba(248,251,255,.93);    /* the frosted plate brand logos sit on */
+  --glass-hover:rgba(214,232,255,.115);
+  --glass-hover-edge:rgba(107,163,255,.55);
+}
+
+/* ---- raised: panels, chrome, anything that floats above the field ---- */
+.site-head,.site-foot,.activity,.flow li,.privacy > div,.lp-m,.lp-svc,.live,.lp-agents,
+.contact-band,.stack a,.facts > div,.pager a,.pager span,
+.st-gate,.st-top,.st-chart,.st-tablewrap,.st-visits,.st-locrow,.wm,.project .logo{
+  background:var(--glass-tint), var(--surface);
+  -webkit-backdrop-filter:var(--glass-fx); backdrop-filter:var(--glass-fx);
+  box-shadow:var(--glass-sheen), var(--glass-lift)}
+
+/* the header floats over scrolling content, so it leans darker and blurs harder */
+.site-head{background:linear-gradient(180deg,rgba(226,240,255,.10),rgba(226,240,255,.045)), rgba(10,18,36,.58);
+  -webkit-backdrop-filter:blur(28px) saturate(185%); backdrop-filter:blur(28px) saturate(185%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 8px 28px -16px rgba(3,9,22,.9)}
+.site-foot{box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
+.contact-band{background:linear-gradient(120deg,rgba(37,99,235,.30),rgba(34,179,240,.10) 62%), var(--glass-tint), var(--surface)}
+.project .logo{background:radial-gradient(60% 80% at 50% 40%, rgba(37,99,235,.26), transparent 70%), var(--glass-tint), var(--surface)}
+.wm{background:radial-gradient(120% 130% at 50% -10%, rgba(34,179,240,.14), transparent 55%), var(--glass-tint), var(--surface)}
+
+/* ---- raised: controls ---- */
+.btn,.head-btn,.iconbtn,.status-pill,.st-live,.chip,.kicker,.tags a,.tech span,.pill,
+.project .tags span,.a-st,.ev-k,.st-gate .btn{
+  -webkit-backdrop-filter:var(--glass-fx-sm); backdrop-filter:var(--glass-fx-sm)}
+.btn,.head-btn,.iconbtn,.status-pill,.st-live,.pager a,.pager span{
+  background:var(--glass-tint), var(--surface-2);
+  box-shadow:var(--glass-sheen), 0 6px 18px -10px rgba(3,9,22,.7)}
+.btn.primary,.head-btn,.playframe .btn,.contact-band .btn{
+  background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.04) 48%,rgba(0,0,0,.10)), var(--blue);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.42), inset 0 -1px 0 rgba(0,0,0,.22), var(--glow-blue), 0 8px 20px -10px rgba(3,9,22,.8)}
+.brand .mark{box-shadow:inset 0 1px 0 rgba(255,255,255,.45), 0 6px 16px -6px rgba(37,99,235,.75)}
+.chip,.kicker,.tags a,.tech span,.pill,.project .tags span{box-shadow:var(--glass-sheen)}
+.meter i,.lp-m .meter i,.st-row .b i{box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 0 12px rgba(34,179,240,.45)}
+
+/* ---- recessed: inputs, wells, tracks, table heads ---- */
+.searchbox,.searchpage input,.st-gate input,.st-range,.sec-head a,.st-link,
+.meter,.st-row .b,.prose thead th,.st-table th,.console-foot,.toc{
+  background:var(--glass-in);
+  -webkit-backdrop-filter:var(--glass-fx-sm); backdrop-filter:var(--glass-fx-sm);
+  box-shadow:var(--glass-in-shadow)}
+.console-bar,.term-bar{background:linear-gradient(180deg,rgba(226,240,255,.10),rgba(226,240,255,.03));
+  -webkit-backdrop-filter:var(--glass-fx-sm); backdrop-filter:var(--glass-fx-sm);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20)}
+
+/* ---- dark glass: terminals, code, embeds. Readability wins over translucency here. ---- */
+.console,.term,.prose pre,.prose figure svg,.playframe{
+  background:var(--term-bg);
+  -webkit-backdrop-filter:var(--glass-fx); backdrop-filter:var(--glass-fx)}
+.console,.term,.playframe{box-shadow:var(--glass-sheen), 0 22px 50px -20px rgba(3,9,22,.85)}
+.prose pre,.prose figure svg{box-shadow:var(--glass-sheen), 0 8px 22px -14px rgba(3,9,22,.7)}
+.playframe{background:rgba(4,9,20,.72)}
+
+/* ---- thumbnails: the frame is glass, the artwork underneath is not ---- */
+.thumb{box-shadow:var(--glass-sheen), 0 8px 22px -14px rgba(3,9,22,.7)}
+.thumb .play span,.thumb .dur,.st-tip,.wm-tag,.wm-legend{
+  background:var(--glass-ov); border-color:var(--glass-ov-edge);
+  -webkit-backdrop-filter:blur(16px) saturate(170%); backdrop-filter:blur(16px) saturate(170%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24), 0 4px 14px -6px rgba(3,9,22,.7)}
+.thumb .play span{border:1px solid var(--glass-ov-edge)}
+.thumb .plate,.stack .lg,.project .logo img{background:var(--glass-plate)}
+
+/* ---- the map keeps legible continents: --line-2 alone is too faint through glass ---- */
+.wm-land{fill:rgba(168,200,245,.30); stroke:rgba(168,200,245,.42)}
+.wm-grid line{stroke:rgba(190,216,255,.28)}
+.st-hit:hover{fill:rgba(214,232,255,.09)}
+.prose tbody tr:hover td{background:rgba(190,216,255,.07)}
+
+/* ---- hover: the pane brightens and lifts toward the light ---- */
+.card:hover,.feature:hover,.result:hover,.topic:hover,.skill:hover,.project:hover,
+.adjacent a:hover,.stack a:hover,.lp-agents:hover,.st-locrow:hover{
+  background:var(--glass-tint), var(--glass-hover);
+  border-color:var(--glass-hover-edge);
+  box-shadow:var(--glass-sheen), 0 18px 44px -16px rgba(3,9,22,.85), 0 0 22px -6px rgba(37,99,235,.35)}
+.btn:hover,.iconbtn:hover,.pager a:hover{background:var(--glass-tint), var(--surface-3)}
+.btn.primary:hover,.head-btn:hover{background:linear-gradient(180deg,rgba(255,255,255,.32),rgba(255,255,255,.06) 48%,rgba(0,0,0,.10)), var(--blue-hi)}
+.searchbox:focus-within,.searchpage input:focus,.st-gate input:focus{
+  border-color:var(--accent); box-shadow:var(--glass-in-shadow), 0 0 0 3px rgba(34,179,240,.28)}
+
+/* ---- fallbacks: no backdrop-filter, or transparency turned down for legibility ---- */
+@media (prefers-reduced-transparency:reduce){
+  :root{
+    --surface:#1B2842; --surface-2:#26365A; --surface-3:#374B75;
+    --glass-fx:none; --glass-fx-sm:none;
+    --glass-tint:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0));
+    --glass-in:#0E1729; --glass-ov:#0E1729; --glass-hover:#26365A;
+    --glass-plate:#F8FAFC; --term-bg:#0A1222;
+    --line:rgba(190,216,255,.26); --line-2:rgba(190,216,255,.40)}
+  body{background:var(--bg)}
+  body::before,body::after{display:none}
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  :root{
+    --surface:#1B2842; --surface-2:#26365A; --surface-3:#374B75;
+    --glass-tint:linear-gradient(147deg,rgba(232,244,255,.07),rgba(0,0,0,0) 60%);
+    --glass-in:#0E1729; --glass-ov:rgba(10,18,36,.92); --glass-hover:#26365A;
+    --glass-plate:#F8FAFC; --term-bg:#0A1222}
+}
