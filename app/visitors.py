@@ -152,11 +152,24 @@ class Visitors:
         purpose = (headers.get("sec-purpose") or headers.get("purpose") or "").lower()
         return "prefetch" not in purpose and status < 500
 
+    def via_proxy(self, client_host: str, headers) -> bool:
+        """Did this request come through our own proxy (cloudflared / Nginx on this box)?
+
+        Either the peer is a trusted proxy address, or uvicorn has already vouched for it:
+        uvicorn (proxy headers on by default) only replaces the client with an X-Forwarded-For
+        address when the direct peer is a trusted proxy, so a client that appears in that
+        header was rewritten by uvicorn. Without this second case every tunnelled request
+        looks like "the visitor", and all location headers were being dropped. The app must
+        stay bound to 127.0.0.1 (see the systemd unit) so only local proxies can reach it."""
+        if client_host in self.trusted:
+            return True
+        xff = [part.strip() for part in (headers.get("x-forwarded-for") or "").split(",")]
+        return bool(client_host) and client_host in xff
+
     def record(self, *, path: str, query: str, status: int, client_host: str, headers) -> None:
         """Write one page view. Never raises: analytics must not break a page."""
         try:
-            via_proxy = client_host in self.trusted
-            h = (lambda k: headers.get(k)) if via_proxy else (lambda k: None)
+            h = (lambda k: headers.get(k)) if self.via_proxy(client_host, headers) else (lambda k: None)
             ip = h("cf-connecting-ip") or (h("x-forwarded-for") or "").split(",")[0].strip() or client_host
             ua = (headers.get("user-agent") or "")[:400]
             info = parse_ua(ua)

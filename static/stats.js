@@ -89,10 +89,10 @@
   // place (a count when several people share it), redrawn every poll so markers appear as
   // people arrive and drop off once they've been idle for 5 minutes.
   function drawActive(active) {
-    var layer = $('[data-map-active]'), groups = {}, order = [];
+    var layer = $('[data-map-active]'), groups = {}, order = [], unplaced = 0;
     layer.textContent = '';
     active.forEach(function (a) {
-      if (!a.point) return;
+      if (!a.point) { unplaced++; return; }
       var key = pointKey(a.point);
       if (!groups[key]) { groups[key] = { point: a.point, people: [] }; order.push(key); }
       groups[key].people.push(a);
@@ -108,6 +108,10 @@
         on: { click: function () { if (data) select(key); } }
       }, [el('span', { class: 'wm-live-ring', 'aria-hidden': 'true' }), n > 1 ? el('b', { text: String(n) }) : null]));
     });
+    // Say so when someone is active but has no location, rather than showing an empty map.
+    var note = $('[data-unplaced]');
+    note.hidden = !unplaced;
+    note.textContent = unplaced ? unplaced + ' active without a location' : '';
   }
   function ago(iso) {
     var s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));

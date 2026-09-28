@@ -679,3 +679,5 @@ a.project:hover{transform:translateY(-2px); border-color:rgba(37,99,235,.5)}
 .wm-legend span{display:inline-flex; align-items:center; gap:5px}
 .wm-legend i{width:8px; height:8px; border-radius:50%; display:inline-block}
 .wm-legend .lg-live{background:#34D399} .wm-legend .lg-views{background:#06b6d4}
+.wm-legend .lg-unplaced{color:var(--warn)}
+.wm-legend .lg-unplaced[hidden]{display:none}

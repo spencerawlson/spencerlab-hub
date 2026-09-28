@@ -196,3 +196,33 @@ def test_active_visitors_carry_their_map_point(client):
     assert active["/about"]["point"]["level"] == "country" and active["/about"]["point"]["label"] == "Japan"
     assert active["/"]["point"] is None
     assert all("lat" not in a and "visitor" not in a for a in active.values())
+
+
+MONTREAL = {"CF-Connecting-IP": "70.52.10.20", "X-Forwarded-For": "70.52.10.20", "CF-IPCountry": "CA",
+            "cf-ipcity": "Montreal", "cf-region": "Quebec", "cf-iplatitude": "45.50", "cf-iplongitude": "-73.57",
+            "User-Agent": CHROME_WIN}
+
+
+def test_located_behind_uvicorn_proxy_headers(client, monkeypatch, tmp_path):
+    """Production shape: cloudflared/Nginx on 127.0.0.1 -> uvicorn, whose proxy-headers middleware
+    (on by default) rewrites the client to the X-Forwarded-For address before the app sees it."""
+    from fastapi.testclient import TestClient
+    from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+    monkeypatch.setattr(main, "VISITS", Visitors(tmp_path / "_prod", "spencerlab.tech"))   # default trust: loopback only
+    proxied = TestClient(ProxyHeadersMiddleware(main.app, trusted_hosts="127.0.0.1"), client=("127.0.0.1", 50000))
+    proxied.get("/", headers=MONTREAL)
+    (row,) = _rows()
+    assert (row["ip"], row["country"], row["city"], row["region"]) == ("70.52.10.20", "CA", "Montreal", "Quebec")
+    active = _live(client).json()["active"]
+    assert active[0]["point"] == {"lat": 45.5, "lon": -73.57, "level": "city", "country": "CA",
+                                  "label": "Montreal, Quebec, Canada"}
+
+
+def test_direct_untrusted_client_still_cannot_spoof_location(monkeypatch, tmp_path):
+    v = Visitors(tmp_path)
+    v.record(path="/", query="", status=200, client_host="198.51.100.66",
+             headers={"cf-connecting-ip": "1.2.3.4", "cf-ipcountry": "CA", "cf-ipcity": "Montreal", "user-agent": CHROME_WIN})
+    con = sqlite3.connect(v.db)
+    row = con.execute("SELECT ip, country, city FROM visits").fetchone()
+    con.close()
+    assert row == ("198.51.100.66", None, None)
