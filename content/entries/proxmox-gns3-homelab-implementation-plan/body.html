@@ -30,7 +30,7 @@
 </section>
 <section>
 <h2>Environment</h2>
-<figure><img src="/media/proxmox-gns3-homelab-implementation-plan/img-47c7c71035fa.jpg" loading="lazy" alt="rack-photo"><figcaption>Figure 1 — rack-photo</figcaption></figure>
+<figure><img src="/media/proxmox-gns3-homelab-implementation-plan/img-rack-annotated.jpg" loading="lazy" alt="rack-photo"><figcaption>Figure 1 — rack-photo</figcaption></figure>
 <p>I planned two HP ProDesk Mini nodes as Proxmox VE hypervisors with hardware virtualization (Intel VT‑x/VT‑d) enabled in firmware. Each node was to be upgraded to 32 GB RAM. Hostnames and static management addressing were defined as pve01 (192.x.x.11) and pve02 (192.x.x.12), with matching Proxmox versions and correct DNS.</p>
 <p>Role mapping was set: pve01 for network-simulation and Linux services (GNS3 Server, Ubuntu Server, Fedora) and pve02 for the Windows/identity lab (Windows Server, two Windows clients, Ubuntu Desktop). VM primary storage remains local per node. An external 256 GB SSD serves as the portable backup target for VM exports, configuration backups, and selected Proxmox backups.</p>
 <p>A Windows Mini PC with 12 GB RAM was reserved to host the Kali workstation (in VirtualBox), the GNS3 client, and a small Linux QDevice VM running corosync‑qnetd at a static address (192.x.x.13) with approximately 512 MB RAM and auto-start behavior.</p>
@@ -226,10 +226,7 @@
 <h3>Evidence catalogue</h3>
 <table><caption>All evidence attached to this project</caption>
         <thead><tr><th>Title</th><th>Kind</th><th>Review state</th><th>Appears in</th></tr></thead>
-        <tbody><tr><td>rack-photo</td><td>photo</td><td>ai-analyzed</td><td>appendix only</td></tr></tbody></table>
-<h3>Additional evidence</h3>
-<p>The following item is not yet attached to a specific step or problem.</p>
-<figure><img src="/media/proxmox-gns3-homelab-implementation-plan/img-47c7c71035fa.jpg" loading="lazy" alt="rack-photo"><figcaption>Figure 2 — rack-photo</figcaption></figure>
+        <tbody><tr><td>rack-photo</td><td>photo</td><td>ai-analyzed</td><td>Environment</td></tr></tbody></table>
 <h3>Extracted text</h3>
 <h4>Extract — rack-photo</h4>
 <pre><code>9 10 11 12
