@@ -23,8 +23,8 @@ PROJECTS = [
      "post": "proxmox-third-host", "status": "in-progress"},
     {"slug": "minecraft", "name": "Minecraft server", "kind": "Self-hosted",
      "logo": "linux.svg",
-     "blurb": "A Paper server on its own VM, managed through Crafty Controller. The panel is "
-              "LAN-only; this card shows the server's live status.",
-     "tags": ["Paper", "Crafty Controller", "Java"],
+     "blurb": "A Paper server on its own VM, managed through Crafty Controller. Geyser lets "
+              "phones and consoles (Bedrock) join the same world as Java players.",
+     "tags": ["Paper", "Geyser", "Crafty Controller"],
      "post": "minecraft-server-crafty", "live": "minecraft"},
 ]

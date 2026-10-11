@@ -3,8 +3,8 @@
   "title": "A self-hosted Minecraft server, run with Crafty",
   "category": "administered",
   "date": "2026-10-10",
-  "summary": "A Paper Minecraft server on its own VM on the third Proxmox host, managed with Crafty Controller. The panel stays LAN-only, and this site shows the server's live status without exposing anything new.",
-  "tags": ["minecraft", "paper", "crafty", "proxmox", "self-hosted"],
+  "summary": "A Paper Minecraft server on its own VM on the third Proxmox host, managed with Crafty Controller, with Geyser so phones and consoles can join the Java world. The panel stays LAN-only, and this site shows the server's live status without exposing anything new.",
+  "tags": ["minecraft", "paper", "geyser", "bedrock", "crafty", "proxmox", "self-hosted"],
   "source": "hand",
   "logos": ["proxmox.svg", "linux.svg"]
 }

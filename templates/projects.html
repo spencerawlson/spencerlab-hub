@@ -3,11 +3,19 @@
 {% block title %}Projects · SpencerLab{% endblock %}
 {% block description %}What's running in and around the homelab: Road to CISSP, a third Proxmox host and a self-hosted Minecraft server, each with its write-up.{% endblock %}
 
+{% macro mc_dot(v) -%}<span class="dot {{ 'up' if v else ('down' if v == false else 'unk') }}"></span>{%- endmacro %}
 {% macro mc_live(mc) -%}
 <div class="mc-live" data-mc aria-live="polite">
-  <span class="dot {{ 'up' if mc.online else ('down' if mc.online == false else 'unk') }}" data-mc-dot></span>
-  <b data-mc-k="state">{% if not mc.enabled %}status not configured{% elif mc.online %}online{% else %}offline{% endif %}</b>
-  <span data-mc-k="detail">{% if mc.online %}{{ mc.players }}/{{ mc.max_players }} players{% if mc.version %} · {{ mc.version }}{% endif %} · {{ mc.latency_ms }} ms{% endif %}</span>
+  {% if not mc.enabled %}
+  <div class="row"><span class="dot unk"></span><b>status not configured</b></div>
+  {% else %}
+  <div class="row" data-mc-ed="java">{{ mc_dot(mc.online) }}<span class="ed">Java</span><b data-mc-k="state">{{ "online" if mc.online else "offline" }}</b>
+    <span data-mc-k="detail">{% if mc.online %}{{ mc.players }}/{{ mc.max_players }} players{% if mc.version %} · {{ mc.version }}{% endif %} · {{ mc.latency_ms }} ms{% endif %}</span></div>
+  {% if mc.bedrock %}
+  <div class="row" data-mc-ed="bedrock">{{ mc_dot(mc.bedrock.online) }}<span class="ed">Bedrock</span><b data-mc-k="state">{{ "online" if mc.bedrock.online else "offline" }}</b>
+    <span data-mc-k="detail">{% if mc.bedrock.online %}phones &amp; consoles · {{ mc.bedrock.version }} · {{ mc.bedrock.latency_ms }} ms{% endif %}</span></div>
+  {% endif %}
+  {% endif %}
 </div>
 {%- endmacro %}
 
@@ -45,10 +53,10 @@
 <section class="wrap section">
   <div class="empty" style="text-align:left">
     <b>About the live status.</b> This site asks the game server for its status over the home network, the
-    same way the Minecraft multiplayer screen does. Only online/offline, the player count, the version and the
-    ping are shown. The server's address and the Crafty panel aren't published.
+    same way the Minecraft server list does, for both Java and Bedrock. Only online/offline, the player count, the
+    version and the ping are shown. The server's address and the Crafty panel aren't published.
   </div>
 </section>
 {% endblock %}
 
-{% block scripts %}<script src="/static/projects.js?v=1" defer></script>{% endblock %}
+{% block scripts %}<script src="/static/projects.js?v=2" defer></script>{% endblock %}

@@ -129,7 +129,9 @@ write-up (the `post` slug) and, if it has one, its own site. To add a project, a
 there and write its entry.
 
 The Minecraft card shows live status. The hub sends the server a standard Server List Ping
-over the LAN (the same request the multiplayer screen sends), caches the answer for 30 s
+over the LAN (the same request the multiplayer screen sends) and, when
+`HUB_MINECRAFT_BEDROCK_PORT` is set, a RakNet unconnected ping to Geyser's Bedrock
+listener (UDP). It caches the answer for 30 s
 and publishes only online/offline, the player count, the version and the ping. It never
 publishes the address, player names or MOTD. Nothing is exposed to the internet, and the
 Crafty panel stays private. It's off until you point it at the server in the unit's environment:
@@ -137,6 +139,7 @@ Crafty panel stays private. It's off until you point it at the server in the uni
 ```bash
 sudo systemctl edit spencerlab-hub     # add under [Service]:
 #   Environment=HUB_MINECRAFT_ADDR=192.168.1.176:25565
+#   Environment=HUB_MINECRAFT_BEDROCK_PORT=19132
 sudo systemctl restart spencerlab-hub
 ```
 
