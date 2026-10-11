@@ -1,0 +1,14 @@
+{
+  "slug": "proxmox-third-host",
+  "title": "A third Proxmox host, outside the cluster",
+  "category": "built",
+  "date": "2026-10-10",
+  "summary": "A third machine running Proxmox VE as a standalone host, next to the two-node cluster rather than in it. Its first guest is the Minecraft server, which keeps game load off the nodes that serve this site and the lab.",
+  "tags": ["proxmox", "homelab", "virtualization", "kvm"],
+  "source": "hand",
+  "logos": ["proxmox.svg"],
+  "status": "in-progress",
+  "updates": [
+    {"date": "2026-10-10", "note": "Third Proxmox host up as a standalone node; first VM is the Minecraft server."}
+  ]
+}

@@ -1,0 +1,30 @@
+<div class="readwrap">
+
+<section>
+  <p class="part-tag">Where it fits</p>
+  <h2>Why a third box</h2>
+  <p>The lab runs on a two-node Proxmox VE cluster with a QDevice for quorum (see the <a href="/built/proxmox-gns3-homelab-implementation-plan">implementation plan</a>). Those two nodes are busy. One runs the GNS3 VM, FoodLab, a k3d Kubernetes sandbox and a Docker container. The other runs UbuntuServ, which serves this site, and FedServ, which runs the <a href="/built/road-to-cissp">Road to CISSP</a> API. Each node has 8 GB of RAM, and that's what limits them.</p>
+  <p>A game server wants a steady few gigabytes of its own and doesn't need anything the cluster offers. So it got its own machine: a third Proxmox VE install running as a <b>standalone host</b>.</p>
+</section>
+
+<section>
+  <p class="part-tag">Design</p>
+  <h2>Standalone, not a third cluster node</h2>
+  <ul class="tight">
+    <li><b>Quorum stays simple.</b> The cluster has two votes plus the QDevice. Adding a third node changes quorum maths that already work. A standalone host can be rebooted, rebuilt or unplugged without affecting the cluster.</li>
+    <li><b>Separate failure domains.</b> If the game server falls over, or the host does, the site and the lab carry on.</li>
+    <li><b>Same tooling.</b> It's still Proxmox, so VMs, backups and the web UI work the same way as on the other two nodes.</li>
+  </ul>
+</section>
+
+<section>
+  <p class="part-tag">What runs on it</p>
+  <h2>First guest</h2>
+  <p>VM 100 runs the <a href="/administered/minecraft-server-crafty">Minecraft server</a>, managed through Crafty Controller. Its live status is on the <a href="/projects">projects page</a>.</p>
+  <div class="callout lesson">
+    <p class="ctag">Still being written up</p>
+    <p>This is a build log. The hardware, storage layout and backup plan for this host will be added here as they're settled.</p>
+  </div>
+</section>
+
+</div>

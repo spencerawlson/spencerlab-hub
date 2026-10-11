@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}Projects · SpencerLab{% endblock %}
+{% block description %}What's running in and around the homelab: Road to CISSP, a third Proxmox host and a self-hosted Minecraft server, each with its write-up.{% endblock %}
+
+{% macro mc_live(mc) -%}
+<div class="mc-live" data-mc aria-live="polite">
+  <span class="dot {{ 'up' if mc.online else ('down' if mc.online == false else 'unk') }}" data-mc-dot></span>
+  <b data-mc-k="state">{% if not mc.enabled %}status not configured{% elif mc.online %}online{% else %}offline{% endif %}</b>
+  <span data-mc-k="detail">{% if mc.online %}{{ mc.players }}/{{ mc.max_players }} players{% if mc.version %} · {{ mc.version }}{% endif %} · {{ mc.latency_ms }} ms{% endif %}</span>
+</div>
+{%- endmacro %}
+
+{% block content %}
+<header class="wrap pagehead">
+  <p class="kicker">Projects</p>
+  <h1>What's running in and around the lab.</h1>
+  <p>Things I've built and keep running. Each one has a write-up here: what it is, how it's put together, and what's still open.</p>
+</header>
+
+<section class="wrap">
+  <div class="projects">
+    {% for p in projects %}
+    <article class="project">
+      <div class="logo"><img src="/static/logos/{{ p.logo }}" alt="" loading="lazy"></div>
+      <div class="pb">
+        <div class="top">
+          <span class="chip">{{ p.kind }}</span>
+          {% if p.status in ("in-progress", "planned") %}<span class="chip status {{ p.status }}">{{ p.status | replace("-", " ") }}</span>{% endif %}
+        </div>
+        <h3>{{ p.name }}</h3>
+        <p>{{ p.blurb }}</p>
+        {% if p.live == "minecraft" %}{{ mc_live(minecraft) }}{% endif %}
+        <div class="tags">{% for t in p.tags %}<span>{{ t }}</span>{% endfor %}</div>
+        <div class="go">
+          {% if p.entry %}<a href="{{ p.entry.url }}">Read the write-up →</a>{% endif %}
+          {% if p.link %}<a href="{{ p.link }}" target="_blank" rel="noopener noreferrer">{{ p.link_text }} ↗</a>{% endif %}
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="wrap section">
+  <div class="empty" style="text-align:left">
+    <b>About the live status.</b> This site asks the game server for its status over the home network, the
+    same way the Minecraft multiplayer screen does. Only online/offline, the player count, the version and the
+    ping are shown. The server's address and the Crafty panel aren't published.
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}<script src="/static/projects.js?v=1" defer></script>{% endblock %}

@@ -12,6 +12,8 @@ spencerlab-hub/
   app/main.py          routes, feeds, media, the publish API
   app/content.py       loads entries: masthead → post header, TOC, reading time, media URLs
   app/security.py      the secret-scan backstop for publishing
+  app/projects.py      the cards on /projects
+  app/minecraft.py     live status for the Minecraft card (Server List Ping over the LAN)
   templates/           base · home · list · post · topics · search · about · 404 · feed.xml
   static/site.css      the design system (liquid glass × cyberpunk: black, neon green, Chakra Petch)
   content/entries/
@@ -21,9 +23,9 @@ spencerlab-hub/
   tests/               pytest suite (pip install -r requirements-dev.txt; pytest)
 ```
 
-Pages: `/` (live lab panel, featured, now building, recent, videos, activity, topics), `/posts`, `/videos`, `/topics`, `/lab`,
+Pages: `/` (live lab panel, featured, now building, recent, videos, activity, topics), `/posts`, `/videos`, `/topics`, `/projects`, `/lab`,
 `/<category>`, `/<category>/<slug>`, `/tags/<tag>`, `/search?q=`, `/about`, plus
-`/feed.xml` (RSS), `/sitemap.xml`, `/robots.txt`, `/healthz`, `/api/lab`, `/api/visitors` (token), `/stats` (private dashboard). Listings paginate at 9.
+`/feed.xml` (RSS), `/sitemap.xml`, `/robots.txt`, `/healthz`, `/api/lab`, `/api/minecraft`, `/api/visitors` (token), `/stats` (private dashboard). Listings paginate at 9.
 
 Categories (fixed, in `app/content.py`): `built`, `repaired`, `pentested`, `assessed`,
 `administered`.
@@ -119,6 +121,27 @@ The activity feed (`app/activity.py`) is built from the content (publish dates, 
 updates) plus a runtime log at `data/activity.jsonl` (gitignored): deploys (a new git commit
 running) and agent sweeps changing state. `HUB_DATA_DIR` moves it; `HUB_LAB_DISABLED=1`
 turns the background task off (the tests do this).
+
+## Projects and the Minecraft status
+
+`/projects` shows a card per project from `app/projects.py`: a blurb, tags, a link to its
+write-up (the `post` slug) and, if it has one, its own site. To add a project, add a dict
+there and write its entry.
+
+The Minecraft card shows live status. The hub sends the server a standard Server List Ping
+over the LAN (the same request the multiplayer screen sends), caches the answer for 30 s
+and publishes only online/offline, the player count, the version and the ping. It never
+publishes the address, player names or MOTD. Nothing is exposed to the internet, and the
+Crafty panel stays private. It's off until you point it at the server in the unit's environment:
+
+```bash
+sudo systemctl edit spencerlab-hub     # add under [Service]:
+#   Environment=HUB_MINECRAFT_ADDR=192.168.1.176:25565
+sudo systemctl restart spencerlab-hub
+```
+
+Give the game VM a DHCP reservation so that address doesn't move. `/api/minecraft` serves
+the same status as JSON; the page polls it every 30 s.
 
 ## Visitor log
 

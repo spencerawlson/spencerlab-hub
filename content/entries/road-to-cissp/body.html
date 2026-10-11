@@ -1,0 +1,49 @@
+<div class="readwrap">
+
+<section>
+  <p class="part-tag">The project</p>
+  <h2>What it is</h2>
+  <p><a href="https://road2cissp.com" target="_blank" rel="noopener">Road to CISSP</a> is a study platform that starts at IT fundamentals and works up to the CISSP. It's built around guided tracks and career paths, in React with Three.js for the visual lab. Each lesson has an overview, a <b>Learn</b> section and a cheat sheet, plus flashcards, practice exams, hands-on labs and an AI tutor you can ask while you study.</p>
+  <p>It started on 2026-07-16 and has had about 120 commits since. The last week has been the busiest.</p>
+  <dl class="facts">
+    <div><dt>Frontend</dt><dd>React · Vite · Tailwind</dd></div>
+    <div><dt>Backend</dt><dd>FastAPI · PostgreSQL</dd></div>
+    <div><dt>Hosting</dt><dd>Vercel + homelab VM</dd></div>
+    <div><dt>Sign-in</dt><dd>Google / GitHub OAuth</dd></div>
+  </dl>
+</section>
+
+<section>
+  <p class="part-tag">How it's put together</p>
+  <h2>The backend</h2>
+  <p>The API runs as a systemd service on <b>FedServ</b>, a Fedora Server VM on the second Proxmox node. It's published the same way as this site: a named Cloudflare Tunnel dials out from the VM, so no inbound ports are open. The frontend on Vercel reaches it through <code>VITE_API_BASE_URL</code>.</p>
+  <ul class="tight">
+    <li><b>Auth.</b> OAuth sign-in through the backend, which sets an HttpOnly session cookie. No token ever reaches <code>localStorage</code> or browser JavaScript. The dev-only owner login is behind a flag that production never sets.</li>
+    <li><b>AI tutor.</b> <code>POST /api/ai/tutor</code> streams answers over SSE. It's for signed-in learners only, with a per-user rate limit.</li>
+    <li><b>Labs.</b> Each lab runs on one of two providers: <code>mock</code>, a simulation used by default, or <code>docker</code>, which runs real containers and is opt-in per lab once that lab's image is published.</li>
+    <li><b>Progress sync.</b> Progress is stored on the server with optimistic concurrency (<code>If-Match</code>), so two open tabs can't silently overwrite each other.</li>
+    <li><b>Billing.</b> Stripe Checkout, webhooks and subscription status, with premium content gated on the subscription.</li>
+  </ul>
+</section>
+
+<section>
+  <p class="part-tag">Recent work</p>
+  <h2>This week's push</h2>
+  <ul class="tight">
+    <li><b>Security+ (SY0-701).</b> A 90-question, 90-minute practice exam scored by domain weight, plus 448 new flashcards across all five domains.</li>
+    <li><b>Seven new tracks.</b> Rust, Go, C++, SQL, Docker, Kubernetes and Terraform: 58 lessons in total. DevOps, Software Development and Data &amp; Databases career paths use them.</li>
+    <li><b>Four interactive labs.</b> Pentesting methodology, Docker, Kubernetes and Terraform fundamentals: 31 objectives checked by 153 tests.</li>
+  </ul>
+  <div class="callout fail">
+    <p class="ctag">A broken build</p>
+    <p>A merge left conflict markers in committed files, and the site returned 502 until they were found and removed.</p>
+  </div>
+</section>
+
+<section>
+  <p class="part-tag">What's open</p>
+  <h2>Next</h2>
+  <p>An automated site audit on 2026-10-06 found that every URL serves the same client-rendered shell. To a search engine, all 15 sitemap pages look like one page with no text. The fix is to prerender the public routes and give each one its own title, description and canonical URL. Analytics and link-preview images come after that.</p>
+</section>
+
+</div>

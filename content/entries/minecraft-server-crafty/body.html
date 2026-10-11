@@ -1,0 +1,29 @@
+<div class="readwrap">
+
+<section>
+  <p class="part-tag">The setup</p>
+  <h2>What's running</h2>
+  <dl class="facts">
+    <div><dt>Server</dt><dd>Paper 26.2</dd></div>
+    <div><dt>Slots</dt><dd>20 players</dd></div>
+    <div><dt>Managed by</dt><dd>Crafty Controller</dd></div>
+    <div><dt>Host</dt><dd>VM on the third Proxmox host</dd></div>
+  </dl>
+  <p><b>Paper</b> is a high-performance fork of the vanilla server that supports plugins. <b>Crafty Controller</b> is a web panel for running Minecraft servers. It handles starting and stopping, the console, scheduled tasks, backups and server settings, so day-to-day running doesn't need an SSH session.</p>
+  <p>The server runs in its own VM on the <a href="/built/proxmox-third-host">third Proxmox host</a>, away from the cluster that serves this site.</p>
+</section>
+
+<section>
+  <p class="part-tag">Exposure</p>
+  <h2>What's reachable, and from where</h2>
+  <ul class="tight">
+    <li><b>Crafty's panel is LAN-only.</b> A web panel that can run commands on a server is the last thing to put on the internet, so it isn't published anywhere.</li>
+    <li><b>The game port is LAN-only too, for now.</b> This site goes out through a Cloudflare Tunnel because the ISP's DS-Lite setup makes port forwarding impossible (see <a href="/built/going-live-cloudflare-tunnel">Going live via Cloudflare Tunnel</a>). A tunnel like that carries web traffic, but a normal Minecraft client can't connect through it. Opening the server to friends outside the house needs a TCP relay. That's a separate piece of work.</li>
+  </ul>
+  <div class="callout win">
+    <p class="ctag">Live status without a new hole</p>
+    <p>The <a href="/projects">projects page</a> shows whether the server is up, how many players are on, the version and the ping. The hub on UbuntuServ asks the server over the home network using the standard Server List Ping, the same request the multiplayer screen sends. The result is cached for 30 seconds. Only those four values are published: no address, player names or MOTD.</p>
+  </div>
+</section>
+
+</div>

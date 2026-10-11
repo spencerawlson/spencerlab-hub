@@ -11,6 +11,7 @@ straight in; see the README for the request shape and its three guards.
 A background task samples the host and runs the HA agents for the live lab panel (app/lab.py);
 app/activity.py merges content and runtime events into the activity feed.
 app/visitors.py logs page views (IP, location, referrer, device) for GET /api/visitors.
+app/minecraft.py pings the homelab Minecraft server for the live card on /projects.
 """
 from __future__ import annotations
 
@@ -35,6 +36,8 @@ from app.activity import Activity
 from app.content import (CAT_BY_SLUG, CATEGORIES, MEDIA_TYPES, extract_inline_images,
                          load_entries, media_path, search)
 from app.lab import Lab
+from app.minecraft import Minecraft
+from app.projects import PROJECTS
 from app.security import scan_secrets
 from app.visitors import Visitors
 
@@ -46,6 +49,7 @@ PER_PAGE = 9
 
 _ENTRIES: list[dict] = []
 LAB = Lab(BASE_URL)
+MINECRAFT = Minecraft()
 ACTIVITY = Activity(DATA, ROOT)
 VISITS = Visitors(DATA, site_host=BASE_URL.split("://", 1)[-1].split("/")[0])
 
@@ -219,6 +223,19 @@ def lab_page(request: Request):
                                          "activity": ACTIVITY.feed(_ENTRIES, limit=30)})
 
 
+@app.get("/projects", response_class=HTMLResponse)
+def projects_page(request: Request):
+    by_slug = {e["slug"]: e for e in _ENTRIES}
+    projects = [dict(p, entry=by_slug.get(p.get("post"))) for p in PROJECTS]
+    return _render(request, "projects.html", {"nav": "projects", "projects": projects,
+                                              "minecraft": MINECRAFT.status()})
+
+
+@app.get("/api/minecraft")
+def minecraft_api():
+    return JSONResponse(MINECRAFT.status(), headers={"Cache-Control": "no-store"})
+
+
 @app.get("/stats", response_class=HTMLResponse)
 def stats_page(request: Request):
     """The visitor dashboard shell. It holds no data: the page asks for the stats token and
@@ -290,7 +307,7 @@ def feed(request: Request):
 
 @app.get("/sitemap.xml")
 def sitemap():
-    urls = ["/", "/posts", "/videos", "/topics", "/lab", "/about"]
+    urls = ["/", "/posts", "/videos", "/topics", "/projects", "/lab", "/about"]
     urls += [f"/{c['slug']}" for c in CATEGORIES] + [e["url"] for e in _ENTRIES]
     xml = "".join(f"<url><loc>{BASE_URL}{u}</loc></url>" for u in urls)
     return Response('<?xml version="1.0" encoding="UTF-8"?>'
