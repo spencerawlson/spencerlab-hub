@@ -1,0 +1,11 @@
+{
+  "slug": "the-great-migration",
+  "title": "The Great Migration: Aegis production comes home",
+  "category": "built",
+  "date": "2026-10-13",
+  "summary": "The production API behind Aegis CloudOps and Fishing Rod Terminal moved off a DigitalOcean droplet and onto a VM in this homelab, behind its own Cloudflare Tunnel. The move, an exposed Kubernetes API found on the new box, an outage, and the claims that had to be corrected afterwards.",
+  "tags": ["migration", "cloudflare", "caddy", "docker", "proxmox", "self-hosted", "postgresql"],
+  "source": "hand",
+  "logos": ["cloudflare.svg", "docker.svg", "proxmox.svg"],
+  "status": "complete"
+}

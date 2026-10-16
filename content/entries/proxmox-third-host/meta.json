@@ -3,12 +3,31 @@
   "title": "A third Proxmox host, outside the cluster",
   "category": "built",
   "date": "2026-10-10",
-  "summary": "A third machine running Proxmox VE as a standalone host, next to the two-node cluster rather than in it. Its first guest is the Minecraft server, which keeps game load off the nodes that serve this site and the lab.",
-  "tags": ["proxmox", "homelab", "virtualization", "kvm"],
+  "summary": "A third machine running Proxmox VE as a standalone host, next to the two-node cluster rather than in it. It started with the Minecraft server and now also runs production for Aegis CloudOps and Fishing Rod Terminal, with production-first boot order and nightly backups to the Time Capsule.",
+  "tags": [
+    "proxmox",
+    "homelab",
+    "virtualization",
+    "kvm",
+    "backup"
+  ],
   "source": "hand",
-  "logos": ["proxmox.svg"],
+  "logos": [
+    "proxmox.svg"
+  ],
   "status": "in-progress",
   "updates": [
-    {"date": "2026-10-10", "note": "Third Proxmox host up as a standalone node; first VM is the Minecraft server."}
+    {
+      "date": "2026-10-14",
+      "note": "Nightly vzdump to the Time Capsule verified; production VM boots first after a host restart."
+    },
+    {
+      "date": "2026-10-13",
+      "note": "VM 101 takes over Aegis + Fishing Rod production from the cloud droplet."
+    },
+    {
+      "date": "2026-10-10",
+      "note": "Third Proxmox host up as a standalone node; first VM is the Minecraft server."
+    }
   ]
 }

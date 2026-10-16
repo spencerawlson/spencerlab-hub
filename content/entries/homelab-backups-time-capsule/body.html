@@ -1,0 +1,88 @@
+<header class="masthead">
+  <div class="readwrap">
+    <p class="eyebrow"><span class="dot"></span> Administered · backups</p>
+    <h1 class="title">Every VM, every night: homelab backups to the Time Capsule</h1>
+    <p class="lede">Seven guests across three Proxmox hosts, backed up nightly and copied off each host to a network drive. The setup looked finished for weeks. It took a full disk and a night of failed backups to show that half of it had never worked.</p>
+    <div class="byline">
+      <span><b>Verified</b> 2026-10-14</span>
+      <span><b>Scope</b> 3 hosts · 7 guests</span>
+      <span><b>Target</b> Time Capsule over SMB</span>
+    </div>
+  </div>
+</header>
+
+<div class="readwrap">
+
+<section>
+  <p class="part-tag">Design</p>
+  <h2>Two layers</h2>
+  <ul class="tight">
+    <li><b>Whole-VM backups.</b> Each Proxmox host runs a nightly <code>vzdump</code> of its guests to local storage, keeping one copy there.</li>
+    <li><b>Off-host copy.</b> A vzdump hook script copies each finished backup to an Apple Time Capsule on the LAN over SMB. It keeps four copies per guest there and prunes older ones.</li>
+  </ul>
+  <p>The production database gets a third layer. Inside the VM that runs the <a href="/built/the-great-migration">Aegis API</a>, a nightly <code>pg_dump</code> runs shortly before the host's vzdump. Every VM backup therefore contains a consistent database dump, not only a crash-consistent disk image of a running Postgres.</p>
+  <dl class="facts">
+    <div><dt>Hosts</dt><dd>2-node cluster + 1 standalone</dd></div>
+    <div><dt>Guests covered</dt><dd>7 (VMs and a container)</dd></div>
+    <div><dt>Local copies</dt><dd>1 per guest</dd></div>
+    <div><dt>Time Capsule copies</dt><dd>4 per guest</dd></div>
+    <div><dt>DB dump</dt><dd>nightly, 14 days kept in-VM</dd></div>
+    <div><dt>Credentials</dt><dd>root-only file in <code>/etc/pve/priv</code></dd></div>
+  </dl>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">Part 01</span> · the failure</p>
+  <h2>98.8% full, and every backup failed</h2>
+  <p>On 2026-10-13 the 02:30 job on the first cluster node failed for every guest with <code>No space left on device</code>. The local backup directory was 98.8% full. Local copies had been piling up, and the host was carrying weeks of full VM images.</p>
+  <p>Local retention was cut to one copy per guest, which brought the disk down to about 50%. That fixed the symptom. The next question was why the Time Capsule wasn't showing the same growth, and it was.</p>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">Part 02</span> · the bug</p>
+  <h2>Pruning that never pruned</h2>
+  <p>The Time Capsule held about 705 GB of backups, far more than four copies of seven guests should take. The hook pushed every backup and logged success, but it never deleted anything.</p>
+  <p>The prune step looked up the guest's ID in an environment variable called <code>$VMID</code>. vzdump doesn't provide one. It passes the guest ID to a hook as the <b>third positional argument</b>, after the phase and the mode. The variable was always empty, so no file ever matched the prune pattern. No error was raised either: an empty pattern that matches nothing looks the same as "nothing to prune".</p>
+  <div class="term"><div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span class="who">vzdump hook · the shape of the fix</span></div><pre>phase="$1"; mode="$2"; <span class="k">vmid="$3"</span>       <span class="c"># how vzdump calls a hook</span>
+<span class="c"># before: the prune pattern used $VMID from the environment — always empty</span>
+<span class="c"># after:  it reads the ID from $3</span></pre></div>
+  <p>The fix went to all three hosts, with the previous script kept beside it as <code>.bak</code>. A guard belongs next to it as well: a prune step that finds an empty ID should stop and log, not quietly do nothing or, worse, match everything.</p>
+  <div class="callout lesson"><p class="ctag">◆ Lesson</p><p><strong>Verify retention, not just the backup.</strong> "The backup ran" and "the copy arrived" were both checked. "Old copies get deleted" was not, because its failure is silent until a disk fills. Every retention rule needs a check that counts what's actually there.</p></div>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">Part 03</span> · the new host</p>
+  <h2>Adding the production VM</h2>
+  <p>The <a href="/built/proxmox-third-host">third Proxmox host</a> took on the production API on 2026-10-13, so it needed the same treatment. Its nightly job runs at 03:30. The first push of the production VM was checked byte for byte on both sides: 5,094,183,873 bytes, identical.</p>
+  <p>That also retired a GitHub Actions database-backup workflow that had been <b>failing every night since 2026-08-04</b>, when the AWS cluster it backed up was deleted. It wasn't removed while it was the only off-host plan on paper. It was removed once something real replaced it.</p>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">Part 04</span> · verification</p>
+  <h2>The overnight check</h2>
+  <p>The fixes were checked the next morning, against what was actually on disk rather than what the logs said should be there:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Check</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>All 7 guests backed up and pushed</td><td>✓ 0 errors</td></tr>
+      <tr><td>First node's 02:30 job (failed the night before)</td><td>✓ all 4 guests; disk at 55%</td></tr>
+      <tr><td>Old copies pruned</td><td>✓ 65 removed, each logged <code>keeping 4</code></td></tr>
+      <tr><td>Copies per guest on the Time Capsule</td><td>✓ exactly 4 (2 on the new host, which started a day earlier)</td></tr>
+      <tr><td>Time Capsule usage</td><td>✓ ~705 GB → ~175 GB; 1.63 TB free</td></tr>
+      <tr><td>Production DB dump</td><td>⚠ missed one night, expected (below)</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout gotcha"><p class="ctag">▲ The dump that didn't run</p><p>The in-VM <code>pg_dump</code> is scheduled in UTC. That night's run fell inside the host outage described in <a href="/built/the-great-migration">the migration write-up</a>, and the VM booted two minutes after its slot. The VM backup still held a fresh dump taken during a deploy earlier that evening, so nothing was lost. A catch-up job that runs after boot if the newest dump is older than about 20 hours would close the gap.</p></div>
+</section>
+
+<section>
+  <p class="part-tag">What's still open</p>
+  <h2>Same building, no encryption</h2>
+  <ul class="tight">
+    <li><b>Off-site.</b> The Time Capsule covers disk and host loss, not losing the building. A copy to object storage elsewhere is the next step.</li>
+    <li><b>Encryption.</b> The backups on the Time Capsule aren't encrypted. Encrypting the dumps and VM images before they leave the host comes before any off-site copy.</li>
+    <li><b>Restore drills.</b> The database dump has been restore-tested. A full VM restore from the Time Capsule hasn't been yet.</li>
+  </ul>
+</section>
+
+</div>

@@ -1,0 +1,79 @@
+<header class="masthead">
+  <div class="readwrap">
+    <p class="eyebrow"><span class="dot"></span> Built · side project</p>
+    <h1 class="title">Domainfolio: one app, a sale page for every domain</h1>
+    <p class="lede">A parked domain usually shows a registrar's ad page, and the registrar keeps both the traffic and the leads. Domainfolio replaces that with one self-hosted app that serves a proper sale page for every domain I own, takes offers into my own inbox, and counts who visits each name.</p>
+    <div class="byline">
+      <span><b>Built</b> 2026-10-15 → 10-16</span>
+      <span><b>Live</b> <a href="https://domainfolio.site" rel="noopener">domainfolio.site</a></span>
+      <span><b>Stack</b> Next.js · SQLite · Docker</span>
+    </div>
+  </div>
+</header>
+
+<div class="readwrap">
+
+<section>
+  <p class="part-tag">Design</p>
+  <h2>Routing on the Host header</h2>
+  <p>Every domain in the portfolio points at the same app. Middleware normalises the request's <code>Host</code> header (lower-case, no <code>www.</code>, no port) and looks it up in the inventory:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Host is…</th><th>Renders</th></tr></thead>
+    <tbody>
+      <tr><td>the portfolio's own domain</td><td>the catalog: every name for sale, with search and a category filter</td></tr>
+      <tr><td>a domain marked <code>for_sale</code></td><td>its lander: price or minimum offer, lease-to-own terms, the offer form</td></tr>
+      <tr><td>a domain marked <code>sold</code> or <code>hold</code></td><td>a simple status page</td></tr>
+      <tr><td>anything else</td><td>"not listed"</td></tr>
+    </tbody>
+  </table></div>
+  <p>Adding a domain to the portfolio takes two steps: add it in the admin panel, and point its DNS at the tunnel. The lander appears on the next request. Cloudflare's edge provides HTTPS for each domain, so the app never handles a certificate.</p>
+</section>
+
+<section>
+  <p class="part-tag">Hosting</p>
+  <h2>The same pattern as everything else here</h2>
+  <p>It runs in <code>docker compose</code> as two containers: the app, published on loopback only, and a <code>cloudflared</code> sidecar that dials out to Cloudflare. As with <a href="/built/going-live-cloudflare-tunnel">this site</a> and the <a href="/built/the-great-migration">Aegis API</a>, nothing on the home network accepts an inbound connection. SQLite lives on a bind mount so it can be backed up as a single file. The data module sits behind a small interface, so it can move to Postgres without touching the pages.</p>
+</section>
+
+<section>
+  <p class="part-tag">Security</p>
+  <h2>Small surface, on purpose</h2>
+  <ul class="tight">
+    <li><b>The admin only exists on one host.</b> <code>/admin</code> and the admin API answer only on the portfolio's own domain and on loopback. On any lander domain they return <code>404</code>, so a for-sale name never exposes a login page.</li>
+    <li><b>The offer form is the only public write path.</b> It validates the email and amount, caps the message length, has a honeypot field and allows 5 offers per hour per IP.</li>
+    <li><b>Email can't break it.</b> A new offer is stored first, then emailed, with the buyer as <code>Reply-To</code>. If the mail fails, the offer is still in the inbox and the buyer still gets a success response.</li>
+    <li><b>Secrets stay out of the image.</b> A <code>.dockerignore</code> keeps <code>.env</code> and the database out of the build. The tunnel token lives in its own git-ignored file.</li>
+  </ul>
+</section>
+
+<section>
+  <p class="part-tag">Bugs found in production</p>
+  <h2>Redirects to 0.0.0.0</h2>
+  <p>After logging in, saving a domain or updating an offer, the browser was sent to <code>https://0.0.0.0:3000/…</code>. The admin routes built their redirects from <code>request.url</code>. Behind the tunnel, that's the address the standalone server is bound to, not the address the visitor used.</p>
+  <div class="callout lesson"><p class="ctag">◆ Fix</p><p>A small <code>seeOther()</code> helper sends a <em>relative</em> <code>Location</code>, so the browser resolves it against the URL it actually used. Behind any proxy, the app can't know its public address unless it's told, so it shouldn't build absolute URLs from what it sees.</p></div>
+  <div class="callout gotcha"><p class="ctag">▲ And a typo that went on sale</p><p>The admin form was "add or update": re-entering an existing domain blanked its price and tagline, and a typo created a stray for-sale listing for a misspelled name. The form is now add-only. An existing domain is rejected with a pointer to its edit page.</p></div>
+</section>
+
+<section>
+  <p class="part-tag">Selling</p>
+  <h2>Reaching buyers who aren't looking yet</h2>
+  <p>A lander only reaches people who already type the name. To show up when someone searches for a domain at GoDaddy and its partner registrars, the names are also listed on <b>Afternic</b>, with a written playbook:</p>
+  <ul class="tight">
+    <li><b>Keep my own nameservers</b>, so the Domainfolio landers stay up. That costs a 25% commission instead of 15%.</li>
+    <li><b>Boost off</b>, because it adds another 5%.</li>
+    <li><b>Lease-to-own terms set per domain</b> on each lander, to match the Afternic terms instead of a fixed 12-month split.</li>
+    <li><b>Close through escrow.</b> The buyer pays escrow, the domain is pushed to their registrar account, escrow releases the money. Never take card payments for a domain directly.</li>
+  </ul>
+</section>
+
+<section>
+  <p class="part-tag">Status</p>
+  <h2>What's next</h2>
+  <div class="pillrow">
+    <span class="pill ok">live</span><span class="pill">0 inbound ports</span>
+    <span class="pill">tests: routing · pricing · validation · http</span>
+  </div>
+  <p>The visit counts per domain will start to say which names draw traffic, and that's what pricing should follow. A CAPTCHA has a marked slot on the offer form if the honeypot and rate limit stop being enough.</p>
+</section>
+
+</div>

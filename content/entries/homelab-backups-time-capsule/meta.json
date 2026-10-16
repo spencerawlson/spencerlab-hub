@@ -1,0 +1,10 @@
+{
+  "slug": "homelab-backups-time-capsule",
+  "title": "Every VM, every night: homelab backups to the Time Capsule",
+  "category": "administered",
+  "date": "2026-10-14",
+  "summary": "Nightly vzdump backups on all three Proxmox hosts, pushed to a Time Capsule on the LAN and pruned to four copies per guest. The pruning had never worked: one host's disk filled to 98.8% and every backup on it failed before the bug was found. Fixing it freed about 530 GB.",
+  "tags": ["proxmox", "vzdump", "backup", "smb", "postgresql", "homelab"],
+  "source": "hand",
+  "logos": ["proxmox.svg", "linux.svg"]
+}

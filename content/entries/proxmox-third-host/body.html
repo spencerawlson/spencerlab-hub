@@ -19,11 +19,22 @@
 
 <section>
   <p class="part-tag">What runs on it</p>
-  <h2>First guest</h2>
-  <p>VM 100 runs the <a href="/administered/minecraft-server-crafty">Minecraft server</a>, managed through Crafty Controller. Its live status is on the <a href="/projects">projects page</a>.</p>
+  <h2>Guests</h2>
+  <p>VM 100 was the first guest. It runs the <a href="/administered/minecraft-server-crafty">Minecraft server</a>, managed through Crafty Controller, and its live status is on the <a href="/projects">projects page</a>.</p>
+  <p>Within days the host was doing much more than games. On 2026-10-13, <b>VM 101 took over production</b> for Aegis CloudOps and Fishing Rod Terminal from a cloud droplet (<a href="/built/the-great-migration">the Great Migration</a>). The host now runs six VMs.</p>
+</section>
+
+<section>
+  <p class="part-tag">Operations</p>
+  <h2>Boot order and backups</h2>
+  <ul class="tight">
+    <li><b>Production boots first, alone.</b> After a power or network event all six VMs once started together, and production took minutes to come up while they competed for the disk. VM 101 now has <code>startup: order=1,up=60</code>, and everything else waits for it.</li>
+    <li><b>Nightly backups leave the host.</b> A 03:30 vzdump job backs the VMs up locally and a hook copies each backup to the Time Capsule on the LAN, keeping four. The first push of the production VM was verified byte for byte. See <a href="/administered/homelab-backups-time-capsule">the backup write-up</a>.</li>
+    <li><b>It's been assessed for the cloud.</b> The first run of Aegis's <a href="/built/aegis-migration-readiness">migration readiness assessment</a> was against this host: grade A, about $467 a month at AWS list price.</li>
+  </ul>
   <div class="callout lesson">
-    <p class="ctag">Still being written up</p>
-    <p>This is a build log. The hardware, storage layout and backup plan for this host will be added here as they're settled.</p>
+    <p class="ctag">Still open</p>
+    <p>The disks aren't encrypted at rest, and the host now carries production data. Re-establishing encryption at rest, plus an external uptime check, are next.</p>
   </div>
 </section>
 

@@ -1,0 +1,113 @@
+<header class="masthead">
+  <div class="readwrap">
+    <p class="eyebrow"><span class="dot"></span> Built · migration</p>
+    <h1 class="title">The Great Migration: Aegis production comes home</h1>
+    <p class="lede">The API behind two live SaaS products moved from a cloud droplet to a VM on a Proxmox host in this lab. No ports opened, the home IP stayed hidden, and the droplet bill stopped. Getting there meant one surprise on the new box and one outage after it.</p>
+    <div class="byline">
+      <span><b>Moved</b> 2026-10-13</span>
+      <span><b>From</b> DigitalOcean droplet</span>
+      <span><b>To</b> homelab VM · Cloudflare Tunnel</span>
+    </div>
+  </div>
+</header>
+
+<div class="readwrap">
+
+<section>
+  <p class="part-tag">Background</p>
+  <h2>Three homes in three months</h2>
+  <p><a href="https://aegiscloudops.io" rel="noopener">Aegis CloudOps</a> and <a href="https://fishingrodterminal.io" rel="noopener">Fishing Rod Terminal</a> share one backend: a Python API with Postgres and Redis. The frontends are on Vercel and only rewrite <code>/api/*</code> to it. The backend has moved twice:</p>
+  <ul class="tight">
+    <li><b>AWS</b>, until early August. It cost about $99 a month for a product with no paying customers yet, so the estate was hibernated.</li>
+    <li><b>A DigitalOcean droplet</b>, about $24 a month plus backups. It ran the same <code>docker compose</code> stack: Caddy in front, then the API, Postgres and Redis, with no ports published except Caddy's.</li>
+    <li><b>The homelab</b>, from 2026-10-13. It's a VM on the <a href="/built/proxmox-third-host">third Proxmox host</a>, reached the same way this site is: through an outbound Cloudflare Tunnel.</li>
+  </ul>
+  <p>Hosting it here wasn't about the money alone. This site has run behind a tunnel since September (<a href="/built/going-live-cloudflare-tunnel">how that started</a>), and the pattern had proved itself. The droplet was the last piece of rented infrastructure in the stack.</p>
+</section>
+
+<section>
+  <p class="part-tag">Design</p>
+  <h2>The request path</h2>
+  <div class="term"><div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span class="who">request path</span></div><pre>browser → Vercel (aegiscloudops.io / fishingrodterminal.io, rewrites /api/*)
+        → api.aegiscloudops.io        <span class="c"># Cloudflare DNS, proxied</span>
+        → Cloudflare Tunnel           <span class="c"># cloudflared dials OUT from the VM</span>
+        → cloudflared → 127.0.0.1     <span class="c"># loopback only</span>
+        → Caddy (security headers) → backend → postgres / redis</pre></div>
+  <ul class="tight">
+    <li><b>Nothing is forwarded on the router.</b> A new home IP changes nothing, and the home IP is never published.</li>
+    <li><b>The tunnel origin is loopback-only.</b> Caddy's tunnel site isn't published to the LAN; only <code>cloudflared</code> on the same box can reach it.</li>
+    <li><b>DNS moved too.</b> <code>aegiscloudops.io</code>'s nameservers moved from the registrar to Cloudflare so the tunnel hostname could live in the same zone. Fishing Rod's domain didn't need to move: its API calls already go through the Aegis hostname.</li>
+  </ul>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">Part 01</span> · the cutover</p>
+  <h2>Moving it without losing data</h2>
+  <ol class="tight">
+    <li>Copied the compose stack and the backend onto the VM. Secrets were copied by hand and never went near git.</li>
+    <li>Stopped the droplet's backend, dumped its Postgres and restored it on the VM.</li>
+    <li>Brought the stack up on the VM and checked it on loopback before anything public pointed at it.</li>
+    <li>Added the tunnel's public hostname and removed the old <code>A</code> record.</li>
+    <li>Turned the droplet's Caddy into a forwarder to the new home, so clients still holding the old DNS answer kept working.</li>
+  </ol>
+  <p>The droplet's containers were stopped with restart policy <code>no</code> rather than deleted, which leaves a rollback path: restore a dump there, start three containers and put the record back. Deleting the droplet is a separate decision for once the old DNS traffic has died away.</p>
+  <div class="callout lesson"><p class="ctag">◆ Restore-tested before relying on it</p><p>The nightly <code>pg_dump</code> on the new box was restored into a throwaway database on day one (78 tables back) before it counted as a backup. A dump that has never been restored is only a hope.</p></div>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">Part 02</span> · the surprise</p>
+  <h2>Port 8080 was already taken</h2>
+  <p>The plan put the tunnel origin on port 8080. Something was already listening there. It was a <b>MicroK8s API server from an old experiment</b>, started with <code>--insecure-bind-address=0.0.0.0</code>: an unauthenticated Kubernetes API on every interface of the machine about to hold production data.</p>
+  <div class="callout fail"><p class="ctag">✕ What it would have meant</p><p>Anyone on the LAN could have talked to that API with no credentials at all. It wasn't reachable from the internet, because nothing on this network is, but "only the LAN" is exactly the assumed-breach position the <a href="/pentested">pentest write-ups</a> start from.</p></div>
+  <p>It was removed rather than reconfigured, since nothing used it. The tunnel origin moved to a different port anyway, so the next leftover can't collide with it either.</p>
+  <div class="callout lesson"><p class="ctag">◆ Lesson</p><p><strong>Before moving a service onto a box, list what's already listening on it</strong> (<code>ss -tlnp</code>). Reused machines accumulate old experiments, and old experiments were usually built for convenience rather than security.</p></div>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">Part 03</span> · deploys</p>
+  <h2>From 90 seconds of 503s to none</h2>
+  <p>The first deploy on the new box produced about 90 seconds of public <code>503</code>s. Caddy checked the backend's health every 30 seconds, so after a restart it kept the upstream marked down long after the API was ready, and it failed every request in the meantime.</p>
+  <div class="term"><div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span class="who">Caddyfile</span></div><pre>reverse_proxy backend:8000 {
+	health_uri /health
+	<span class="k">health_interval 5s</span>       <span class="c"># was 30s</span>
+	<span class="k">lb_try_duration 30s</span>      <span class="c"># hold a request while the upstream comes back</span>
+	<span class="k">lb_try_interval 500ms</span>
+}</pre></div>
+  <p>The next deploy was measured with a probe every 2 seconds: 89 responses, all <code>200</code>, and one client-side timeout while Caddy held a request. Not one 503.</p>
+  <div class="callout gotcha"><p class="ctag">▲ The reload that silently did nothing</p><p>The Caddyfile is a single-file bind mount. Writing a new file and <code>mv</code>-ing it into place leaves the container looking at the <em>old inode</em>, and <code>caddy reload</code> cheerfully reports "config is unchanged". Edit the file in place, or restart the container so it binds the new file.</p></div>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">Part 04</span> · the outage</p>
+  <h2>25 minutes down, and why it took that long</h2>
+  <p>The same night the internet connection dropped and the host rebooted. The root cause was outside the lab, but the recovery was slower than it needed to be. All six VMs on the host booted at once, and Docker on the production VM took about three minutes to come up while they fought over the disk. Total public outage: about 25 minutes. Nothing alerted on it; it was found by hand.</p>
+  <div class="term"><div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span class="who">proxmox host · bash</span></div><pre><span class="cmd">qm set 101 --startup order=1,up=60</span>   <span class="c"># production first, alone, 60 s head start</span>
+<span class="cmd">qm set 100 --startup order=2</span>         <span class="c"># everything else after it</span></pre></div>
+  <p>After a reboot, production now starts first and alone. An external uptime check on the API's <code>/health</code> is next, so the next outage is reported by a monitor rather than noticed by a person.</p>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">Part 05</span> · honesty</p>
+  <h2>The claims the move made false</h2>
+  <p>A migration changes more than where packets go. Three public statements were true on AWS and stopped being true on the night of the move:</p>
+  <ul class="tight">
+    <li>The Data Handling page said production ran in AWS <code>us-east-1</code>.</li>
+    <li>The landing page and the Security page said data at rest was on encrypted volumes.</li>
+    <li>The security questionnaire sent to prospects said both.</li>
+  </ul>
+  <p>The new disks aren't encrypted at rest. Re-encrypting means rebuilding the VM or its storage, which isn't a change to make unattended, so the claims were corrected instead. The pages now say production runs on company-operated servers in Canada, encrypted in transit, with encryption at rest being re-established. Each questionnaire line is marked <b>verified</b> or <b>gap</b>.</p>
+  <div class="callout lesson"><p class="ctag">◆ Lesson</p><p><strong>Infrastructure changes have a documentation blast radius.</strong> When something moves, search the marketing pages, the trust page and every document sent to a customer for what they say about where things run and how they're protected.</p></div>
+</section>
+
+<section>
+  <p class="part-tag">Status</p>
+  <h2>Where it stands</h2>
+  <div class="pillrow">
+    <span class="pill ok">API 200</span><span class="pill">0 inbound ports</span>
+    <span class="pill">droplet retired</span><span class="pill">nightly off-host backup</span>
+    <span class="pill">0-503 deploys</span>
+  </div>
+  <p>The nightly backups for the new box, and the bug that had been quietly filling a disk on another host, are in <a href="/administered/homelab-backups-time-capsule">their own write-up</a>. Still open: encryption at rest, an uptime alert, and deleting the droplet once its forwarder stops seeing traffic.</p>
+</section>
+
+</div>

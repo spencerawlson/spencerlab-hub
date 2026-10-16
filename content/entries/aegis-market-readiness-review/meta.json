@@ -1,0 +1,10 @@
+{
+  "slug": "aegis-market-readiness-review",
+  "title": "Market-readiness review: five billing and signup holes in my own SaaS",
+  "category": "assessed",
+  "date": "2026-10-14",
+  "summary": "A pre-launch review of Aegis CloudOps and Fishing Rod Terminal found that signup could join any tenant or choose a paid plan, checkout granted plans for free without Stripe, pay-as-you-go unlocked paid features with no card, and two products could charge each other's prices. All five were fixed and verified live. None had been used.",
+  "tags": ["appsec", "authorization", "multi-tenant", "billing", "stripe", "fastapi"],
+  "source": "hand",
+  "logos": ["aegis.png", "fishingrod.png", "fastapi.svg"]
+}

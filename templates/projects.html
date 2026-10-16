@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import "macros.html" as m %}
 {% block title %}Projects · SpencerLab{% endblock %}
-{% block description %}What's running in and around the homelab: Road to CISSP, a third Proxmox host and a self-hosted Minecraft server, each with its write-up.{% endblock %}
+{% block description %}What's running in and around the homelab: Aegis CloudOps, Fishing Rod Terminal, Domainfolio, Road to CISSP, a third Proxmox host and a self-hosted Minecraft server, each with its write-up.{% endblock %}
 
 {% macro mc_dot(v) -%}<span class="dot {{ 'up' if v else ('down' if v == false else 'unk') }}"></span>{%- endmacro %}
 {% macro mc_live(mc) -%}

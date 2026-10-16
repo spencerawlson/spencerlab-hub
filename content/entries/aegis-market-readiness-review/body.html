@@ -1,0 +1,80 @@
+<header class="masthead">
+  <div class="readwrap">
+    <p class="eyebrow"><span class="dot"></span> Assessed · own product</p>
+    <h1 class="title">Market-readiness review: five billing and signup holes in my own SaaS</h1>
+    <p class="lede">Before spending anything on ads, the signup and billing paths of Aegis CloudOps and Fishing Rod Terminal were reviewed the way an attacker would read them. Five findings, all fixed and verified on production, none of them used. Most of them came from one bad assumption: that the client sends honest requests.</p>
+    <div class="byline">
+      <span><b>Reviewed</b> 2026-10-13 → 10-14</span>
+      <span><b>Findings</b> 2 High · 3 Medium</span>
+      <span><b>Status</b> all fixed, verified live</span>
+    </div>
+  </div>
+</header>
+
+<div class="readwrap">
+
+<section>
+  <p class="part-tag">Scope</p>
+  <h2>What was reviewed</h2>
+  <p>Both products share one multi-tenant backend (the one that <a href="/built/the-great-migration">just moved into this lab</a>). The review covered the paths a stranger can reach before paying anything: signup, plan selection, checkout and the billing switches on the account page. These are the paths ad traffic would hit first.</p>
+  <div class="pillrow">
+    <span class="pill">assumed: hostile client</span><span class="pill">production checked</span>
+    <span class="pill">regression tests per fix</span><span class="pill">throwaway accounts deleted</span>
+  </div>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">F1</span> · High</p>
+  <h2>Signup could join any tenant</h2>
+  <p>The signup endpoint accepted an <code>account_id</code> in the request body. No screen ever sent one, because team invites join through their own token, but the API honoured it. A crafted request could create a user <em>inside an existing customer's tenant</em>, including the operator's own, and read its data.</p>
+  <div class="callout fail"><p class="ctag">✕ Root cause</p><p>A field meant for internal flows and tests was trusted from the public request. The UI never showed it, so nobody thought of it as an input.</p></div>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">F2</span> · Medium</p>
+  <h2>Signup could pick a paid plan</h2>
+  <p>The same endpoint took a <code>plan</code> field. Sending <code>enterprise</code> at signup created an enterprise account without paying.</p>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">F3</span> · High</p>
+  <h2>Checkout granted plans for free when Stripe wasn't configured</h2>
+  <p>Without Stripe keys, checkout fell back to a sandbox simulation that marked the plan as bought. That's useful in development. In production it meant any plan was free, because production didn't have Stripe keys yet either.</p>
+  <div class="callout gotcha"><p class="ctag">▲ The pattern</p><p>A dev convenience that fails <em>open</em>. When a dependency is missing, the safe behaviour is to refuse with a clear reason, not to pretend it succeeded.</p></div>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">F4</span> · Medium</p>
+  <h2>Pay-as-you-go turned on with no card</h2>
+  <p>Fishing Rod's pay-as-you-go switch could be turned on for an account with no payment method. Turning it on unlocks the paid analytics: market intelligence, scenario labs, the screener, reports and more. On a fresh free account, a paid-only endpoint went from <code>403</code> to <code>200</code>.</p>
+</section>
+
+<section>
+  <p class="part-tag"><span class="num">F5</span> · Medium</p>
+  <h2>One product could charge the other's prices</h2>
+  <p>Fishing Rod Starter ($49) and Aegis Starter ($399) share the plan key <code>starter</code>, and the Stripe price lookup didn't know which product was asking. Once Stripe was configured, a Fishing Rod customer could have been sent to checkout at the Aegis price, or the other way round.</p>
+</section>
+
+<section>
+  <p class="part-tag">Fixes</p>
+  <h2>What changed</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>#</th><th>Fix</th><th>Verified live</th></tr></thead>
+    <tbody>
+      <tr><td>F1, F2</td><td>In production, signup always generates a new tenant and applies the free default plan. Body fields for either are ignored.</td><td>A crafted signup asking for the operator tenant and <code>enterprise</code> got a fresh tenant on the free plan</td></tr>
+      <tr><td>F3</td><td>In production, checkout without Stripe refuses with a reason and changes nothing. Dev and test keep the simulation.</td><td>Returns "Online checkout isn't enabled yet"</td></tr>
+      <tr><td>F4</td><td>Turning PAYG on requires a Stripe customer (<code>402</code> + reason otherwise). Turning it off always works, and the account page shows the reason.</td><td>PAYG on → 402; paid endpoint stays 403; PAYG off → 200</td></tr>
+      <tr><td>F5</td><td>Fishing Rod reads its own price variables (<code>STRIPE_PRICE_FR_&lt;PLAN&gt;</code>), and <code>starter</code> never falls back to the shared one.</td><td>Unit-tested; takes effect when Stripe goes live</td></tr>
+    </tbody>
+  </table></div>
+  <p>Every fix came with regression tests, and the full suite passed before each deploy. The throwaway accounts used for live verification were deleted afterwards. Their audit-log entries were deliberately kept: the log is hash-chained, and deleting from it would break the chain that makes it trustworthy.</p>
+</section>
+
+<section>
+  <p class="part-tag">Exposure</p>
+  <h2>Were they used?</h2>
+  <p>No. Production holds only internal accounts, none created since early August, and no account had pay-as-you-go turned on. The holes were found before the launch traffic that would have found them.</p>
+  <div class="callout lesson"><p class="ctag">◆ Lesson</p><p><strong>Read every endpoint as if the UI didn't exist.</strong> All five findings were invisible from the screens: each needed a hand-written request or a missing config value. The browser is a convenience for honest users. The API is the real attack surface, and anything it accepts is an input, whether or not a form ever sends it.</p></div>
+</section>
+
+</div>

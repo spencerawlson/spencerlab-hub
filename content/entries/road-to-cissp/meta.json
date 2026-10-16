@@ -4,12 +4,34 @@
   "category": "built",
   "date": "2026-10-10",
   "summary": "road2cissp.com: a React study platform with an AI tutor, interactive labs, a Security+ exam simulator and synced progress. The frontend is on Vercel and the FastAPI backend runs on a Fedora VM in this homelab, behind its own Cloudflare Tunnel.",
-  "tags": ["react", "fastapi", "postgresql", "oauth", "cloudflare", "security+", "cissp"],
+  "tags": [
+    "react",
+    "fastapi",
+    "postgresql",
+    "oauth",
+    "cloudflare",
+    "security+",
+    "cissp"
+  ],
   "source": "hand",
-  "logos": ["react.svg", "fastapi.svg", "postgresql.svg"],
+  "logos": [
+    "react.svg",
+    "fastapi.svg",
+    "postgresql.svg"
+  ],
   "status": "in-progress",
   "updates": [
-    {"date": "2026-10-09", "note": "Road to CISSP: 7 new tracks (58 lessons) and 4 interactive labs with 31 objectives."},
-    {"date": "2026-10-07", "note": "Road to CISSP: Security+ SY0-701 exam simulator and 448 new flashcards."}
+    {
+      "date": "2026-10-10",
+      "note": "Road to CISSP: Git track added; interactive OSI layer stack in the networking and security lessons."
+    },
+    {
+      "date": "2026-10-09",
+      "note": "Road to CISSP: 7 new tracks (58 lessons) and 4 interactive labs with 31 objectives."
+    },
+    {
+      "date": "2026-10-07",
+      "note": "Road to CISSP: Security+ SY0-701 exam simulator and 448 new flashcards."
+    }
   ]
 }

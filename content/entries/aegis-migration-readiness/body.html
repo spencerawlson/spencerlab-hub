@@ -1,0 +1,75 @@
+<header class="masthead">
+  <div class="readwrap">
+    <p class="eyebrow"><span class="dot"></span> Built · Aegis CloudOps</p>
+    <h1 class="title">Cloud Migration Readiness: a 6R assessment inside Aegis</h1>
+    <p class="lede">The same night production moved out of the cloud, Aegis gained a tool for planning moves into it. You give it an inventory of servers and it tells you, workload by workload, what to do with each one, what it would cost on AWS, and in what order to move them.</p>
+    <div class="byline">
+      <span><b>Shipped</b> 2026-10-13</span>
+      <span><b>Where</b> Aegis → Intelligence → Migration Readiness</span>
+      <span><b>Tests</b> 22 new</span>
+    </div>
+  </div>
+</header>
+
+<div class="readwrap">
+
+<section>
+  <p class="part-tag">The problem</p>
+  <h2>The first question in every migration</h2>
+  <p>Before a company moves to the cloud, someone has to go through the estate and decide, server by server, whether it moves as-is, gets rebuilt, gets replaced by a managed service, or gets switched off. That's usually a spreadsheet, a consultant and a few weeks. It's also the cheapest point at which to catch an unsupported OS or a database that can't move without its neighbours.</p>
+  <p>Aegis already watches cloud estates. This feature works one step earlier, on the estate that isn't in the cloud yet.</p>
+</section>
+
+<section>
+  <p class="part-tag">What it does</p>
+  <h2>Inventory in, plan out</h2>
+  <p>The input is a list of workloads: a CSV from a template, a JSON file, or the output of a discovery script. For each workload the assessment returns:</p>
+  <ul class="tight">
+    <li><b>A 6R disposition</b> (rehost, replatform, refactor, repurchase, retire or retain), with every rule that led to it listed as a reason.</li>
+    <li><b>An operating-system lifecycle check</b> against end of standard vendor support. An OS it doesn't recognise is reported as <em>unknown</em>, never as supported.</li>
+    <li><b>An AWS target size and monthly cost</b> at <code>us-east-1</code> on-demand Linux list price, plus gp3 storage.</li>
+    <li><b>A readiness score and risks</b>: things like end-of-life OSs, databases, Windows licensing and regulated data.</li>
+  </ul>
+  <p>Across the estate it groups workloads that depend on each other into <b>move waves</b>, adds compliance notes for anything tagged PCI, HIPAA or PII, and exports the lot as CSV.</p>
+</section>
+
+<section>
+  <p class="part-tag">Design</p>
+  <h2>Rules it isn't allowed to break</h2>
+  <p>Cost estimates are where tools like this usually mislead, so the module opens with its own rules:</p>
+  <ul class="tight">
+    <li><b>List price, labelled as list price.</b> Not a negotiated rate, not Savings Plans, no Windows or SQL licensing. A workload it can't size is priced as unknown, never guessed.</li>
+    <li><b>The sizing basis is always stated.</b> Sizing by allocated CPU and RAM overstates cost for most on-prem estates. When real utilisation is supplied, it's used instead, and every result says which basis it used.</li>
+    <li><b>A 6R call is a starting point.</b> It comes from explicit rules, each one shown, for a planning conversation. It isn't a decision.</li>
+  </ul>
+  <div class="callout lesson"><p class="ctag">◆ Why it's built this way</p><p>A migration estimate that comes in far too low is worse than no estimate, because someone budgets from it. Every number the tool produces carries the assumption it rests on.</p></div>
+</section>
+
+<section>
+  <p class="part-tag">Discovery</p>
+  <h2>A read-only Proxmox discovery script</h2>
+  <p>Writing an inventory by hand is the part people skip, so there's a script for the most common homelab and small-business hypervisor. Run it as root on any Proxmox node and it writes the inventory as JSON:</p>
+  <div class="term"><div class="term-bar"><span class="lights"><i></i><i></i><i></i></span><span class="who">proxmox node · bash</span></div><pre><span class="cmd">python3 proxmox-discover.py &gt; inventory.json</span>   <span class="c"># then upload it on the Migration page</span></pre></div>
+  <p>It only ever calls <code>pvesh get</code>. Nothing is created, changed or restarted, and no credential leaves the host. Per guest it records the allocation, the OS (from the QEMU guest agent when that's running, otherwise the configured OS type), used disk, Proxmox tags, and <b>95th-percentile CPU and memory over the last week</b>, so the assessment can size by real use rather than allocation.</p>
+  <p>The script and the CSV template are public downloads, so a prospect can read exactly what they're running before they run it.</p>
+</section>
+
+<section>
+  <p class="part-tag">First real run</p>
+  <h2>Assessing the host that just left the cloud</h2>
+  <p>The first estate it assessed was the <a href="/built/proxmox-third-host">third Proxmox host</a>, which had taken the Aegis production API out of the cloud a few hours earlier (<a href="/built/the-great-migration">the migration</a>). Six VMs came back as <b>grade A</b>, at about <b>$467 a month</b> at AWS list price.</p>
+  <p>The droplet it replaced cost about $24 a month, and the AWS estate before that about $99. The tool isn't arguing against the cloud. It puts the cost of a move in front of you before you make it.</p>
+</section>
+
+<section>
+  <p class="part-tag">Shipping it</p>
+  <h2>Verified, and a way to try it</h2>
+  <ul class="tight">
+    <li>22 new backend tests and the full suite green, plus 83/83 frontend tests.</li>
+    <li>A create/delete smoke test against production. The public template and script downloads return <code>200</code>, and listing assessments without logging in returns <code>401</code>.</li>
+    <li>A public landing page offers a <a href="https://www.aegiscloudops.io/migration-readiness" rel="noopener">free migration readiness report</a>: send an inventory, get the assessment back as CSV or PDF.</li>
+  </ul>
+  <p>This is phase 1. It prices AWS only, and it works from the inventory it's given.</p>
+</section>
+
+</div>

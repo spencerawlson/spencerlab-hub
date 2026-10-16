@@ -1,0 +1,15 @@
+{
+  "slug": "domainfolio",
+  "title": "Domainfolio: one app, a sale page for every domain",
+  "category": "built",
+  "date": "2026-10-16",
+  "summary": "A self-hosted domain portfolio: every domain I own points at one Next.js app, which reads the Host header and renders that domain's for-sale page, with an offers inbox, per-domain visit stats and lease-to-own terms. It runs in Docker behind its own Cloudflare Tunnel, and the names are also listed on Afternic.",
+  "tags": ["nextjs", "typescript", "sqlite", "docker", "cloudflare", "domains"],
+  "source": "hand",
+  "logos": ["typescript.svg", "docker.svg", "cloudflare.svg"],
+  "status": "in-progress",
+  "updates": [
+    {"date": "2026-10-15", "note": "Domainfolio v1 live: host-routed landers, catalog, offers inbox and admin."},
+    {"date": "2026-10-16", "note": "Domainfolio: lease-to-own terms per domain, Afternic listings, admin redirect fix."}
+  ]
+}

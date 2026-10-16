@@ -1,0 +1,10 @@
+{
+  "slug": "aegis-migration-readiness",
+  "title": "Cloud Migration Readiness: a 6R assessment inside Aegis",
+  "category": "built",
+  "date": "2026-10-13",
+  "summary": "A new Aegis feature: upload a server inventory, or run a read-only Proxmox discovery script, and get a 6R call per workload, an end-of-support check, AWS sizing at list price, a readiness score and dependency-grouped move waves. Its first real test was the Proxmox host that had just taken production out of the cloud.",
+  "tags": ["aegis", "cloud-migration", "aws", "proxmox", "fastapi", "react", "finops"],
+  "source": "hand",
+  "logos": ["aegis.png", "amazonwebservices.svg", "proxmox.svg"]
+}
