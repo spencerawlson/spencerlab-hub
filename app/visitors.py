@@ -192,7 +192,7 @@ class Visitors:
             if self._since_purge >= _PURGE_EVERY:
                 self._since_purge = 0
                 self.purge()
-        except (OSError, sqlite3.Error):
+        except Exception:   # e.g. a malformed Referer makes urlparse raise ValueError
             pass
 
     # --- reporting --------------------------------------------------------------------

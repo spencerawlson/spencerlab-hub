@@ -159,3 +159,25 @@ def test_publish_extracts_inline_images(client):
 ])
 def test_publish_rejects_bad_payloads(client, overrides):
     assert _publish(client, **overrides).status_code == 422
+
+
+# --- regressions -------------------------------------------------------------------
+
+def test_tag_with_slash_resolves(client, tmp_path):
+    _entry(tmp_path, "slashy", "<p>x</p>", tags=["configuration / information disclosure"])
+    main.reload_entries()
+    r = client.get("/tags/configuration%20/%20information%20disclosure")
+    assert r.status_code == 200 and "slashy" in r.text.lower()
+
+
+def test_malformed_referer_does_not_break_a_page(client):
+    assert client.get("/about", headers={"Referer": "http://[::1"}).status_code == 200
+
+
+def test_publish_rejects_odd_types_and_normalises_dates(client):
+    assert _publish(client, slug=123).status_code == 422
+    assert _publish(client, progress=True).status_code == 422
+    r = _publish(client, date="20261014")
+    assert r.status_code == 201
+    meta = json.loads((main.CONTENT / r.json()["slug"] / "meta.json").read_text(encoding="utf-8"))
+    assert meta["date"] == "2026-10-14"

@@ -119,7 +119,7 @@ class Minecraft:
             return None
         try:
             b = ping_bedrock(host, self.bedrock_port)
-        except OSError:
+        except (OSError, ValueError, OverflowError, struct.error):
             return {"online": False}
         return {"online": True, "version": b["version"][:20], "latency_ms": b["latency_ms"]}
 
@@ -131,15 +131,16 @@ class Minecraft:
             return {"enabled": True, "online": False, "at": now}
         bedrock = self._bedrock(host)
         extra = {"bedrock": bedrock} if bedrock else {}
+        # A reply we can't make sense of reads as offline; it must never break /projects.
         try:
             st = ping(host, port)
-        except (OSError, ValueError):
+            players = st.get("players") or {}
+            return {"enabled": True, "online": True, "at": now,
+                    "players": int(players.get("online") or 0), "max_players": int(players.get("max") or 0),
+                    "version": str((st.get("version") or {}).get("name") or "")[:40],
+                    "latency_ms": st["latency_ms"], **extra}
+        except (OSError, ValueError, TypeError, AttributeError, OverflowError, struct.error):
             return {"enabled": True, "online": False, "at": now, **extra}
-        players = st.get("players") or {}
-        return {"enabled": True, "online": True, "at": now,
-                "players": int(players.get("online") or 0), "max_players": int(players.get("max") or 0),
-                "version": str((st.get("version") or {}).get("name") or "")[:40],
-                "latency_ms": st["latency_ms"], **extra}
 
     def status(self) -> dict:
         if not self.enabled:

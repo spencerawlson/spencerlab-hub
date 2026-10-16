@@ -25,6 +25,7 @@ from contextlib import asynccontextmanager
 from datetime import date, datetime, timezone
 from email.utils import format_datetime
 from pathlib import Path
+from urllib.parse import quote
 
 from fastapi import Body, FastAPI, Header, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, Response
@@ -133,6 +134,7 @@ def _topics() -> list[dict]:
 
 def _render(request: Request, name: str, ctx: dict, status_code: int = 200) -> HTMLResponse:
     ctx.setdefault("topics", _topics())
+    ctx.setdefault("year", date.today().year)   # per request, so the footer turns over on Jan 1
     ctx.setdefault("nav", None)
     return templates.TemplateResponse(request, name, ctx, status_code=status_code)
 
@@ -193,14 +195,14 @@ def topics(request: Request):
     return _render(request, "topics.html", {"nav": "topics"})
 
 
-@app.get("/tags/{tag}", response_class=HTMLResponse)
+@app.get("/tags/{tag:path}", response_class=HTMLResponse)   # :path — some tags contain "/"
 def by_tag(request: Request, tag: str, page: int = 1):
     tagged = [e for e in _ENTRIES if tag.lower() in (t.lower() for t in e["tags"])]
     if not tagged:
         raise HTTPException(404)
     return _listing(request, tagged, page, kicker="Tag", heading=f"#{tag}",
                     intro=f"{len(tagged)} post{'s' if len(tagged) != 1 else ''} tagged {tag}.",
-                    base=f"/tags/{tag}")
+                    base=f"/tags/{quote(tag)}")
 
 
 @app.get("/search", response_class=HTMLResponse)
@@ -392,9 +394,12 @@ def publish(payload: dict = Body(...), authorization: str = Header(default="")):
         raise HTTPException(422, f"source must be one of {sorted(_SOURCES)}")
     if not isinstance(payload.get("tags", []), list):
         raise HTTPException(422, "tags must be a list")
+    if payload.get("slug") is not None and not isinstance(payload["slug"], str):
+        raise HTTPException(422, "slug must be a string")
     if payload.get("date"):
         try:
-            date.fromisoformat(str(payload["date"]))
+            # Normalised, so "20261014" is stored as "2026-10-14" and sorts with the rest.
+            payload["date"] = date.fromisoformat(str(payload["date"])).isoformat()
         except ValueError:
             raise HTTPException(422, "date must be YYYY-MM-DD") from None
 
@@ -409,8 +414,9 @@ def publish(payload: dict = Body(...), authorization: str = Header(default="")):
 
     if payload.get("status") not in (None, *_STATUSES):
         raise HTTPException(422, f"status must be one of {sorted(_STATUSES)}")
-    if payload.get("progress") is not None and not (
-            isinstance(payload["progress"], int) and 0 <= payload["progress"] <= 100):
+    progress = payload.get("progress")
+    if progress is not None and (isinstance(progress, bool) or not isinstance(progress, int)
+                                 or not 0 <= progress <= 100):
         raise HTTPException(422, "progress must be an integer 0-100")
 
     slug = _safe_slug(payload.get("slug") or payload["title"])

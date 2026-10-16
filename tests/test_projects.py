@@ -95,3 +95,32 @@ def test_projects_link_to_real_entries():
     entries = {e["slug"]: e for e in main.load_entries(main.ROOT / "content" / "entries")}
     for p in main.PROJECTS:
         assert p["post"] in entries, p["post"]
+
+
+def test_minecraft_garbled_replies_read_as_offline():
+    """A short Bedrock pong or a status JSON of the wrong shape must not raise."""
+    u = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    u.bind(("127.0.0.1", 0))
+
+    def bedrock():
+        with u:
+            data, peer = u.recvfrom(2048)
+            u.sendto(b"\x1c" + data[1:9] + b"\0" * 8 + _RAKNET_MAGIC, peer)   # no length field
+
+    srv = socket.socket()
+    srv.bind(("127.0.0.1", 0))
+    srv.listen(1)
+
+    def java():
+        conn, _ = srv.accept()
+        with conn, srv:
+            conn.recv(4096)
+            body = json.dumps({"players": {"online": "lots"}}).encode()
+            payload = _varint(0) + _varint(len(body)) + body
+            conn.sendall(_varint(len(payload)) + payload)
+
+    threads = [threading.Thread(target=f, daemon=True) for f in (bedrock, java)]
+    for t in threads:
+        t.start()
+    st = Minecraft(f"127.0.0.1:{srv.getsockname()[1]}", bedrock_port=u.getsockname()[1]).status()
+    assert st["online"] is False and st["bedrock"] == {"online": False}
