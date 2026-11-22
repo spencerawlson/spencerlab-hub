@@ -54,6 +54,88 @@ MINECRAFT = Minecraft()
 ACTIVITY = Activity(DATA, ROOT)
 VISITS = Visitors(DATA, site_host=BASE_URL.split("://", 1)[-1].split("/")[0])
 
+CONTACT_EMAIL = "spencerawlson.spad@gmail.com"
+
+# Paid services offered from the lab. Prices are Spencer's decisions (Nov 2026), CAD.
+# Home servers are built in person in Montréal; websites are built remotely.
+# Hardware is at cost on top of the build price. The Pro / Business tiers include
+# 30 days of follow-up support. Proof links point at the lab write-ups (and the
+# live sites) that show the work has actually been done — no stock photos, no
+# invented testimonials. A dedicated @spencerlab.tech address replaces
+# CONTACT_EMAIL once it exists; until then enquiries go to the address above.
+SERVICES = [
+    {
+        "id": "home-servers",
+        "name": "Mini home servers",
+        "tag": "Local · Montréal, in person",
+        "range": "$500–$1,500 CAD",
+        "icon": "hammer",
+        "blurb": "A small server that lives in your home and does real work — file storage, "
+                 "media, backups, ad-blocking, a game server — installed, secured and handed "
+                 "over with a walkthrough. Built on the same Proxmox setup that runs this "
+                 "site's lab.",
+        "note": "Hardware is at cost on top of the build price — you buy it, or I source it for you.",
+        "subject": "Mini home server build",
+        "tiers": [
+            {"name": "Essential", "price": "from $500", "items": [
+                "Mini PC or repurposed machine, Proxmox VE installed",
+                "1–2 VMs or containers (file server / media / Pi-hole)",
+                "Backups configured",
+                "Secure remote access (Cloudflare Tunnel or ZeroTier)",
+                "Handover walkthrough",
+            ]},
+            {"name": "Pro", "price": "up to $1,500", "items": [
+                "Everything in Essential",
+                "NAS storage setup",
+                "Minecraft or game server",
+                "Monitoring + alerts",
+                "30 days of follow-up support",
+            ]},
+        ],
+        "proof": [
+            {"t": "Proxmox & GNS3 homelab plan", "u": "/built/proxmox-gns3-homelab-implementation-plan"},
+            {"t": "A third Proxmox host", "u": "/built/proxmox-third-host"},
+            {"t": "Nightly backups to the Time Capsule", "u": "/administered/homelab-backups-time-capsule"},
+            {"t": "Minecraft server with Crafty", "u": "/administered/minecraft-server-crafty"},
+        ],
+    },
+    {
+        "id": "websites",
+        "name": "Website builds",
+        "tag": "Remote",
+        "range": "$1,000–$5,000 CAD",
+        "icon": "grid",
+        "blurb": "A fast, mobile-friendly site built and shipped by the same hands that built "
+                 "Road to CISSP and Kay Ayiti — from a one-page landing to a full business "
+                 "site with a blog or catalogue.",
+        "note": "Price depends on complexity — a landing page starts at $1,000, a full business "
+                "site runs up to $5,000. Scope and a fixed price are agreed before any work starts.",
+        "subject": "Website build",
+        "tiers": [
+            {"name": "Landing page", "price": "from $1,000", "items": [
+                "One-page site, copy + design",
+                "Contact form",
+                "Hosted and live",
+                "Mobile-friendly",
+            ]},
+            {"name": "Business website", "price": "up to $5,000", "items": [
+                "Everything in Landing page",
+                "Multi-page site",
+                "Blog or catalogue",
+                "SEO basics",
+                "Analytics",
+                "30 days of fixes included",
+            ]},
+        ],
+        "proof": [
+            {"t": "Road to CISSP — the build write-up", "u": "/built/road-to-cissp"},
+            {"t": "road2cissp.com — live", "u": "https://road2cissp.com"},
+            {"t": "kayayiti.app — live", "u": "https://kayayiti.app"},
+            {"t": "farelune.com — live", "u": "https://farelune.com"},
+        ],
+    },
+]
+
 
 def _log_sweep_change(previous: dict | None, current: dict) -> None:
     """Only a CHANGE of state is news; a steady nominal sweep every 5 minutes is not."""
@@ -171,6 +253,7 @@ def home(request: Request):
         "total_posts": len(posts), "total": len(_ENTRIES),
         "lab": LAB.status(), "activity": ACTIVITY.feed(_ENTRIES, limit=8),
         "building": [e for e in _ENTRIES if e.get("status") in ("in-progress", "planned")][:3],
+        "services": SERVICES,
     })
 
 
@@ -231,6 +314,12 @@ def projects_page(request: Request):
     projects = [dict(p, entry=by_slug.get(p.get("post"))) for p in PROJECTS]
     return _render(request, "projects.html", {"nav": "projects", "projects": projects,
                                               "minecraft": MINECRAFT.status()})
+
+
+@app.get("/services", response_class=HTMLResponse)
+def services_page(request: Request):
+    return _render(request, "services.html", {"nav": "services", "services": SERVICES,
+                                              "email": CONTACT_EMAIL})
 
 
 @app.get("/api/minecraft")
@@ -309,7 +398,7 @@ def feed(request: Request):
 
 @app.get("/sitemap.xml")
 def sitemap():
-    urls = ["/", "/posts", "/videos", "/topics", "/projects", "/lab", "/about"]
+    urls = ["/", "/posts", "/videos", "/topics", "/projects", "/services", "/lab", "/about"]
     urls += [f"/{c['slug']}" for c in CATEGORIES] + [e["url"] for e in _ENTRIES]
     xml = "".join(f"<url><loc>{BASE_URL}{u}</loc></url>" for u in urls)
     return Response('<?xml version="1.0" encoding="UTF-8"?>'

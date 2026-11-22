@@ -44,8 +44,29 @@
       <button type="button" data-cmd="posts">posts</button><span aria-hidden="true">•</span>
       <button type="button" data-cmd="lab">lab</button><span aria-hidden="true">•</span>
       <button type="button" data-cmd="topics">topics</button><span aria-hidden="true">•</span>
-      <button type="button" data-cmd="stack">stack</button>
+      <button type="button" data-cmd="stack">stack</button><span aria-hidden="true">•</span>
+      <button type="button" data-cmd="services">services</button>
     </div>
+  </div>
+</section>
+
+<section class="wrap section" aria-labelledby="h-services">
+  <div class="sec-head">
+    <div><h2 id="h-services">{{ m.icon("hammer") }}Services</h2>
+    <p>Built in the lab, for you — hire me for a home server or a website.</p></div>
+    <a href="/services">All services →</a>
+  </div>
+  <div class="skills">
+    <a class="skill" href="/services#home-servers">
+      <h3>Mini home servers</h3>
+      <span class="price">$500–$1,500 CAD · Montréal, in person</span>
+      <p>Proxmox on a mini PC or mini rack — file storage, media, backups, game servers. Installed, secured, handed over with a walkthrough.</p>
+    </a>
+    <a class="skill" href="/services#websites">
+      <h3>Website builds</h3>
+      <span class="price">$1,000–$5,000 CAD · Remote</span>
+      <p>Landing pages to full business sites, built remotely. The same hands that shipped Road to CISSP and Kay Ayiti.</p>
+    </a>
   </div>
 </section>
 
@@ -157,6 +178,8 @@
 {% for e in ([featured] + latest) if e %}{% set _ = cposts.append({"t": e.title, "u": e.url, "c": e.category_name, "d": e.date}) %}{% endfor %}
 {% set ctopics = [] %}
 {% for t in topics %}{% set _ = ctopics.append({"n": t.name, "u": "/" ~ t.slug, "k": t.count}) %}{% endfor %}
-<script type="application/json" id="console-data">{{ {"posts": cposts, "topics": ctopics, "total": total} | tojson }}</script>
-<script src="/static/console.js?v=6" defer></script>
+{% set cservices = [] %}
+{% for s in services %}{% set _ = cservices.append({"id": s.id, "name": s.name, "range": s.range, "tag": s.tag, "tiers": s.tiers}) %}{% endfor %}
+<script type="application/json" id="console-data">{{ {"posts": cposts, "topics": ctopics, "total": total, "services": cservices} | tojson }}</script>
+<script src="/static/console.js?v=7" defer></script>
 {% endblock %}

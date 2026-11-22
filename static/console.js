@@ -9,7 +9,7 @@
   var input = root.querySelector('[data-console-input]');
   var data = {};
   try { data = JSON.parse(document.getElementById('console-data').textContent); } catch (e) {}
-  var posts = data.posts || [], topics = data.topics || [];
+  var posts = data.posts || [], topics = data.topics || [], services = data.services || [];
   var past = [], at = 0;
 
   /* A line is a string or an array of parts: "text" | {t, cls} | {t, href}. */
@@ -50,6 +50,9 @@
     ['topics', 'the five disciplines, with post counts'],
     ['lab', 'live telemetry from the server behind this page'],
     ['stack', 'tools and platforms in use'],
+    ['services', 'what I build for clients, with prices'],
+    ['price <service>', 'price tiers for home servers or websites'],
+    ['hire', 'how to hire me'],
     ['search <q>', 'search every post'],
     ['contact', 'where to find me'],
     ['visitors [days]', 'who visited and from where (owner: unlock first)'],
@@ -131,6 +134,44 @@
         ['CODE     ', 'Python · FastAPI · Go · TypeScript · React · PostgreSQL']
       ]);
     },
+    services: function () {
+      if (!services.length) return print(['Services are listed at ', { t: '/services', href: '/services' }, '.']);
+      var lines = [[hl('SERVICES'), dim(' · prices in CAD')]];
+      services.forEach(function (s) {
+        lines.push([{ t: s.name, href: '/services#' + s.id }, dim('  ' + s.range + '  ·  ' + s.tag)]);
+      });
+      lines.push([dim('Type '), hl('price <service>'), dim(' for the tiers, or '), hl('hire'), dim(' to get in touch.')]);
+      print(lines);
+    },
+    price: function (arg) {
+      var a = (arg || '').toLowerCase();
+      var match = null;
+      if (a) {
+        match = services.filter(function (s) {
+          return s.id === a || s.name.toLowerCase().indexOf(a) >= 0
+            || (a === 'server' || a === 'servers' || a === 'home' || a === 'mini') && s.id === 'home-servers'
+            || (a === 'web' || a === 'website' || a === 'websites' || a === 'site') && s.id === 'websites';
+        })[0];
+        if (!match) return print([{ t: 'price: no service ' + arg + ' — try price servers or price websites.', cls: 'bad' }]);
+      }
+      var list = match ? [match] : services;
+      var lines = [];
+      list.forEach(function (s) {
+        lines.push([hl(s.name.toUpperCase()), dim('  ' + s.range)]);
+        (s.tiers || []).forEach(function (t) {
+          lines.push([' • ', hl(pad(t.name, 18)), t.price, dim(' CAD')]);
+        });
+      });
+      lines.push([dim('Full details: '), { t: '/services', href: '/services' }]);
+      print(lines);
+    },
+    hire: function () {
+      print([
+        ['EMAIL    ', { t: 'spencerawlson.spad@gmail.com', href: 'mailto:spencerawlson.spad@gmail.com' }],
+        ['SERVICES ', { t: '/services', href: '/services' }],
+        [dim('Tell me what you need — home server or website — and I will confirm scope and a fixed price before any work starts.')]
+      ]);
+    },
     search: function (arg) {
       if (!arg) return print([{ t: 'search: give it something to look for, e.g. search nmap', cls: 'bad' }]);
       print(['Searching for ', hl(arg), ' …']);
@@ -138,6 +179,7 @@
     },
     contact: function () {
       print([
+        ['EMAIL    ', { t: 'spencerawlson.spad@gmail.com', href: 'mailto:spencerawlson.spad@gmail.com' }],
         ['GITHUB   ', { t: 'github.com/spencerawlson', href: 'https://github.com/spencerawlson' }],
         ['ABOUT    ', { t: '/about', href: '/about' }]
       ]);
@@ -189,6 +231,7 @@
     }
   };
   cmds.who = cmds.visitors;
+  cmds.servers = cmds.services;
 
   /* visitors live: poll the live feed every 5 s and print each new human visit. */
   var watch = null;

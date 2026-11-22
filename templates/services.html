@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+{% block title %}Services · SpencerLab{% endblock %}
+{% block description %}Hire the lab: mini home servers built in person in Montréal ($500–$1,500 CAD) and website builds done remotely ($1,000–$5,000 CAD).{% endblock %}
+{% block content %}
+
+<section class="wrap about-hero">
+  <div>
+    <p class="kicker">Services</p>
+    <h1>Built in the lab. Yours to keep.</h1>
+    <p>Two things I build for clients, both proven on this site first: mini home servers on the same Proxmox setup that runs the lab, and websites like the ones I've already shipped. Prices are in Canadian dollars, and every job starts with an email — scope and a fixed price are agreed before any work starts.</p>
+  </div>
+  <div class="card-side hud">
+    <dl>
+      <div><dt>Contact</dt><dd><a href="mailto:{{ email }}" style="color:var(--accent-ink)">{{ email }}</a></dd></div>
+      <div><dt>Home servers</dt><dd>Montréal, in person</dd></div>
+      <div><dt>Websites</dt><dd>Remote</dd></div>
+      <div><dt>Hardware</dt><dd>At cost, on top of the build price</dd></div>
+    </dl>
+  </div>
+</section>
+
+{% for s in services %}
+<section class="wrap section" id="{{ s.id }}" aria-labelledby="h-{{ s.id }}">
+  <div class="sec-head">
+    <div><h2 id="h-{{ s.id }}">{{ m.icon(s.icon) }}{{ s.name }}</h2>
+    <p>{{ s.blurb }}</p></div>
+    <span class="svc-scope">{{ s.tag }} · {{ s.range }}</span>
+  </div>
+  <div class="svc-tiers">
+    {% for t in s.tiers %}
+    <article class="tier">
+      <h3>{{ t.name }}</h3>
+      <p class="tier-price">{{ t.price }} <span>CAD</span></p>
+      <ul>
+        {% for item in t["items"] %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+    </article>
+    {% endfor %}
+  </div>
+  <p class="svc-note">{{ s.note }}</p>
+  <div class="svc-foot">
+    <div class="svc-proof">
+      <span>Proof — built &amp; written up</span>
+      {% for p in s.proof %}<a href="{{ p.u }}"{% if p.u.startswith("http") %} target="_blank" rel="noopener"{% endif %}>{{ p.t }}</a>{% if not loop.last %}·{% endif %}{% endfor %}
+    </div>
+    <a class="btn primary" href="mailto:{{ email }}?subject={{ s.subject | urlencode }}">Hire me — {{ s.name | lower }}</a>
+  </div>
+</section>
+{% endfor %}
+
+<section class="wrap section" aria-labelledby="h-how">
+  <div class="sec-head"><h2 id="h-how">How hiring works</h2></div>
+  <div class="skills">
+    <div class="skill">
+      <span class="ic">{{ m.icon("file") }}</span>
+      <h3>1 · Email me</h3>
+      <p>Tell me what you need — a home server, a website, or both — and what it's for.</p>
+    </div>
+    <div class="skill">
+      <span class="ic">{{ m.icon("grid") }}</span>
+      <h3>2 · Agree scope &amp; price</h3>
+      <p>I'll confirm what's included and a fixed price in CAD before any work starts. Nothing is built until we both agree.</p>
+    </div>
+    <div class="skill">
+      <span class="ic">{{ m.icon("hammer") }}</span>
+      <h3>3 · Build &amp; handover</h3>
+      <p>The build, installed or shipped live, with a walkthrough — and 30 days of follow-up on the Pro and Business tiers.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap section">
+  <div class="contact-band">
+    <div>
+      <h2>Ready to start?</h2>
+      <p>One email is the whole first step — tell me what you need and I'll take it from there.</p>
+    </div>
+    <a class="btn" href="mailto:{{ email }}?subject=SpencerLab%20services">Email {{ email }}</a>
+  </div>
+</section>
+{% endblock %}
